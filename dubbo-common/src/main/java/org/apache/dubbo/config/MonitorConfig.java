@@ -24,6 +24,7 @@ import java.util.Map;
 
 /**
  * MonitorConfig
+ * 监听器配置
  *
  * @export
  */
@@ -39,6 +40,7 @@ public class MonitorConfig extends AbstractConfig {
 
     /**
      * The monitor address
+     * 地址
      */
     private String address;
 
@@ -68,9 +70,16 @@ public class MonitorConfig extends AbstractConfig {
      */
     private Boolean isDefault;
 
+    /**
+     * 构造方法
+     */
     public MonitorConfig() {
     }
 
+    /**
+     * 构造方法
+     * @param address
+     */
     public MonitorConfig(String address) {
         this.address = address;
     }

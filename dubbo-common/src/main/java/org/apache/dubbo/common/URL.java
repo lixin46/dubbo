@@ -88,27 +88,52 @@ import static org.apache.dubbo.common.constants.CommonConstants.VERSION_KEY;
  * @see java.net.URL
  * @see java.net.URI
  */
-public /*final**/
-class URL implements Serializable {
+
+/**
+ * 统一资源定位符的实现
+ */
+public class URL implements Serializable {
 
     private static final long serialVersionUID = -1985165475234910535L;
 
+    /**
+     * 协议
+     */
     private final String protocol;
-
+    /**
+     * 用户名
+     */
     private final String username;
-
+    /**
+     * 密码
+     */
     private final String password;
 
     // by default, host to registry
+    /**
+     * 主机
+     */
     private final String host;
 
     // by default, port to registry
+    /**
+     * 端口
+     */
     private final int port;
 
+    /**
+     * 路径
+     */
     private final String path;
 
+    /**
+     * 参数
+     */
     private final Map<String, String> parameters;
 
+    /**
+     * 方法参数???
+     */
     private final Map<String, Map<String, String>> methodParameters;
 
     // ==== cache ====
@@ -145,10 +170,23 @@ class URL implements Serializable {
         this.methodParameters = null;
     }
 
+    /**
+     * 重载构造
+     * @param protocol
+     * @param host
+     * @param port
+     */
     public URL(String protocol, String host, int port) {
         this(protocol, null, null, host, port, null, (Map<String, String>) null);
     }
 
+    /**
+     * 重载构造
+     * @param protocol
+     * @param host
+     * @param port
+     * @param pairs
+     */
     public URL(String protocol, String host, int port, String[] pairs) { // varargs ... conflict with the following path argument, use array instead.
         this(protocol, null, null, host, port, null, CollectionUtils.toStringMap(pairs));
     }
@@ -187,6 +225,17 @@ class URL implements Serializable {
         this(protocol, username, password, host, port, path, parameters, toMethodParameters(parameters));
     }
 
+    /**
+     * 核心构造方法
+     * @param protocol
+     * @param username
+     * @param password
+     * @param host
+     * @param port
+     * @param path
+     * @param parameters
+     * @param methodParameters
+     */
     public URL(String protocol,
                String username,
                String password,
@@ -245,36 +294,47 @@ class URL implements Serializable {
         String path = null;
         Map<String, String> parameters = null;
         int i = url.indexOf('?'); // separator between body and parameters
+        // 存在'?'
         if (i >= 0) {
+            // 拆分键值对
             String[] parts = url.substring(i + 1).split("&");
             parameters = new HashMap<>();
             for (String part : parts) {
                 part = part.trim();
                 if (part.length() > 0) {
-                    int j = part.indexOf('=');
-                    if (j >= 0) {
-                        String key = part.substring(0, j);
-                        String value = part.substring(j + 1);
+                    // 存在'='
+                    int kvSeprator = part.indexOf('=');
+                    if (kvSeprator >= 0) {
+                        String key = part.substring(0, kvSeprator);
+                        String value = part.substring(kvSeprator + 1);
                         parameters.put(key, value);
                         // compatible with lower versions registering "default." keys
+                        // default.
                         if (key.startsWith(DEFAULT_KEY_PREFIX)) {
                             parameters.putIfAbsent(key.substring(DEFAULT_KEY_PREFIX.length()), value);
                         }
-                    } else {
+                    }
+                    // 不存在分隔符,则键值相同
+                    else {
                         parameters.put(part, part);
                     }
                 }
             }
             url = url.substring(0, i);
-        }
+        }// 查询字符串处理完毕
+
+
         i = url.indexOf("://");
         if (i >= 0) {
+            // 不存在协议报错
             if (i == 0) {
                 throw new IllegalStateException("url missing protocol: \"" + url + "\"");
             }
             protocol = url.substring(0, i);
             url = url.substring(i + 3);
-        } else {
+        }
+        // 不存在,则当做文件协议
+        else {
             // case: file:/path/to/file.txt
             i = url.indexOf(":/");
             if (i >= 0) {
@@ -284,15 +344,19 @@ class URL implements Serializable {
                 protocol = url.substring(0, i);
                 url = url.substring(i + 1);
             }
-        }
+        }// 协议解析完毕
 
         i = url.indexOf('/');
         if (i >= 0) {
+            // 路径部分,开头不为/
             path = url.substring(i + 1);
+            // 用户名:密码@主机:端口
             url = url.substring(0, i);
         }
         i = url.lastIndexOf('@');
+        // 用户名密码
         if (i >= 0) {
+            // 用户名
             username = url.substring(0, i);
             int j = username.indexOf(':');
             if (j >= 0) {
@@ -325,9 +389,11 @@ class URL implements Serializable {
         if (parameters == null) {
             return methodParameters;
         }
-
+        // methods参数值
         String methodsString = parameters.get(METHODS_KEY);
+        // 存在
         if (StringUtils.isNotEmpty(methodsString)) {
+            // ','拆分
             List<String> methods = StringUtils.splitToList(methodsString, ',');
             for (Map.Entry<String, String> entry : parameters.entrySet()) {
                 String key = entry.getKey();
@@ -342,7 +408,9 @@ class URL implements Serializable {
                     }
                 }
             }
-        } else {
+        }
+        // 没有methods参数
+        else {
             for (Map.Entry<String, String> entry : parameters.entrySet()) {
                 String key = entry.getKey();
                 int methodSeparator = key.indexOf('.');

@@ -39,36 +39,46 @@ public class RegistryConfig extends AbstractConfig {
 
     /**
      * Register center address
+     * 注册中心的原始地址
      */
     private String address;
 
     /**
      * Username to login register center
+     * 用户名
      */
     private String username;
 
     /**
      * Password to login register center
+     * 密码
      */
     private String password;
 
     /**
      * Default port for register center
+     * 端口
      */
     private Integer port;
 
     /**
      * Protocol for register center
+     * 协议
      */
     private String protocol;
 
     /**
      * Network transmission type
+     * 网络传输类型???
      */
     private String transporter;
-
+    /**
+     * 服务器???
+     */
     private String server;
-
+    /**
+     * 客户端???
+     */
     private String client;
 
     /**
@@ -180,13 +190,27 @@ public class RegistryConfig extends AbstractConfig {
      */
     private Integer weight;
 
+
+
+    /**
+     * 构造方法
+     */
     public RegistryConfig() {
     }
 
+    /**
+     * 构造方法
+     * @param address 地址???
+     */
     public RegistryConfig(String address) {
         setAddress(address);
     }
 
+    /**
+     * 构造方法
+     * @param address 地址???
+     * @param protocol 协议
+     */
     public RegistryConfig(String address, String protocol) {
         setAddress(address);
         setProtocol(protocol);
@@ -211,11 +235,15 @@ public class RegistryConfig extends AbstractConfig {
         if (address != null) {
             try {
                 URL url = URL.valueOf(address);
+                // 用户名
                 setUsername(url.getUsername());
+                // 密码
                 setPassword(url.getPassword());
-//                updateIdIfAbsent(url.getProtocol());
+                // 协议
                 updateProtocolIfAbsent(url.getProtocol());
+                // 端口
                 updatePortIfAbsent(url.getPort());
+                // 参数
                 updateParameters(url.getParameters());
             } catch (Exception ignored) {
             }
