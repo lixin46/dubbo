@@ -61,12 +61,18 @@ import static org.apache.dubbo.config.AbstractConfig.getTagName;
 import static org.apache.dubbo.config.Constants.PROTOCOLS_SUFFIX;
 import static org.apache.dubbo.config.Constants.REGISTRIES_SUFFIX;
 
+/**
+ * 配置管理器
+ */
 public class ConfigManager extends LifecycleAdapter implements FrameworkExt {
 
     private static final Logger logger = LoggerFactory.getLogger(ConfigManager.class);
 
     public static final String NAME = "config";
 
+    /**
+     * 配置对象缓存,一级key为类型,二级key为id
+     */
     private final Map<String, Map<String, AbstractConfig>> configsCache = newMap();
 
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -385,7 +391,10 @@ public class ConfigManager extends LifecycleAdapter implements FrameworkExt {
             return;
         }
         write(() -> {
-            Map<String, AbstractConfig> configsMap = configsCache.computeIfAbsent(getTagName(config.getClass()), type -> newMap());
+            Map<String, AbstractConfig> configsMap = configsCache.computeIfAbsent(
+                    getTagName(config.getClass()),// key
+                    type -> newMap()// value(Map)
+            );
             addIfAbsent(config, configsMap, unique);
         });
     }
@@ -481,6 +490,7 @@ public class ConfigManager extends LifecycleAdapter implements FrameworkExt {
             });
         }
 
+        //
         String key = getId(config);
 
         C existedConfig = configsMap.get(key);

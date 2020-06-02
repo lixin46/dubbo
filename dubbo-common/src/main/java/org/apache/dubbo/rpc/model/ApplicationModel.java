@@ -39,15 +39,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>
  * ApplicationModel includes many ProviderModel which is about published services
  * and many Consumer Model which is about subscribed services.
+ *
+ * 应用模型包含许多提供者模型,它们是关于发布服务和许多关于定义服务的消费者模型
  * <p>
  *
  */
-
 public class ApplicationModel {
     protected static final Logger LOGGER = LoggerFactory.getLogger(ApplicationModel.class);
     public static final String NAME = "application";
 
     private static AtomicBoolean INIT_FLAG = new AtomicBoolean(false);
+    /**
+     * 扩展加载器,加载框架扩展
+     */
+    private static final ExtensionLoader<FrameworkExt> LOADER = ExtensionLoader.getExtensionLoader(FrameworkExt.class);
 
     public static void init() {
         if (INIT_FLAG.compareAndSet(false, true)) {
@@ -75,7 +80,7 @@ public class ApplicationModel {
         return getServiceRepository().lookupReferredService(serviceKey);
     }
 
-    private static final ExtensionLoader<FrameworkExt> LOADER = ExtensionLoader.getExtensionLoader(FrameworkExt.class);
+
 
     public static void initFrameworkExts() {
         Set<FrameworkExt> exts = ExtensionLoader.getExtensionLoader(FrameworkExt.class).getSupportedExtensionInstances();

@@ -79,8 +79,12 @@ public abstract class AbstractConfig implements Serializable {
 
     /**
      * The config id
+     * 配置的id,唯一标识一个配置对象
      */
     protected String id;
+    /**
+     *
+     */
     protected String prefix;
 
     protected final AtomicBoolean refreshed = new AtomicBoolean(false);
@@ -455,6 +459,7 @@ public abstract class AbstractConfig implements Serializable {
     }
 
     public void refresh() {
+        // 获取环境
         Environment env = ApplicationModel.getEnvironment();
         try {
             CompositeConfiguration compositeConfiguration = env.getPrefixedConfiguration(this);

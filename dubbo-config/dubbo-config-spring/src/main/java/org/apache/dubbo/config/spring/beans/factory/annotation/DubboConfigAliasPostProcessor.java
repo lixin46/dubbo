@@ -31,6 +31,7 @@ import static org.springframework.util.StringUtils.hasText;
 
 /**
  * A Post-Processor class to set the alias of Dubbo Config bean using its {@link AbstractConfig#getId()}
+ * 所有的dubbo元素配置,都会触发这个处理器注册
  *
  * @since 2.7.5
  */

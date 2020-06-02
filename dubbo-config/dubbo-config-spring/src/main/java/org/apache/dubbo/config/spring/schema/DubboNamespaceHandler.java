@@ -56,21 +56,36 @@ public class DubboNamespaceHandler extends NamespaceHandlerSupport implements Co
         Version.checkDuplicate(DubboNamespaceHandler.class);
     }
 
+    /**
+     * 应用,注册表和监听器是服务端和客户端共有的配置
+     *
+     */
     @Override
     public void init() {
         registerBeanDefinitionParser("application", new DubboBeanDefinitionParser(ApplicationConfig.class, true));
-        registerBeanDefinitionParser("module", new DubboBeanDefinitionParser(ModuleConfig.class, true));
         registerBeanDefinitionParser("registry", new DubboBeanDefinitionParser(RegistryConfig.class, true));
+
+        registerBeanDefinitionParser("module", new DubboBeanDefinitionParser(ModuleConfig.class, true));
         registerBeanDefinitionParser("config-center", new DubboBeanDefinitionParser(ConfigCenterBean.class, true));
+
         registerBeanDefinitionParser("metadata-report", new DubboBeanDefinitionParser(MetadataReportConfig.class, true));
+        // 监听器服务,共享配置
         registerBeanDefinitionParser("monitor", new DubboBeanDefinitionParser(MonitorConfig.class, true));
+
         registerBeanDefinitionParser("metrics", new DubboBeanDefinitionParser(MetricsConfig.class, true));
         registerBeanDefinitionParser("ssl", new DubboBeanDefinitionParser(SslConfig.class, true));
+
+        // 服务端配置
         registerBeanDefinitionParser("provider", new DubboBeanDefinitionParser(ProviderConfig.class, true));
+        // 消费端配置
         registerBeanDefinitionParser("consumer", new DubboBeanDefinitionParser(ConsumerConfig.class, true));
+        // 协议,属于服务端
         registerBeanDefinitionParser("protocol", new DubboBeanDefinitionParser(ProtocolConfig.class, true));
+        //  服务端配置
         registerBeanDefinitionParser("service", new DubboBeanDefinitionParser(ServiceBean.class, true));
+        // 消费端配置
         registerBeanDefinitionParser("reference", new DubboBeanDefinitionParser(ReferenceBean.class, false));
+        // bean定义注册表处理器,用于识别dubbo注解
         registerBeanDefinitionParser("annotation", new AnnotationBeanDefinitionParser());
     }
 

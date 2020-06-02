@@ -156,11 +156,13 @@ public class ExtensionLoader<T> {
         if (!type.isInterface()) {
             throw new IllegalArgumentException("Extension type (" + type + ") is not an interface!");
         }
+        // 类上没有@SPI注解,则报错SPI
         if (!withExtensionAnnotation(type)) {
             throw new IllegalArgumentException("Extension type (" + type +
                     ") is not an extension, because it is NOT annotated with @" + SPI.class.getSimpleName() + "!");
         }
 
+        //
         ExtensionLoader<T> loader = (ExtensionLoader<T>) EXTENSION_LOADERS.get(type);
         if (loader == null) {
             EXTENSION_LOADERS.putIfAbsent(type, new ExtensionLoader<T>(type));
@@ -415,13 +417,16 @@ public class ExtensionLoader<T> {
         if ("true".equals(name)) {
             return getDefaultExtension();
         }
+        // 获取或创建一个持有者
         final Holder<Object> holder = getOrCreateHolder(name);
         Object instance = holder.get();
         if (instance == null) {
             synchronized (holder) {
                 instance = holder.get();
                 if (instance == null) {
+                    // 创建
                     instance = createExtension(name);
+                    // 持有者持有
                     holder.set(instance);
                 }
             }
@@ -627,9 +632,11 @@ public class ExtensionLoader<T> {
         try {
             T instance = (T) EXTENSION_INSTANCES.get(clazz);
             if (instance == null) {
+                // 无参构造实例化
                 EXTENSION_INSTANCES.putIfAbsent(clazz, clazz.newInstance());
                 instance = (T) EXTENSION_INSTANCES.get(clazz);
             }
+            // 注入扩展
             injectExtension(instance);
             Set<Class<?>> wrapperClasses = cachedWrapperClasses;
             if (CollectionUtils.isNotEmpty(wrapperClasses)) {
@@ -663,16 +670,19 @@ public class ExtensionLoader<T> {
                 /**
                  * Check {@link DisableInject} to see if we need auto injection for this property
                  */
+                // 跳过注入
                 if (method.getAnnotation(DisableInject.class) != null) {
                     continue;
                 }
                 Class<?> pt = method.getParameterTypes()[0];
+                // 基本类型跳过
                 if (ReflectUtils.isPrimitives(pt)) {
                     continue;
                 }
 
                 try {
                     String property = getSetterProperty(method);
+                    // 类型,属性名
                     Object object = objectFactory.getExtension(pt, property);
                     if (object != null) {
                         method.invoke(instance, object);

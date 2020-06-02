@@ -49,119 +49,155 @@ import static org.apache.dubbo.config.Constants.TEST_ENVIRONMENT;
 
 /**
  * The application info
+ * 应用的配置信息,偏静态的数据
+ * 对应<dubbo:application>的配置
  *
  * @export
  */
 public class ApplicationConfig extends AbstractConfig {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfig.class);
 
     private static final long serialVersionUID = 5508512956753757169L;
 
     /**
      * Application name
+     * 应用名称
      */
     private String name;
 
     /**
      * The application version
+     * 应用版本
      */
     private String version;
 
     /**
      * Application owner
+     * 应用所有者
      */
     private String owner;
 
     /**
      * Application's organization (BU)
+     * 应用归属的组织,即BU
      */
     private String organization;
 
     /**
      * Architecture layer
+     * 架构分层???
      */
     private String architecture;
 
     /**
      * Environment, e.g. dev, test or production
+     * 应用环境,如:dev,test或者production
      */
     private String environment;
 
     /**
      * Java compiler
+     * 编译器???
      */
     private String compiler;
 
     /**
      * The type of the log access
+     * 日志访问类型???
      */
     private String logger;
 
     /**
      * Registry centers
+     * 注册中心配置列表???
      */
     private List<RegistryConfig> registries;
+    /**
+     * 注册表id???
+     */
     private String registryIds;
 
     /**
      * Monitor center
+     * 监控中心配置???
      */
     private MonitorConfig monitor;
 
     /**
      * Is default or not
+     * 是否默认???
      */
     private Boolean isDefault;
 
     /**
      * Directory for saving thread dump
+     * 保存线程快照的目录???
      */
     private String dumpDirectory;
 
     /**
      * Whether to enable qos or not
+     * 是否开启qos,即服务质量
      */
     private Boolean qosEnable;
 
     /**
      * The qos host to listen
+     * qos主机???
      */
     private String qosHost;
 
     /**
      * The qos port to listen
+     * 端口
      */
     private Integer qosPort;
 
     /**
      * Should we accept foreign ip or not?
+     * 我们是否接收外部ip???
      */
     private Boolean qosAcceptForeignIp;
 
     /**
      * Customized parameters
+     * 定制化的参数
      */
     private Map<String, String> parameters;
 
     /**
      * Config the shutdown.wait
+     * 关闭等待时间???
      */
     private String shutwait;
 
+    /**
+     * 主机名称???
+     */
     private String hostname;
 
     /**
      * Metadata type, local or remote, if choose remote, you need to further specify metadata center.
+     * 元数据类型,本地或远程,如果选择了远程,则需要更多特定的元数据中心
      */
     private String metadataType;
-
+    /**
+     * 注册消费者???
+     */
     private Boolean registerConsumer;
-
+    /**
+     * 仓库???
+     */
     private String repository;
 
     public ApplicationConfig() {
     }
 
+    /**
+     * 构造方法
+     * @param name 应用名称
+     */
     public ApplicationConfig(String name) {
         setName(name);
     }
@@ -172,6 +208,7 @@ public class ApplicationConfig extends AbstractConfig {
     }
 
     public void setName(String name) {
+        // 名称作为默认的id
         this.name = name;
         if (StringUtils.isEmpty(id)) {
             id = name;
@@ -278,6 +315,7 @@ public class ApplicationConfig extends AbstractConfig {
 
     public void setCompiler(String compiler) {
         this.compiler = compiler;
+        // 设置默认的编译器???
         AdaptiveCompiler.setDefaultCompiler(compiler);
     }
 
@@ -287,6 +325,7 @@ public class ApplicationConfig extends AbstractConfig {
 
     public void setLogger(String logger) {
         this.logger = logger;
+        // 设置日志适配器
         LoggerFactory.setLoggerAdapter(logger);
     }
 
@@ -447,16 +486,20 @@ public class ApplicationConfig extends AbstractConfig {
 
     @Override
     public void refresh() {
+        // 父类刷新
         super.refresh();
+        // 追加环境属性???
         appendEnvironmentProperties();
     }
 
     private void appendEnvironmentProperties() {
+        //
         if (parameters == null) {
             parameters = new HashMap<>();
         }
-
+        //
         Set<InfraAdapter> adapters = ExtensionLoader.getExtensionLoader(InfraAdapter.class).getSupportedExtensionInstances();
+        //
         if (CollectionUtils.isNotEmpty(adapters)) {
             Map<String, String> inputParameters = new HashMap<>();
             inputParameters.put(APPLICATION_KEY, getName());

@@ -43,22 +43,23 @@ public class AnnotationBeanDefinitionParser extends AbstractSingleBeanDefinition
      * &lt;dubbo:annotation package="" /&gt;
      * </prev>
      *
-     * @param element
-     * @param parserContext
-     * @param builder
+     * @param element 当前annotation元素
+     * @param parserContext 解析剩下文
+     * @param builder bean定义构建器,类型为ServiceClassPostProcessor,用于识别@DubboService注解
      */
     @Override
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
-
+        // package属性
         String packageToScan = element.getAttribute("package");
-
+        // 要扫描的包
         String[] packagesToScan = trimArrayElements(commaDelimitedListToStringArray(packageToScan));
-
+        // 构造方法参数值
         builder.addConstructorArgValue(packagesToScan);
-
+        //
         builder.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 
         // @since 2.7.6 Register the common beans
+        // 注册公共bean定义???
         registerCommonBeans(parserContext.getRegistry());
     }
 

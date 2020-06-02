@@ -46,23 +46,41 @@ public interface DubboBeanUtils {
     static void registerCommonBeans(BeanDefinitionRegistry registry) {
 
         // Since 2.5.7 Register @Reference Annotation Bean Processor as an infrastructure Bean
-        registerInfrastructureBean(registry, ReferenceAnnotationBeanPostProcessor.BEAN_NAME,
-                ReferenceAnnotationBeanPostProcessor.class);
+        // reference注解后置处理器
+        // 识别@DubboReference
+        registerInfrastructureBean(
+                registry,
+                ReferenceAnnotationBeanPostProcessor.BEAN_NAME,
+                ReferenceAnnotationBeanPostProcessor.class
+        );
 
         // Since 2.7.4 [Feature] https://github.com/apache/dubbo/issues/5093
-        registerInfrastructureBean(registry, DubboConfigAliasPostProcessor.BEAN_NAME,
-                DubboConfigAliasPostProcessor.class);
+        //
+        registerInfrastructureBean(
+                registry,
+                DubboConfigAliasPostProcessor.BEAN_NAME,
+                DubboConfigAliasPostProcessor.class
+        );
 
         // Since 2.7.5 Register DubboLifecycleComponentApplicationListener as an infrastructure Bean
-        registerInfrastructureBean(registry, DubboLifecycleComponentApplicationListener.BEAN_NAME,
-                DubboLifecycleComponentApplicationListener.class);
+        registerInfrastructureBean(
+                registry,
+                DubboLifecycleComponentApplicationListener.BEAN_NAME,
+                DubboLifecycleComponentApplicationListener.class
+        );
 
         // Since 2.7.4 Register DubboBootstrapApplicationListener as an infrastructure Bean
-        registerInfrastructureBean(registry, DubboBootstrapApplicationListener.BEAN_NAME,
-                DubboBootstrapApplicationListener.class);
+        registerInfrastructureBean(
+                registry,
+                DubboBootstrapApplicationListener.BEAN_NAME,
+                DubboBootstrapApplicationListener.class
+        );
 
         // Since 2.7.6 Register DubboConfigDefaultPropertyValueBeanPostProcessor as an infrastructure Bean
-        registerInfrastructureBean(registry, DubboConfigDefaultPropertyValueBeanPostProcessor.BEAN_NAME,
-                DubboConfigDefaultPropertyValueBeanPostProcessor.class);
+        registerInfrastructureBean(
+                registry,
+                DubboConfigDefaultPropertyValueBeanPostProcessor.BEAN_NAME,
+                DubboConfigDefaultPropertyValueBeanPostProcessor.class
+        );
     }
 }

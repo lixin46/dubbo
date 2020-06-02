@@ -30,19 +30,6 @@
         <skip_maven_deploy>true</skip_maven_deploy>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo-demo-api-provider</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo-demo-api-consumer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
-
     <profiles>
         <profile>
             <id>release</id>
