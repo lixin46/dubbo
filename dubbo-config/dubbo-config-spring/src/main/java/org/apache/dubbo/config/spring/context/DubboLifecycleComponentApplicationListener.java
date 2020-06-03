@@ -28,12 +28,15 @@ import org.springframework.context.event.SmartApplicationListener;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Collections.emptyList;
 import static org.springframework.beans.factory.BeanFactoryUtils.beansOfTypeIncludingAncestors;
 
 /**
  * A {@link ApplicationListener listener} for the {@link Lifecycle Dubbo Lifecycle} components
+ * 生命周期组件应用监听器
+ * 处理实现了LifeCycle接口的bean实例
  *
  * @see {@link Lifecycle Dubbo Lifecycle}
  * @see SmartApplicationListener
@@ -60,7 +63,9 @@ public class DubboLifecycleComponentApplicationListener extends OneTimeExecution
     }
 
     protected void onContextRefreshedEvent(ContextRefreshedEvent event) {
+        // 初始化声明周期组件
         initLifecycleComponents(event);
+        // 开始声明周期组件
         startLifecycleComponents();
     }
 
@@ -73,11 +78,14 @@ public class DubboLifecycleComponentApplicationListener extends OneTimeExecution
         ClassLoader classLoader = context.getClassLoader();
         lifecycleComponents = new LinkedList<>();
         // load the Beans of Lifecycle from ApplicationContext
+        // 加载声明周期组件
         loadLifecycleComponents(lifecycleComponents, context);
     }
 
     private void loadLifecycleComponents(List<Lifecycle> lifecycleComponents, ApplicationContext context) {
-        lifecycleComponents.addAll(beansOfTypeIncludingAncestors(context, Lifecycle.class).values());
+        // 从上下文中获取对应类型的bean实例
+        Map<String, Lifecycle> lifecycleBeans = beansOfTypeIncludingAncestors(context, Lifecycle.class);
+        lifecycleComponents.addAll(lifecycleBeans.values());
     }
 
     private void startLifecycleComponents() {

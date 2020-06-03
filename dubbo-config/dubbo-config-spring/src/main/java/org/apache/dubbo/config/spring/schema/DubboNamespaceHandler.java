@@ -58,36 +58,40 @@ public class DubboNamespaceHandler extends NamespaceHandlerSupport implements Co
 
     /**
      * 应用,注册表和监听器是服务端和客户端共有的配置
-     *
      */
     @Override
     public void init() {
-        // 应用配置,共享
+        // 1.应用配置,共享
         registerBeanDefinitionParser("application", new DubboBeanDefinitionParser(ApplicationConfig.class, true));
-        // 注册表配置,共享
+        // 2.注册表配置,共享
         registerBeanDefinitionParser("registry", new DubboBeanDefinitionParser(RegistryConfig.class, true));
-
-        registerBeanDefinitionParser("module", new DubboBeanDefinitionParser(ModuleConfig.class, true));
-        registerBeanDefinitionParser("config-center", new DubboBeanDefinitionParser(ConfigCenterBean.class, true));
-
-        registerBeanDefinitionParser("metadata-report", new DubboBeanDefinitionParser(MetadataReportConfig.class, true));
-        // 监听器配置,共享
+        // todo 6.监听器配置,共享
         registerBeanDefinitionParser("monitor", new DubboBeanDefinitionParser(MonitorConfig.class, true));
-
-        registerBeanDefinitionParser("metrics", new DubboBeanDefinitionParser(MetricsConfig.class, true));
-        registerBeanDefinitionParser("ssl", new DubboBeanDefinitionParser(SslConfig.class, true));
-
-        // 服务端配置
-        registerBeanDefinitionParser("provider", new DubboBeanDefinitionParser(ProviderConfig.class, true));
-        // 消费端配置
-        registerBeanDefinitionParser("consumer", new DubboBeanDefinitionParser(ConsumerConfig.class, true));
-        // 协议,属于服务端
+        // -------------------
+        // 11.协议,属于服务端
+        // 与ProviderConfig很像
         registerBeanDefinitionParser("protocol", new DubboBeanDefinitionParser(ProtocolConfig.class, true));
-        //  服务端配置
+        // 9.服务端配置
+        registerBeanDefinitionParser("provider", new DubboBeanDefinitionParser(ProviderConfig.class, true));
+        //  12.服务端配置
         registerBeanDefinitionParser("service", new DubboBeanDefinitionParser(ServiceBean.class, true));
-        // 消费端配置
+        // -------------------
+        // 10.消费端配置
+        registerBeanDefinitionParser("consumer", new DubboBeanDefinitionParser(ConsumerConfig.class, true));
+        // 13.消费端配置
         registerBeanDefinitionParser("reference", new DubboBeanDefinitionParser(ReferenceBean.class, false));
-        // bean定义注册表处理器,用于识别dubbo注解
+        // -------------------
+        // 3.
+        registerBeanDefinitionParser("module", new DubboBeanDefinitionParser(ModuleConfig.class, true));
+        // 4.
+        registerBeanDefinitionParser("config-center", new DubboBeanDefinitionParser(ConfigCenterBean.class, true));
+        // 5.
+        registerBeanDefinitionParser("metadata-report", new DubboBeanDefinitionParser(MetadataReportConfig.class, true));
+        // 7.
+        registerBeanDefinitionParser("metrics", new DubboBeanDefinitionParser(MetricsConfig.class, true));
+        // 8.
+        registerBeanDefinitionParser("ssl", new DubboBeanDefinitionParser(SslConfig.class, true));
+        // 14.bean定义注册表处理器,用于识别dubbo注解
         registerBeanDefinitionParser("annotation", new AnnotationBeanDefinitionParser());
     }
 

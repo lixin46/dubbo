@@ -27,7 +27,7 @@ import static org.apache.dubbo.config.Constants.PROTOCOLS_SUFFIX;
 
 /**
  * ProtocolConfig
- *
+ * 协议配置
  * @export
  */
 public class ProtocolConfig extends AbstractConfig {
@@ -36,51 +36,62 @@ public class ProtocolConfig extends AbstractConfig {
 
     /**
      * Protocol name
+     * 协议名称
      */
     private String name;
 
     /**
      * Service ip address (when there are multiple network cards available)
+     * 主机
+     * 服务ip地址,多网卡时可用
      */
     private String host;
 
     /**
      * Service port
+     * 端口
      */
     private Integer port;
 
     /**
      * Context path
+     * 上下文路径
      */
     private String contextpath;
 
     /**
      * Thread pool
+     * 线程池
      */
     private String threadpool;
 
     /**
      * Thread pool name
+     * 线程池名称
      */
     private String threadname;
 
     /**
      * Thread pool core thread size
+     * 核心线程数
      */
     private Integer corethreads;
 
     /**
      * Thread pool size (fixed size)
+     * 固定池数量
      */
     private Integer threads;
 
     /**
      * IO thread pool size (fixed size)
+     * io线程池大小
      */
     private Integer iothreads;
 
     /**
      * Thread pool's queue length
+     * 队列长度
      */
     private Integer queues;
 

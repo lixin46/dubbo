@@ -29,18 +29,46 @@ import static org.apache.dubbo.common.constants.CommonConstants.$INVOKE_ASYNC;
  *
  */
 public class MethodDescriptor {
+    /**
+     * 方法
+     */
     private final Method method;
     //    private final boolean isCallBack;
 //    private final boolean isFuture;
+    /**
+     * 参数描述
+     */
     private final String paramDesc;
     // duplicate filed as paramDesc, but with different format.
+    /**
+     * 兼容的参数签名???
+     */
     private final String[] compatibleParamSignatures;
+    /**
+     * 形参类型
+     */
     private final Class<?>[] parameterClasses;
+    /**
+     * 返回值类型
+     */
     private final Class<?> returnClass;
+    /**
+     * 通用返回类型
+     */
     private final Type[] returnTypes;
+    /**
+     * 方法名
+     */
     private final String methodName;
+    /**
+     * 是否通用方法
+     */
     private final boolean generic;
 
+    /**
+     * 唯一构造方法
+     * @param method 方法
+     */
     public MethodDescriptor(Method method) {
         this.method = method;
         this.parameterClasses = method.getParameterTypes();
@@ -51,6 +79,7 @@ public class MethodDescriptor {
                 .map(Class::getName)
                 .toArray(String[]::new);
         this.methodName = method.getName();
+        // $invoke()或$invokeAsync(),且3个参数
         this.generic = (methodName.equals($INVOKE) || methodName.equals($INVOKE_ASYNC)) && parameterClasses.length == 3;
     }
 

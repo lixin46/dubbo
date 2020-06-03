@@ -28,6 +28,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.SERVICE_FILTER_K
 
 /**
  * AbstractServiceConfig
+ * 抽象的服务配置
  *
  * @export
  */
@@ -90,6 +91,7 @@ public abstract class AbstractServiceConfig extends AbstractInterfaceConfig {
     /**
      * The protocol list the service will export with
      * Also see {@link #protocolIds}, only one of them will work.
+     * 协议配置列表
      */
     protected List<ProtocolConfig> protocols;
 

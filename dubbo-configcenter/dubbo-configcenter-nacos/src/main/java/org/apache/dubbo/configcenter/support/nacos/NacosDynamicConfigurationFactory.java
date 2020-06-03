@@ -26,6 +26,7 @@ import com.alibaba.nacos.api.PropertyKeyConst;
 
 /**
  * The nacos implementation of {@link AbstractDynamicConfigurationFactory}
+ * nacos实现
  */
 public class NacosDynamicConfigurationFactory extends AbstractDynamicConfigurationFactory {
 

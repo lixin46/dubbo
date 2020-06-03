@@ -139,7 +139,9 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
                     + ", dubbo version is " + Version.getVersion() + ", this invoker should not be used any longer");
         }
         RpcInvocation invocation = (RpcInvocation) inv;
+        // 处理实例
         invocation.setInvoker(this);
+        // 添加附件
         if (CollectionUtils.isNotEmptyMap(attachment)) {
             invocation.addObjectAttachmentsIfAbsent(attachment);
         }
@@ -155,13 +157,16 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
             invocation.addObjectAttachments(contextAttachments);
         }
 
+        // 调用模式
         invocation.setInvokeMode(RpcUtils.getInvokeMode(url, invocation));
         RpcUtils.attachInvocationIdIfAsync(getUrl(), invocation);
 
         AsyncRpcResult asyncResult;
         try {
+            // 调用获取异步结果
             asyncResult = (AsyncRpcResult) doInvoke(invocation);
         } catch (InvocationTargetException e) { // biz exception
+            // 什么错误???
             Throwable te = e.getTargetException();
             if (te == null) {
                 asyncResult = AsyncRpcResult.newDefaultAsyncResult(null, e, invocation);
@@ -172,12 +177,14 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
                 asyncResult = AsyncRpcResult.newDefaultAsyncResult(null, te, invocation);
             }
         } catch (RpcException e) {
+            // 什么错误???
             if (e.isBiz()) {
                 asyncResult = AsyncRpcResult.newDefaultAsyncResult(null, e, invocation);
             } else {
                 throw e;
             }
         } catch (Throwable e) {
+            // 其他场景
             asyncResult = AsyncRpcResult.newDefaultAsyncResult(null, e, invocation);
         }
         RpcContext.getContext().setFuture(new FutureAdapter(asyncResult.getResponseFuture()));

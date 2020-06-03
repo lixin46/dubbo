@@ -48,7 +48,7 @@ import static org.apache.dubbo.common.utils.ReflectUtils.findMethodByMethodSigna
 
 /**
  * Utility methods and public methods for parsing configuration
- *
+ * 配置的基类
  * @export
  */
 public abstract class AbstractConfig implements Serializable {
@@ -462,10 +462,14 @@ public abstract class AbstractConfig implements Serializable {
         // 获取环境
         Environment env = ApplicationModel.getEnvironment();
         try {
+            // 组合配置
             CompositeConfiguration compositeConfiguration = env.getPrefixedConfiguration(this);
             // loop methods, get override value and set the new value back to method
+            // 方法
             Method[] methods = getClass().getMethods();
+            // 遍历方法
             for (Method method : methods) {
+                // 是setter
                 if (MethodUtils.isSetter(method)) {
                     try {
                         String value = StringUtils.trim(compositeConfiguration.getString(extractPropertyName(getClass(), method)));

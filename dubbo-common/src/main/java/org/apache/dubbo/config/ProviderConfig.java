@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 /**
  * The service provider default configuration
- *
+ * 服务端单独配置
  * @export
  * @see org.apache.dubbo.config.ProtocolConfig
  * @see ServiceConfigBase
@@ -36,71 +36,85 @@ public class ProviderConfig extends AbstractServiceConfig {
 
     /**
      * Service ip addresses (used when there are multiple network cards available)
+     * 当存在多个网卡时可用
      */
     private String host;
 
     /**
      * Service port
+     * 服务端口
      */
     private Integer port;
 
     /**
      * Context path
+     * 上下文路径
      */
     private String contextpath;
 
     /**
      * Thread pool
+     * 线程池???
      */
     private String threadpool;
 
     /**
      * Thread pool name
+     * 线程池名称???
      */
     private String threadname;
 
     /**
      * Thread pool size (fixed size)
+     * 线程池固定大小
      */
     private Integer threads;
 
     /**
      * IO thread pool size (fixed size)
+     * io线程池固定大小
      */
     private Integer iothreads;
 
     /**
      * Thread pool queue length
+     * 线程池队列大小
      */
     private Integer queues;
 
     /**
      * Max acceptable connections
+     * 最大可接收连接数
      */
     private Integer accepts;
 
     /**
      * Protocol codec
+     * 协议编解码???
      */
     private String codec;
 
     /**
      * The serialization charset
+     * 序列化字符集
      */
     private String charset;
 
     /**
      * Payload max length
+     * 最大载体长度
      */
     private Integer payload;
 
     /**
      * The network io buffer size
+     * 网络io缓冲区大小
      */
     private Integer buffer;
 
     /**
      * Transporter
+     * 传输器???
      */
     private String transporter;
 
@@ -378,27 +392,6 @@ public class ProviderConfig extends AbstractServiceConfig {
 
     public void setExchanger(String exchanger) {
         this.exchanger = exchanger;
-    }
-
-    /**
-     * typo, switch to use {@link #getDispatcher()}
-     *
-     * @deprecated {@link #getDispatcher()}
-     */
-    @Deprecated
-    @Parameter(excluded = true)
-    public String getDispather() {
-        return getDispatcher();
-    }
-
-    /**
-     * typo, switch to use {@link #getDispatcher()}
-     *
-     * @deprecated {@link #setDispatcher(String)}
-     */
-    @Deprecated
-    public void setDispather(String dispather) {
-        setDispatcher(dispather);
     }
 
     public String getDispatcher() {

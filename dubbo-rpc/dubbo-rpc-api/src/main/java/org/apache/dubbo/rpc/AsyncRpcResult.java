@@ -75,7 +75,8 @@ public class AsyncRpcResult implements Result {
      */
     @Override
     public Object getValue() {
-        return getAppResponse().getValue();
+        Result appResponse = getAppResponse();
+        return appResponse.getValue();
     }
 
     /**

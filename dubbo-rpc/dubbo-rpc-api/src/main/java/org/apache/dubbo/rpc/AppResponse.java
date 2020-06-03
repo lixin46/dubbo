@@ -68,6 +68,7 @@ public class AppResponse implements Result {
 
     @Override
     public Object recreate() throws Throwable {
+        // 异常
         if (exception != null) {
             // fix issue#619
             try {
@@ -79,15 +80,19 @@ public class AppResponse implements Result {
                 // get stackTrace value
                 Field stackTraceField = clazz.getDeclaredField("stackTrace");
                 stackTraceField.setAccessible(true);
+                // 异常栈
                 Object stackTrace = stackTraceField.get(exception);
                 if (stackTrace == null) {
+                    // 设置异常栈
                     exception.setStackTrace(new StackTraceElement[0]);
                 }
             } catch (Exception e) {
                 // ignore
             }
+            // 抛出异常
             throw exception;
         }
+        // 不存在异常,则返回结果
         return result;
     }
 

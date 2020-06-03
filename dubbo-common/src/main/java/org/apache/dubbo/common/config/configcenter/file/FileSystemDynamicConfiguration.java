@@ -70,6 +70,7 @@ import static org.apache.commons.io.FileUtils.readFileToString;
 import static org.apache.dubbo.common.utils.StringUtils.isBlank;
 
 /**
+ * 基于文件系统的动态配置
  * File-System based {@link DynamicConfiguration} implementation
  *
  * @since 2.7.5
@@ -168,18 +169,36 @@ public class FileSystemDynamicConfiguration extends AbstractDynamicConfiguration
 
     private final Map<File, List<ConfigurationListener>> listenersRepository;
 
+    /**
+     * 构造方法
+     */
     public FileSystemDynamicConfiguration() {
         this(new File(DEFAULT_CONFIG_CENTER_DIR_PATH));
     }
 
+    /**
+     * 构造方法
+     * @param rootDirectory 跟目录
+     */
     public FileSystemDynamicConfiguration(File rootDirectory) {
         this(rootDirectory, DEFAULT_CONFIG_CENTER_ENCODING);
     }
 
+    /**
+     * 构造方法
+     * @param rootDirectory 根目录
+     * @param encoding 编码
+     */
     public FileSystemDynamicConfiguration(File rootDirectory, String encoding) {
         this(rootDirectory, encoding, DEFAULT_THREAD_POOL_PREFIX);
     }
 
+    /**
+     * 构造方法
+     * @param rootDirectory
+     * @param encoding
+     * @param threadPoolPrefixName
+     */
     public FileSystemDynamicConfiguration(File rootDirectory, String encoding, String threadPoolPrefixName) {
         this(rootDirectory, encoding, threadPoolPrefixName, DEFAULT_THREAD_POOL_SIZE);
     }

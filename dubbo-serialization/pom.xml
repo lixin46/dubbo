@@ -26,7 +26,10 @@
     <artifactId>dubbo-serialization</artifactId>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
-    <description>The serialization module of dubbo project</description>
+    <description>
+        The serialization module of dubbo project
+        对象序列化
+    </description>
     <properties>
         <skip_maven_deploy>false</skip_maven_deploy>
     </properties>
@@ -39,7 +42,7 @@
         <module>dubbo-serialization-jdk</module>
         <module>dubbo-serialization-protostuff</module>
         <module>dubbo-serialization-avro</module>
-        <module>dubbo-serialization-test</module>
+<!--        <module>dubbo-serialization-test</module>-->
         <module>dubbo-serialization-gson</module>
         <!--   暂时无法编译     -->
 <!--        <module>dubbo-serialization-protobuf</module>-->

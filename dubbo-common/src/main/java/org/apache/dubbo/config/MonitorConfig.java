@@ -26,6 +26,7 @@ import java.util.Map;
  * MonitorConfig
  * 监听器配置
  *
+ *
  * @export
  */
 public class MonitorConfig extends AbstractConfig {

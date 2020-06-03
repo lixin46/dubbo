@@ -25,6 +25,10 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * 加密ssl配置
+ * <dubbo:ssl></dubbo:ssl>
+ */
 public class SslConfig extends AbstractConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SslConfig.class);

@@ -18,6 +18,9 @@ package org.apache.dubbo.rpc.service;
 
 import org.apache.dubbo.rpc.model.BuiltinServiceDetector;
 
+/**
+ * 提供通用服务接口
+ */
 public class GenericServiceDetector implements BuiltinServiceDetector {
 
     @Override

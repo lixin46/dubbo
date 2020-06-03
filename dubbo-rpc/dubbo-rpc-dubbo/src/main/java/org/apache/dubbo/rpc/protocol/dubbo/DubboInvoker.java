@@ -57,6 +57,9 @@ import static org.apache.dubbo.rpc.Constants.TOKEN_KEY;
  */
 public class DubboInvoker<T> extends AbstractInvoker<T> {
 
+    /**
+     * 交换客户端
+     */
     private final ExchangeClient[] clients;
 
     private final AtomicPositiveInteger index = new AtomicPositiveInteger();
@@ -67,10 +70,23 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
 
     private final Set<Invoker<?>> invokers;
 
+    /**
+     * 构造方法
+     * @param serviceType
+     * @param url
+     * @param clients 客户端列表
+     */
     public DubboInvoker(Class<T> serviceType, URL url, ExchangeClient[] clients) {
         this(serviceType, url, clients, null);
     }
 
+    /**
+     * 核心构造方法
+     * @param serviceType
+     * @param url
+     * @param clients 客户端列表
+     * @param invokers
+     */
     public DubboInvoker(Class<T> serviceType, URL url, ExchangeClient[] clients, Set<Invoker<?>> invokers) {
         super(serviceType, url, new String[]{INTERFACE_KEY, GROUP_KEY, TOKEN_KEY});
         this.clients = clients;
@@ -86,6 +102,7 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
         inv.setAttachment(PATH_KEY, getUrl().getPath());
         inv.setAttachment(VERSION_KEY, version);
 
+        // 当前客户端
         ExchangeClient currentClient;
         if (clients.length == 1) {
             currentClient = clients[0];
@@ -94,17 +111,26 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
         }
         try {
             boolean isOneway = RpcUtils.isOneway(getUrl(), invocation);
+            // 计算超时???
             int timeout = calculateTimeout(invocation, methodName);
+            // 单向
             if (isOneway) {
                 boolean isSent = getUrl().getMethodParameter(methodName, Constants.SENT_KEY, false);
+                // 发送
                 currentClient.send(inv, isSent);
+                // 返回默认结果
                 return AsyncRpcResult.newDefaultAsyncResult(invocation);
-            } else {
+            }
+            // 双向
+            else {
+                // 回调执行器
                 ExecutorService executor = getCallbackExecutor(getUrl(), inv);
-                CompletableFuture<AppResponse> appResponseFuture =
-                        currentClient.request(inv, timeout, executor).thenApply(obj -> (AppResponse) obj);
+                // 请求,并获取future
+                CompletableFuture<AppResponse> appResponseFuture = currentClient.request(inv, timeout, executor)
+                        .thenApply(obj -> (AppResponse) obj);
                 // save for 2.6.x compatibility, for example, TraceFilter in Zipkin uses com.alibaba.xxx.FutureAdapter
                 FutureContext.getContext().setCompatibleFuture(appResponseFuture);
+                // 封装异步结果
                 AsyncRpcResult result = new AsyncRpcResult(appResponseFuture, inv);
                 result.setExecutor(executor);
                 return result;

@@ -48,13 +48,17 @@ public class ConsumerModel {
      * @param serviceKey Name of the service.
      * @param proxyObject  Proxy object.
      */
-    public ConsumerModel(String serviceKey
-            , Object proxyObject
-            , ServiceDescriptor serviceModel
-            , ReferenceConfigBase<?> referenceConfig) {
+    /**
+     * 构造方法
+     *
+     * @param serviceKey 服务bean唯一标识
+     * @param proxyObject 代理对象
+     * @param serviceModel 服务描述符
+     * @param referenceConfig 引用配置
+     */
+    public ConsumerModel(String serviceKey, Object proxyObject, ServiceDescriptor serviceModel, ReferenceConfigBase<?> referenceConfig) {
 
         Assert.notEmptyString(serviceKey, "Service name can't be null or blank");
-
         this.serviceKey = serviceKey;
         this.proxyObject = proxyObject;
         this.serviceModel = serviceModel;
@@ -71,6 +75,7 @@ public class ConsumerModel {
 
     /**
      * Return the proxy object used by called while creating instance of ConsumerModel
+     *
      * @return
      */
     public Object getProxyObject() {
@@ -119,12 +124,16 @@ public class ConsumerModel {
     private ServiceMetadata serviceMetadata;
     private Map<Method, ConsumerMethodModel> methodModels = new HashMap<>();
 
-    public ConsumerModel(String serviceKey
-            , Object proxyObject
-            , ServiceDescriptor serviceModel
-            , ReferenceConfigBase<?> referenceConfig
-            , ServiceMetadata metadata) {
-
+    /**
+     * 构造方法
+     *
+     * @param serviceKey      服务bean的标识
+     * @param proxyObject
+     * @param serviceModel
+     * @param referenceConfig 引用配置
+     * @param metadata 服务元数据
+     */
+    public ConsumerModel(String serviceKey, Object proxyObject, ServiceDescriptor serviceModel, ReferenceConfigBase<?> referenceConfig, ServiceMetadata metadata) {
         this(serviceKey, proxyObject, serviceModel, referenceConfig);
         this.serviceMetadata = metadata;
     }

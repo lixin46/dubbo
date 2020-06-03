@@ -34,10 +34,25 @@ import java.util.Optional;
 public class Environment extends LifecycleAdapter implements FrameworkExt {
     public static final String NAME = "environment";
 
+    /**
+     * 属性配置
+     */
     private final PropertiesConfiguration propertiesConfiguration;
+    /**
+     * 系统配置
+     */
     private final SystemConfiguration systemConfiguration;
+    /**
+     * 环境配置
+     */
     private final EnvironmentConfiguration environmentConfiguration;
+    /**
+     * 外部配置
+     */
     private final InmemoryConfiguration externalConfiguration;
+    /**
+     * 应用外部配置
+     */
     private final InmemoryConfiguration appExternalConfiguration;
 
     private CompositeConfiguration globalConfiguration;

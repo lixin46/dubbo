@@ -1183,8 +1183,11 @@ public final class ReflectUtils {
 
     public static Type[] getReturnTypes(Method method) {
         Class<?> returnType = method.getReturnType();
+        // 通用的返回类型
         Type genericReturnType = method.getGenericReturnType();
+        //
         if (Future.class.isAssignableFrom(returnType)) {
+            // 参数化类型
             if (genericReturnType instanceof ParameterizedType) {
                 Type actualArgType = ((ParameterizedType) genericReturnType).getActualTypeArguments()[0];
                 if (actualArgType instanceof ParameterizedType) {

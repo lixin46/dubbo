@@ -262,6 +262,7 @@ public class ConfigValidationUtils {
         }
 
         String normalizedMock = MockInvoker.normalizeMock(mock);
+        // return 开头,如:return null
         if (normalizedMock.startsWith(RETURN_PREFIX)) {
             normalizedMock = normalizedMock.substring(RETURN_PREFIX.length()).trim();
             try {
@@ -271,7 +272,9 @@ public class ConfigValidationUtils {
                 throw new IllegalStateException("Illegal mock return in <dubbo:service/reference ... " +
                         "mock=\"" + mock + "\" />");
             }
-        } else if (normalizedMock.startsWith(THROW_PREFIX)) {
+        }
+        // throw
+        else if (normalizedMock.startsWith(THROW_PREFIX)) {
             normalizedMock = normalizedMock.substring(THROW_PREFIX.length()).trim();
             if (ConfigUtils.isNotEmpty(normalizedMock)) {
                 try {
@@ -282,37 +285,53 @@ public class ConfigValidationUtils {
                             "mock=\"" + mock + "\" />");
                 }
             }
-        } else {
+        }
+        //
+        else {
             //Check whether the mock class is a implementation of the interfaceClass, and if it has a default constructor
             MockInvoker.getMockObject(normalizedMock, interfaceClass);
         }
     }
 
     public static void validateAbstractInterfaceConfig(AbstractInterfaceConfig config) {
+        //
         checkName(LOCAL_KEY, config.getLocal());
+        //
         checkName("stub", config.getStub());
+        //
         checkMultiName("owner", config.getOwner());
 
+        // 代理工厂存在
         checkExtension(ProxyFactory.class, PROXY_KEY, config.getProxy());
+        // 集群存在
         checkExtension(Cluster.class, CLUSTER_KEY, config.getCluster());
+        // 过滤器存在
         checkMultiExtension(Filter.class, FILE_KEY, config.getFilter());
+        // 调用器监听器
         checkMultiExtension(InvokerListener.class, LISTENER_KEY, config.getListener());
+        //
         checkNameHasSymbol(LAYER_KEY, config.getLayer());
 
         List<MethodConfig> methods = config.getMethods();
         if (CollectionUtils.isNotEmpty(methods)) {
+            // 校验方法配置
             methods.forEach(ConfigValidationUtils::validateMethodConfig);
         }
     }
 
     public static void validateServiceConfig(ServiceConfig config) {
+        // 版本数字
         checkKey(VERSION_KEY, config.getVersion());
+        // 分组
         checkKey(GROUP_KEY, config.getGroup());
+        // ???
         checkName(TOKEN_KEY, config.getToken());
+        // ???
         checkPathName(PATH_KEY, config.getPath());
 
+        // 检查多个扩展
         checkMultiExtension(ExporterListener.class, "listener", config.getListener());
-
+        // 校验抽象接口配置
         validateAbstractInterfaceConfig(config);
 
         List<RegistryConfig> registries = config.getRegistries();

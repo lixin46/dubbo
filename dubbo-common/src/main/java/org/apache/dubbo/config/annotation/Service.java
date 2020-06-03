@@ -28,6 +28,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_LOADBALA
 import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_RETRIES;
 
 /**
+ * 已经废弃
  * Service annotation
  *
  * @see DubboService

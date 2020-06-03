@@ -18,6 +18,9 @@ package org.apache.dubbo.rpc.service;
 
 import org.apache.dubbo.rpc.model.BuiltinServiceDetector;
 
+/**
+ * 提供打印服务,是一个通用服务
+ */
 public class EchoServiceDetector implements BuiltinServiceDetector {
 
     @Override

@@ -23,7 +23,7 @@ import java.io.Serializable;
 
 /**
  * The method arguments configuration
- *
+ * 方法参数的配置
  * @export
  */
 public class ArgumentConfig implements Serializable {

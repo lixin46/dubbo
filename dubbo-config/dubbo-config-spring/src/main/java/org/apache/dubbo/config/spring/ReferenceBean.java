@@ -41,18 +41,35 @@ import static org.springframework.beans.factory.BeanFactoryUtils.beansOfTypeIncl
 
 /**
  * ReferenceFactoryBean
+ * 客户端引用的工厂bean
+ * <dubbo:reference></dubbo:reference>
  */
-public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean,
-        ApplicationContextAware, InitializingBean, DisposableBean {
+public class ReferenceBean<T> extends ReferenceConfig<T>
+        implements FactoryBean,// 生成实例
+        ApplicationContextAware,// 接口注入
+        InitializingBean,// 初始化
+        DisposableBean// 销毁
+{
 
     private static final long serialVersionUID = 213195494150089726L;
 
+    /**
+     * 应用上下文,接口注入
+     */
     private transient ApplicationContext applicationContext;
 
+    /**
+     * 构造方法
+     */
     public ReferenceBean() {
         super();
     }
 
+    /**
+     * 构造方法
+     *
+     * @param reference 推荐使用@DubboReference
+     */
     public ReferenceBean(Reference reference) {
         super(reference);
     }
@@ -65,11 +82,17 @@ public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean,
 
     @Override
     public Object getObject() {
+        // 父类的get()
         return get();
     }
 
+    /**
+     *
+     * @return 对象类型即接口类型
+     */
     @Override
     public Class<?> getObjectType() {
+        // 父类的getInterfaceClass()
         return getInterfaceClass();
     }
 
@@ -81,6 +104,7 @@ public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean,
 
     /**
      * Initializes there Dubbo's Config Beans before @Reference bean autowiring
+     * 触发dubbo的配置bean,在自动注入之前
      */
     private void prepareDubboConfigBeans() {
         beansOfTypeIncludingAncestors(applicationContext, ApplicationConfig.class);
@@ -101,6 +125,7 @@ public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean,
     public void afterPropertiesSet() throws Exception {
 
         // Initializes Dubbo's Config Beans before @Reference bean autowiring
+        // 在自动注入之前,初始化dubbo的配置bean
         prepareDubboConfigBeans();
 
         // lazy init by default.
@@ -109,6 +134,7 @@ public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean,
         }
 
         // eager init if necessary.
+        // 需要初始化,则获取对象
         if (shouldInit()) {
             getObject();
         }

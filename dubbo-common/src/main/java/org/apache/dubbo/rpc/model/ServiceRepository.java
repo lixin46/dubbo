@@ -33,28 +33,48 @@ import java.util.concurrent.ConcurrentMap;
 import static org.apache.dubbo.common.BaseServiceMetadata.interfaceFromServiceKey;
 import static org.apache.dubbo.common.BaseServiceMetadata.versionFromServiceKey;
 
+/**
+ * 服务仓库
+ */
 public class ServiceRepository extends LifecycleAdapter implements FrameworkExt {
 
     public static final String NAME = "repository";
 
     // services
+    /**
+     * key为服务的全限定类名,value为服务描述符
+     */
     private ConcurrentMap<String, ServiceDescriptor> services = new ConcurrentHashMap<>();
 
     // consumers
+    /**
+     * 消费者
+     */
     private ConcurrentMap<String, ConsumerModel> consumers = new ConcurrentHashMap<>();
 
     // providers
+    /**
+     * 提供者
+     */
     private ConcurrentMap<String, ProviderModel> providers = new ConcurrentHashMap<>();
 
     // useful to find a provider model quickly with serviceInterfaceName:version
     private ConcurrentMap<String, ProviderModel> providersWithoutGroup = new ConcurrentHashMap<>();
 
+    /**
+     * 唯一构造方法
+     */
     public ServiceRepository() {
-        Set<BuiltinServiceDetector> builtinServices
-                = ExtensionLoader.getExtensionLoader(BuiltinServiceDetector.class).getSupportedExtensionInstances();
+        // 内建服务检测器
+        ExtensionLoader<BuiltinServiceDetector> extensionLoader = ExtensionLoader.getExtensionLoader(BuiltinServiceDetector.class);
+        // 获取支持的扩展实例
+        Set<BuiltinServiceDetector> builtinServices = extensionLoader.getSupportedExtensionInstances();
+        // 非空
         if (CollectionUtils.isNotEmpty(builtinServices)) {
+            // 遍历内建服务检测器实例
             for (BuiltinServiceDetector service : builtinServices) {
-                registerService(service.getService());
+                Class<?> serviceType = service.getService();
+                registerService(serviceType);
             }
         }
     }

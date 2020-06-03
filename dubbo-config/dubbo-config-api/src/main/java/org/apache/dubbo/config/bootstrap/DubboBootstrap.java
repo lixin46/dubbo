@@ -99,10 +99,12 @@ import static org.apache.dubbo.registry.client.metadata.ServiceInstanceMetadataU
 import static org.apache.dubbo.remoting.Constants.CLIENT_KEY;
 
 /**
+ * 引导dubbo
+ * <p>
  * See {@link ApplicationModel} and {@link ExtensionLoader} for why this class is designed to be singleton.
- *
+ * <p>
  * The bootstrap class of Dubbo
- *
+ * <p>
  * Get singleton instance by calling static method {@link #getInstance()}.
  * Designed as singleton because some classes inside Dubbo, such as ExtensionLoader, are designed only for one instance per process.
  *
@@ -123,10 +125,23 @@ public class DubboBootstrap extends GenericEventListener {
     public static final String DEFAULT_CONSUMER_ID = "CONSUMER#DEFAULT";
 
     private static final String NAME = DubboBootstrap.class.getSimpleName();
-
-    private final Logger logger = LoggerFactory.getLogger(getClass());
-
+    /**
+     * 延迟初始化的单例
+     */
     private static DubboBootstrap instance;
+
+    /**
+     * See {@link ApplicationModel} and {@link ExtensionLoader} for why DubboBootstrap is designed to be singleton.
+     */
+    public static synchronized DubboBootstrap getInstance() {
+        if (instance == null) {
+            instance = new DubboBootstrap();
+        }
+        return instance;
+    }
+
+    // -------------------------------------
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     private final AtomicBoolean awaited = new AtomicBoolean(false);
 
@@ -142,8 +157,17 @@ public class DubboBootstrap extends GenericEventListener {
 
     private final ExecutorRepository executorRepository = ExtensionLoader.getExtensionLoader(ExecutorRepository.class).getDefaultExtension();
 
+    /**
+     * 配置管理器
+     * 单例,从应用模型中获取,构造方法初始化
+     * 追加的配置都可以通过应用模型获取
+     */
     private final ConfigManager configManager;
-
+    /**
+     * 环境
+     * 单例,从应用模型中获取,构造方法初始化
+     * 追加的配置都可以通过应用模型获取
+     */
     private final Environment environment;
 
     private ReferenceConfigCache cache;
@@ -155,7 +179,9 @@ public class DubboBootstrap extends GenericEventListener {
     private AtomicBoolean initialized = new AtomicBoolean(false);
 
     private AtomicBoolean started = new AtomicBoolean(false);
-
+    /**
+     * 是否准备好
+     */
     private AtomicBoolean ready = new AtomicBoolean(true);
 
     private AtomicBoolean destroyed = new AtomicBoolean(false);
@@ -173,19 +199,13 @@ public class DubboBootstrap extends GenericEventListener {
     private List<CompletableFuture<Object>> asyncReferringFutures = new ArrayList<>();
 
     /**
-     * See {@link ApplicationModel} and {@link ExtensionLoader} for why DubboBootstrap is designed to be singleton.
+     * 构造方法
      */
-    public static synchronized DubboBootstrap getInstance() {
-        if (instance == null) {
-            instance = new DubboBootstrap();
-        }
-        return instance;
-    }
-
     private DubboBootstrap() {
         configManager = ApplicationModel.getConfigManager();
         environment = ApplicationModel.getEnvironment();
 
+        // 注册关闭钩子
         DubboShutdownHook.getDubboShutdownHook().register();
         ShutdownHookCallbacks.INSTANCE.addCallback(new ShutdownHookCallback() {
             @Override
@@ -491,6 +511,9 @@ public class DubboBootstrap extends GenericEventListener {
         return this;
     }
 
+    /**
+     * 目前还有调用,以后使用start()引导
+     */
     @Deprecated
     public void init() {
         initialize();
@@ -503,19 +526,19 @@ public class DubboBootstrap extends GenericEventListener {
         if (!initialized.compareAndSet(false, true)) {
             return;
         }
-
+        // 初始化框架扩展,静态类中保存的FrameworkExt实例全部初始化
         ApplicationModel.initFrameworkExts();
-
+        // 启动配置中心
         startConfigCenter();
-
+        // 如果必要的话,使用服务注册表作为配置中心
         useRegistryAsConfigCenterIfNecessary();
-
+        // 加载远程配置
         loadRemoteConfigs();
-
+        // 检查全局配置
         checkGlobalConfigs();
-
+        // 初始化元数据服务
         initMetadataService();
-
+        // 初始化事件监听器
         initEventListener();
 
         if (logger.isInfoEnabled()) {
@@ -582,27 +605,39 @@ public class DubboBootstrap extends GenericEventListener {
     }
 
     private void startConfigCenter() {
+        // 获取配置中心配置
         Collection<ConfigCenterConfig> configCenters = configManager.getConfigCenters();
 
         // check Config Center
         if (CollectionUtils.isEmpty(configCenters)) {
+            // 创建配置中心配置对象
             ConfigCenterConfig configCenterConfig = new ConfigCenterConfig();
+            // 刷新
             configCenterConfig.refresh();
+            // 有效,则追加到配置管理器中
             if (configCenterConfig.isValid()) {
                 configManager.addConfigCenter(configCenterConfig);
                 configCenters = configManager.getConfigCenters();
             }
-        } else {
+        }
+        // 非空
+        else {
+            // 遍历
             for (ConfigCenterConfig configCenterConfig : configCenters) {
+                // 刷新
                 configCenterConfig.refresh();
+                // 校验
                 ConfigValidationUtils.validateConfigCenterConfig(configCenterConfig);
             }
         }
 
         if (CollectionUtils.isNotEmpty(configCenters)) {
+            // 组合动态配置
             CompositeDynamicConfiguration compositeDynamicConfiguration = new CompositeDynamicConfiguration();
             for (ConfigCenterConfig configCenter : configCenters) {
-                compositeDynamicConfiguration.addConfiguration(prepareEnvironment(configCenter));
+                // 根据配置中心配置,准备动态配置
+                DynamicConfiguration dynamicConfiguration = prepareEnvironment(configCenter);
+                compositeDynamicConfiguration.addConfiguration(dynamicConfiguration);
             }
             environment.setDynamicConfiguration(compositeDynamicConfiguration);
         }
@@ -637,15 +672,17 @@ public class DubboBootstrap extends GenericEventListener {
      */
     private void useRegistryAsConfigCenterIfNecessary() {
         // we use the loading status of DynamicConfiguration to decide whether ConfigCenter has been initiated.
+        // 存在动态配置则返回
         if (environment.getDynamicConfiguration().isPresent()) {
             return;
         }
-
+        // 存在配置中心则返回
         if (CollectionUtils.isNotEmpty(configManager.getConfigCenters())) {
             return;
         }
 
-        configManager.getDefaultRegistries().stream()
+        configManager.getDefaultRegistries()
+                .stream()
                 .filter(registryConfig -> registryConfig.getUseAsConfigCenter() == null || registryConfig.getUseAsConfigCenter())
                 .forEach(registryConfig -> {
                     String protocol = registryConfig.getProtocol();
@@ -739,24 +776,31 @@ public class DubboBootstrap extends GenericEventListener {
      * Start the bootstrap
      */
     public DubboBootstrap start() {
+        // 变更为已启动
         if (started.compareAndSet(false, true)) {
+            //
             ready.set(false);
+            // 初始化
             initialize();
             if (logger.isInfoEnabled()) {
                 logger.info(NAME + " is starting...");
             }
             // 1. export Dubbo Services
+            // 导出dubbo服务
             exportServices();
 
             // Not only provider register
             if (!isOnlyRegisterProvider() || hasExportedServices()) {
                 // 2. export MetadataService
+                // 2.导出元数据服务
                 exportMetadataService();
                 //3. Register the local ServiceInstance if required
+                // 3.注册本地服务接口
                 registerServiceInstance();
             }
-
+            // 引用服务???
             referServices();
+            //
             if (asyncExportingFutures.size() > 0) {
                 new Thread(() -> {
                     try {
@@ -876,9 +920,11 @@ public class DubboBootstrap extends GenericEventListener {
 
     private DynamicConfiguration prepareEnvironment(ConfigCenterConfig configCenter) {
         if (configCenter.isValid()) {
+            //
             if (!configCenter.checkOrUpdateInited()) {
                 return null;
             }
+            //
             DynamicConfiguration dynamicConfiguration = getDynamicConfiguration(configCenter.toUrl());
             String configContent = dynamicConfiguration.getProperties(configCenter.getConfigFile(), configCenter.getGroup());
 

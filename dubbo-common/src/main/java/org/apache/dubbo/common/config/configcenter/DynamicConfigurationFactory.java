@@ -34,13 +34,13 @@ public interface DynamicConfigurationFactory {
      * Get an instance of {@link DynamicConfigurationFactory} by the specified name. If not found, take the default
      * extension of {@link DynamicConfigurationFactory}
      *
-     * @param name the name of extension of {@link DynamicConfigurationFactory}
+     * @param protoccol the name of extension of {@link DynamicConfigurationFactory}
      * @return non-null
      * @see 2.7.4
      */
-    static DynamicConfigurationFactory getDynamicConfigurationFactory(String name) {
-        Class<DynamicConfigurationFactory> factoryClass = DynamicConfigurationFactory.class;
-        ExtensionLoader<DynamicConfigurationFactory> loader = getExtensionLoader(factoryClass);
-        return loader.getOrDefaultExtension(name);
+    static DynamicConfigurationFactory getDynamicConfigurationFactory(String protoccol) {
+        //
+        ExtensionLoader<DynamicConfigurationFactory> loader = getExtensionLoader(DynamicConfigurationFactory.class);
+        return loader.getOrDefaultExtension(protoccol);
     }
 }

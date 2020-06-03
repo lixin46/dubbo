@@ -26,14 +26,12 @@ import java.util.concurrent.CompletableFuture;
 public interface GenericService {
 
     /**
-     * Generic invocation
      *
-     * @param method         Method name, e.g. findPerson. If there are overridden methods, parameter info is
-     *                       required, e.g. findPerson(java.lang.String)
-     * @param parameterTypes Parameter types
-     * @param args           Arguments
-     * @return invocation return value
-     * @throws GenericException potential exception thrown from the invocation
+     * @param method 方法名,如果存在重载方法,则参数信息是必须的
+     * @param parameterTypes 形参类型
+     * @param args 实参
+     * @return 调用返回值
+     * @throws GenericException 调用执行时抛出的异常
      */
     Object $invoke(String method, String[] parameterTypes, Object[] args) throws GenericException;
 

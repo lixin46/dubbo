@@ -37,6 +37,8 @@ import static org.apache.dubbo.common.constants.CommonConstants.DUBBO;
 /**
  * ServiceConfig
  *
+ * 服务配置的基类
+ *
  * @export
  */
 public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
@@ -45,26 +47,31 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
 
     /**
      * The interface name of the exported service
+     * 接口名称
      */
     protected String interfaceName;
 
     /**
      * The interface class of the exported service
+     * 接口类
      */
     protected Class<?> interfaceClass;
 
     /**
      * The reference of the interface implementation
+     * 接口实现类,对象的引用
      */
     protected T ref;
 
     /**
      * The service name
+     * 服务名称,或叫路径
      */
     protected String path;
 
     /**
      * The provider configuration
+     * 提供者配置
      */
     protected ProviderConfig provider;
 
@@ -78,13 +85,23 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
      */
     protected volatile String generic;
 
+    /**
+     * 服务元数据???
+     */
     protected ServiceMetadata serviceMetadata;
 
+    /**
+     * 构造方法
+     */
     public ServiceConfigBase() {
         serviceMetadata = new ServiceMetadata();
         serviceMetadata.addAttribute("ORIGIN_CONFIG", this);
     }
 
+    /**
+     * 构造方法
+     * @param service
+     */
     public ServiceConfigBase(Service service) {
         serviceMetadata = new ServiceMetadata();
         serviceMetadata.addAttribute("ORIGIN_CONFIG", this);
@@ -169,6 +186,11 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
         return (delay == null && provider != null) ? provider.getDelay() : delay;
     }
 
+    /**
+     * 检查是否存在真实实现类对象的引用
+     * 1.不存在则报错
+     * 2.类型不匹配则报错
+     */
     public void checkRef() {
         // reference should not be null, and is the implementation of the given interface
         if (ref == null) {
@@ -209,7 +231,9 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
     }
 
     public void completeCompoundConfigs() {
+        //
         super.completeCompoundConfigs(provider);
+        // 存在提供者,则填充未设置的属性
         if (provider != null) {
             if (protocols == null) {
                 setProtocols(provider.getProtocols());

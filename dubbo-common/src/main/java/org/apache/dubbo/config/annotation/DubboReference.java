@@ -24,6 +24,7 @@ import java.lang.annotation.Target;
 
 /**
  * An annotation used for referencing a Dubbo service
+ * 一个注解,用于引用一个dubbo服务
  *
  * @since 2.7.7
  */

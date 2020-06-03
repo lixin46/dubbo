@@ -26,6 +26,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.STUB_EVENT_KEY;
 
 /**
  * AbstractConsumerConfig
+ * 抽象的客户端引用配置
  *
  * @export
  * @see ReferenceConfigBase
@@ -73,6 +74,7 @@ public abstract class AbstractReferenceConfig extends AbstractInterfaceConfig {
 
     /**
      * The remote service version the customer side will reference
+     * setter注入,服务默认版本
      */
     protected String version;
 

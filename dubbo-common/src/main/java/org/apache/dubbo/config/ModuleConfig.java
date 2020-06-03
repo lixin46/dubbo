@@ -25,6 +25,7 @@ import java.util.List;
 
 /**
  * The module info
+ * 模块信息配置
  *
  * @export
  */

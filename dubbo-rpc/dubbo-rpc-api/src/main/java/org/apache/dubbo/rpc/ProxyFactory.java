@@ -40,7 +40,8 @@ public interface ProxyFactory {
     /**
      * create proxy.
      *
-     * @param invoker
+     * @param invoker 调用器
+     * @param generic 是否通用接口
      * @return proxy
      */
     @Adaptive({PROXY_KEY})

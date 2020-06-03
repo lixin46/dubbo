@@ -51,6 +51,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.COMMA_SPLIT_PATT
 import static org.apache.dubbo.common.constants.CommonConstants.GROUP_KEY;
 
 /**
+ * 携程开发的配置中心
  * Apollo implementation, https://github.com/ctripcorp/apollo
  *
  * Apollo will be used for management of both governance rules and .properties files, by default, these two different

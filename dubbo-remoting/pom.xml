@@ -26,7 +26,10 @@
     <artifactId>dubbo-remoting</artifactId>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
-    <description>The remoting module of dubbo project</description>
+    <description>
+        The remoting module of dubbo project
+        应用层网络协议???
+    </description>
     <properties>
         <skip_maven_deploy>false</skip_maven_deploy>
     </properties>

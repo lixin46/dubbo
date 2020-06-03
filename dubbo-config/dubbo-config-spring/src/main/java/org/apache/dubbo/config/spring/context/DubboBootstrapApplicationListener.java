@@ -27,6 +27,7 @@ import org.springframework.core.Ordered;
 /**
  * The {@link ApplicationListener} for {@link DubboBootstrap}'s lifecycle when the {@link ContextRefreshedEvent}
  * and {@link ContextClosedEvent} raised
+ * 监听上下文刷新完毕的应用事件,刷新完毕后导出服务
  *
  * @since 2.7.5
  */
@@ -40,6 +41,9 @@ public class DubboBootstrapApplicationListener extends OneTimeExecutionApplicati
      */
     public static final String BEAN_NAME = "dubboBootstrapApplicationListener";
 
+    /**
+     * dubbo服务引导
+     */
     private final DubboBootstrap dubboBootstrap;
 
     public DubboBootstrapApplicationListener() {

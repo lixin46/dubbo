@@ -24,6 +24,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.$INVOKE;
 
 /**
  * Replaced with {@link MethodDescriptor}
+ * 使用MethodDescriptor替换之
  */
 @Deprecated
 public class ConsumerMethodModel {

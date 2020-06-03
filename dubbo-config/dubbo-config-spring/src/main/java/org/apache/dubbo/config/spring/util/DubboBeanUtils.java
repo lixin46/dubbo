@@ -70,6 +70,7 @@ public interface DubboBeanUtils {
         );
 
         // Since 2.7.4 Register DubboBootstrapApplicationListener as an infrastructure Bean
+        // 应用事件监听器,用于引导dubbo服务
         registerInfrastructureBean(
                 registry,
                 DubboBootstrapApplicationListener.BEAN_NAME,

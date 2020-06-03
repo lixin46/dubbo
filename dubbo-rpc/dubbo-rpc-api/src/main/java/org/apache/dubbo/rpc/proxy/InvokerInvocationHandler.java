@@ -20,6 +20,7 @@ import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.rpc.Constants;
 import org.apache.dubbo.rpc.Invoker;
+import org.apache.dubbo.rpc.Result;
 import org.apache.dubbo.rpc.RpcInvocation;
 import org.apache.dubbo.rpc.model.ApplicationModel;
 import org.apache.dubbo.rpc.model.ConsumerModel;
@@ -32,9 +33,20 @@ import java.lang.reflect.Method;
  */
 public class InvokerInvocationHandler implements InvocationHandler {
     private static final Logger logger = LoggerFactory.getLogger(InvokerInvocationHandler.class);
+
+    /**
+     * 调用器
+     */
     private final Invoker<?> invoker;
+    /**
+     * 消费者模型,根据服务键获取
+     */
     private ConsumerModel consumerModel;
 
+    /**
+     * 构造方法
+     * @param handler 调用器
+     */
     public InvokerInvocationHandler(Invoker<?> handler) {
         this.invoker = handler;
         String serviceKey = invoker.getUrl().getServiceKey();
@@ -45,6 +57,7 @@ public class InvokerInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        // Object方法调用放行
         if (method.getDeclaringClass() == Object.class) {
             return method.invoke(invoker, args);
         }
@@ -62,15 +75,26 @@ public class InvokerInvocationHandler implements InvocationHandler {
         } else if (parameterTypes.length == 1 && "equals".equals(methodName)) {
             return invoker.equals(args[0]);
         }
-        RpcInvocation rpcInvocation = new RpcInvocation(method, invoker.getInterface().getName(), args);
+        // 封装rpc调用
+        RpcInvocation rpcInvocation = new RpcInvocation(
+                method, // 方法对象
+                invoker.getInterface().getName(),// 接口名
+                args// 实参
+        );
         String serviceKey = invoker.getUrl().getServiceKey();
+        // 目标服务唯一名称
         rpcInvocation.setTargetServiceUniqueName(serviceKey);
-      
+
+        //
         if (consumerModel != null) {
+            // consumerModel
             rpcInvocation.put(Constants.CONSUMER_MODEL, consumerModel);
+            // methodModel
             rpcInvocation.put(Constants.METHOD_MODEL, consumerModel.getMethodModel(method));
         }
-
-        return invoker.invoke(rpcInvocation).recreate();
+        // 发起调用
+        Result result = invoker.invoke(rpcInvocation);
+        // 返回异常则抛出,正常返回则返回
+        return result.recreate();
     }
 }

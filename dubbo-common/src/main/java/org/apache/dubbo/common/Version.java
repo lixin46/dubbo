@@ -158,14 +158,18 @@ public final class Version {
     public static String getVersion(Class<?> cls, String defaultVersion) {
         try {
             // find version info from MANIFEST.MF first
+            // 包
             Package pkg = cls.getPackage();
             String version = null;
+            // 存在包
             if (pkg != null) {
+                // MANIFEST.MF
                 version = pkg.getImplementationVersion();
+                // 非空则返回
                 if (StringUtils.isNotEmpty(version)) {
                     return version;
                 }
-
+                // ???
                 version = pkg.getSpecificationVersion();
                 if (StringUtils.isNotEmpty(version)) {
                     return version;
@@ -173,6 +177,7 @@ public final class Version {
             }
 
             // guess version from jar file name if nothing's found from MANIFEST.MF
+            // 代码来源
             CodeSource codeSource = cls.getProtectionDomain().getCodeSource();
             if (codeSource == null) {
                 logger.info("No codeSource for class " + cls.getName() + " when getVersion, use default version " + defaultVersion);
@@ -181,6 +186,7 @@ public final class Version {
 
             String file = codeSource.getLocation().getFile();
             if (!StringUtils.isEmpty(file) && file.endsWith(".jar")) {
+                // 通过jar包名称获取版本,group-artifact-version.jar
                 version = getFromFile(file);
             }
 

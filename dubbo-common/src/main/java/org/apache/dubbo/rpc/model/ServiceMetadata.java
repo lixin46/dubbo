@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Notice, this class currently has no usage inside Dubbo.
+ * 注意,这个类当前没有在dubbo中使用
  *
  * data related to service level such as name, version, classloader of business service,
  * security info, etc. Also with a AttributeMap for extension.
@@ -32,7 +33,9 @@ public class ServiceMetadata extends BaseServiceMetadata {
 
     private String defaultGroup;
     private Class<?> serviceType;
-
+    /**
+     * 接口的代理对象
+     */
     private Object target;
 
     /* will be transferred to remote side */

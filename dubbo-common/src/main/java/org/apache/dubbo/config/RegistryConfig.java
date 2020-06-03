@@ -29,6 +29,7 @@ import static org.apache.dubbo.config.Constants.REGISTRIES_SUFFIX;
 
 /**
  * RegistryConfig
+ * 注册中心配置
  *
  * @export
  */
@@ -166,6 +167,7 @@ public class RegistryConfig extends AbstractConfig {
 
     /**
      * the address work as config center or not
+     * 是否作为配置中心运行
      */
     private Boolean useAsConfigCenter;
 

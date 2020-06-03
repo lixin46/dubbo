@@ -33,12 +33,35 @@ import java.util.Set;
  * ProviderModel is about published services
  */
 public class ProviderModel {
+
+    /**
+     * 服务实例的唯一标识
+     */
     private String serviceKey;
+    /**
+     * 服务实例
+     */
     private final Object serviceInstance;
+    /**
+     * 服务描述符,有什么用???
+     */
     private final ServiceDescriptor serviceModel;
+    /**
+     * 服务配置
+     */
     private final ServiceConfigBase<?> serviceConfig;
+    /**
+     * 注册状态URL???
+     */
     private final List<RegisterStatedURL> urls;
 
+    /**
+     * 构造方法
+     * @param serviceKey 服务键,服务实例的唯一标识
+     * @param serviceInstance 服务实例
+     * @param serviceModel 服务描述符???
+     * @param serviceConfig 服务配置???
+     */
     public ProviderModel(String serviceKey,
                          Object serviceInstance,
                          ServiceDescriptor serviceModel,
@@ -57,7 +80,6 @@ public class ProviderModel {
     public String getServiceKey() {
         return serviceKey;
     }
-
 
     public Class<?> getServiceInterfaceClass() {
         return serviceModel.getServiceInterfaceClass();
@@ -88,10 +110,25 @@ public class ProviderModel {
     }
 
     public static class RegisterStatedURL {
+        /**
+         * 注册表地址???
+         */
         private volatile URL registryUrl;
+        /**
+         * 提供者地址???
+         */
         private volatile URL providerUrl;
+        /**
+         * 是否已注册???
+         */
         private volatile boolean registered;
 
+        /**
+         * 构造方法
+         * @param providerUrl 提供者地址
+         * @param registryUrl 注册表地址
+         * @param registered 是否已注册
+         */
         public RegisterStatedURL(URL providerUrl,
                                  URL registryUrl,
                                  boolean registered) {
@@ -127,9 +164,23 @@ public class ProviderModel {
 
     /* *************** Start, metadata compatible **************** */
 
+    /**
+     * 服务元数据???
+     */
     private ServiceMetadata serviceMetadata;
+    /**
+     * key为方法名,value为方法模型列表,因为重载所以同步方法不止一个
+     */
     private final Map<String, List<ProviderMethodModel>> methods = new HashMap<String, List<ProviderMethodModel>>();
 
+    /**
+     * 老的构造方法???
+     * @param serviceKey 服务键
+     * @param serviceInstance 服务实例
+     * @param serviceModel 服务描述符
+     * @param serviceConfig 服务配置
+     * @param serviceMetadata 服务元数据,老的配置项???
+     */
     public ProviderModel(String serviceKey,
                          Object serviceInstance,
                          ServiceDescriptor serviceModel,
@@ -138,7 +189,28 @@ public class ProviderModel {
         this(serviceKey, serviceInstance, serviceModel, serviceConfig);
 
         this.serviceMetadata = serviceMetadata;
-        initMethod(serviceModel.getServiceInterfaceClass());
+        Class<?> serviceInterfaceClass = serviceModel.getServiceInterfaceClass();
+        // 初始化方法
+        initMethod(serviceInterfaceClass);
+    }
+
+    private void initMethod(Class<?> serviceInterfaceClass) {
+        Method[] methodsToExport;
+        // 获取所有public方法
+        methodsToExport = serviceInterfaceClass.getMethods();
+        // 遍历public方法
+        for (Method method : methodsToExport) {
+            method.setAccessible(true);
+            // 获取名称对应的方法模型列表
+            List<ProviderMethodModel> methodModels = methods.get(method.getName());
+            // 不存在,则创建后保存
+            if (methodModels == null) {
+                methodModels = new ArrayList<ProviderMethodModel>();
+                methods.put(method.getName(), methodModels);
+            }
+            // 封装方法模型后追加
+            methodModels.add(new ProviderMethodModel(method));
+        }
     }
 
 
@@ -179,21 +251,7 @@ public class ProviderModel {
         return resultList == null ? Collections.emptyList() : resultList;
     }
 
-    private void initMethod(Class<?> serviceInterfaceClass) {
-        Method[] methodsToExport;
-        methodsToExport = serviceInterfaceClass.getMethods();
 
-        for (Method method : methodsToExport) {
-            method.setAccessible(true);
-
-            List<ProviderMethodModel> methodModels = methods.get(method.getName());
-            if (methodModels == null) {
-                methodModels = new ArrayList<ProviderMethodModel>();
-                methods.put(method.getName(), methodModels);
-            }
-            methodModels.add(new ProviderMethodModel(method));
-        }
-    }
 
     /**
      * @return serviceMetadata

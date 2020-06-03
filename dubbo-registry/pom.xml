@@ -25,7 +25,10 @@
     <artifactId>dubbo-registry</artifactId>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
-    <description>The registry module of dubbo project</description>
+    <description>
+        The registry module of dubbo project
+        注册表的集成
+    </description>
     <properties>
         <skip_maven_deploy>false</skip_maven_deploy>
     </properties>

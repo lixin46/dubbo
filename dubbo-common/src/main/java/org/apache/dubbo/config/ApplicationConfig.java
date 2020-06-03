@@ -52,6 +52,7 @@ import static org.apache.dubbo.config.Constants.TEST_ENVIRONMENT;
  * 应用的配置信息,偏静态的数据
  * 对应<dubbo:application>的配置
  *
+ *
  * @export
  */
 public class ApplicationConfig extends AbstractConfig {

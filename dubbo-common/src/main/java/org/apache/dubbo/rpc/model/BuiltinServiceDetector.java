@@ -18,6 +18,9 @@ package org.apache.dubbo.rpc.model;
 
 import org.apache.dubbo.common.extension.SPI;
 
+/**
+ * 通过此接口,自动识别服务接口
+ */
 @SPI
 public interface BuiltinServiceDetector {
 

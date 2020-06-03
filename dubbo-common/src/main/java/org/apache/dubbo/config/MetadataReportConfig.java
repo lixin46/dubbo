@@ -28,7 +28,8 @@ import static org.apache.dubbo.common.constants.CommonConstants.PROPERTIES_CHAR_
 
 /**
  * MetadataReportConfig
- *
+ * 元数据报告配置
+ * <dubbo:metadata-report></dubbo:metadata-report>
  * @export
  */
 public class MetadataReportConfig extends AbstractConfig {

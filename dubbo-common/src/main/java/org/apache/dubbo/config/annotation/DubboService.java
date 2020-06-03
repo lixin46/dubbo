@@ -29,7 +29,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_RETRIES;
 
 /**
  * Class-level annotation used for declaring Dubbo service
- *
+ * 类级别的注解,用于声明dubbo服务
  * @since 2.7.7
  */
 @Documented

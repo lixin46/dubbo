@@ -35,10 +35,15 @@ import org.springframework.context.ApplicationEventPublisherAware;
 /**
  * ServiceFactoryBean
  *
+ * 服务端bean
+ *
  * @export
  */
-public class ServiceBean<T> extends ServiceConfig<T> implements InitializingBean, DisposableBean,
-        ApplicationContextAware, BeanNameAware, ApplicationEventPublisherAware {
+public class ServiceBean<T> extends ServiceConfig<T>
+        implements InitializingBean,// 初始化
+        DisposableBean,// 销毁
+        ApplicationContextAware, BeanNameAware, ApplicationEventPublisherAware// 感知接口
+{
 
 
     private static final long serialVersionUID = 213195494150089726L;

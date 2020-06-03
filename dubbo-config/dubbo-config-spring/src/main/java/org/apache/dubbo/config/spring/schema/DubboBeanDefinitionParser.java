@@ -121,7 +121,8 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
             beanDefinition.getPropertyValues().addPropertyValue("id", id);
         }
 
-        // 协议配置
+        // 当前bean类型为协议配置,则让所有注入了ProtocolConfig对象的其他bean,引用当前bean的运行时引用
+        // 这样可以使所有bean依赖同一个实例
         if (ProtocolConfig.class.equals(beanClass)) {
             // 遍历所有bean定义名称
             for (String name : parserContext.getRegistry().getBeanDefinitionNames()) {
@@ -149,34 +150,40 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
                 RootBeanDefinition classDefinition = new RootBeanDefinition();
                 classDefinition.setBeanClass(ReflectUtils.forName(className));
                 classDefinition.setLazyInit(false);
-                // 解析属性
+                // 解析属性,包含哪些属性???
                 parseProperties(element.getChildNodes(), classDefinition, parserContext);
                 // ServiceBean.setRef()
                 beanDefinition.getPropertyValues().addPropertyValue("ref", new BeanDefinitionHolder(classDefinition, id + "Impl"));
             }
         }
-        // 提供者配置
+        // 提供者配置,ProviderConfig
         else if (ProviderConfig.class.equals(beanClass)) {
+            // 解析子元素
             parseNested(element, parserContext, ServiceBean.class, true, "service", "provider", id, beanDefinition);
         }
-        // 消费者配置
+        // 消费者配置,ConsumerConfig
         else if (ConsumerConfig.class.equals(beanClass)) {
+            // 解析子元素
             parseNested(element, parserContext, ReferenceBean.class, false, "reference", "consumer", id, beanDefinition);
         }
+
+        // 根据bean类中的setter方法,收集xml中要识别的属性名
         Set<String> props = new HashSet<>();
         ManagedMap parameters = null;
         // 获取所有public方法
         for (Method setter : beanClass.getMethods()) {
             String name = setter.getName();
+            // 是setter方法
             if (name.length() > 3 && name.startsWith("set")
                     && Modifier.isPublic(setter.getModifiers())
                     && setter.getParameterTypes().length == 1) {
                 // 形参类型
                 Class<?> type = setter.getParameterTypes()[0];
-                // 属性名
+                // 转换成属性名
                 String beanProperty = name.substring(3, 4).toLowerCase() + name.substring(4);
-                // 驼峰转中划线???
+                // 驼峰转中划线格式,作为xml中元素的属性名(约定)
                 String property = StringUtils.camelToSplitName(beanProperty, "-");
+                //
                 props.add(property);
                 // check the setter/getter whether match
                 Method getter = null;
@@ -190,27 +197,43 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
                         // ApplicationAware, etc. They only have setter method, otherwise will cause the error log during application start up.
                     }
                 }
+                // 不存在getter,或非pubic,或与setter的注入类型不一致
+                // 则跳过
                 if (getter == null
                         || !Modifier.isPublic(getter.getModifiers())
                         || !type.equals(getter.getReturnType())) {
                     continue;
                 }
+                // bean的parameters属性要解析子元素
                 if ("parameters".equals(property)) {
                     parameters = parseParameters(element.getChildNodes(), beanDefinition, parserContext);
-                } else if ("methods".equals(property)) {
+                }
+                // bean的methods方法要解析子元素
+                else if ("methods".equals(property)) {
                     parseMethods(id, element.getChildNodes(), beanDefinition, parserContext);
-                } else if ("arguments".equals(property)) {
+                }
+                //
+                else if ("arguments".equals(property)) {
                     parseArguments(id, element.getChildNodes(), beanDefinition, parserContext);
-                } else {
+                }
+                // 其他的属性,要读取xml元素的属性
+                else {
                     String value = resolveAttribute(element, property, parserContext);
+                    // 存在
                     if (value != null) {
                         value = value.trim();
+                        // 非空
                         if (value.length() > 0) {
+                            // 注册表,且值为N/A
                             if ("registry".equals(property) && RegistryConfig.NO_AVAILABLE.equalsIgnoreCase(value)) {
                                 RegistryConfig registryConfig = new RegistryConfig();
+                                // 地址为N/A
                                 registryConfig.setAddress(RegistryConfig.NO_AVAILABLE);
+                                // 给bean定义直接注入实例
                                 beanDefinition.getPropertyValues().addPropertyValue(beanProperty, registryConfig);
-                            } else if ("provider".equals(property) || "registry".equals(property) || ("protocol".equals(property) && AbstractServiceConfig.class.isAssignableFrom(beanClass))) {
+                            }
+                            //
+                            else if ("provider".equals(property) || "registry".equals(property) || ("protocol".equals(property) && AbstractServiceConfig.class.isAssignableFrom(beanClass))) {
                                 /**
                                  * For 'provider' 'protocol' 'registry', keep literal value (should be id/name) and set the value to 'registryIds' 'providerIds' protocolIds'
                                  * The following process should make sure each id refers to the corresponding instance, here's how to find the instance for different use cases:
@@ -218,7 +241,9 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
                                  * 2. API, directly use id to find configs defined in remote Config Center; if all config instances are defined locally, please use {@link ServiceConfig#setRegistries(List)}
                                  */
                                 beanDefinition.getPropertyValues().addPropertyValue(beanProperty + "Ids", value);
-                            } else {
+                            }
+                            // 其他
+                            else {
                                 Object reference;
                                 if (isPrimitive(type)) {
                                     if ("async".equals(property) && "false".equals(value)

@@ -45,6 +45,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.TIMESTAMP_KEY;
 
 /**
  * AbstractDefaultConfig
+ * 抽象的接口配置,子类包含客户端配置和服务端配置
  *
  * @export
  */
@@ -52,6 +53,49 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
 
     private static final long serialVersionUID = -1559314110797223229L;
 
+    // -----------------------
+    // 除ssl和protocol外,依赖了所有配置
+    /**
+     * Service monitor
+     * 监听器配置
+     */
+    protected MonitorConfig monitor;
+    /**
+     * The application info
+     * 应用配置,可以不配,从模型中获取
+     */
+    protected ApplicationConfig application;
+
+    /**
+     * The module info
+     * 模块配置
+     */
+    protected ModuleConfig module;
+
+    /**
+     * The registry list the service will register to
+     * Also see {@link #registryIds}, only one of them will work.
+     * 注册表配置列表
+     */
+    protected List<RegistryConfig> registries;
+    /**
+     * The method configuration
+     * 方法配置列表
+     */
+    private List<MethodConfig> methods;
+    /**
+     * The metrics configuration
+     */
+    protected MetricsConfig metrics;
+    /**
+     * 元数据报告配置
+     */
+    protected MetadataReportConfig metadataReportConfig;
+    /**
+     * 配置中心配置
+     */
+    protected ConfigCenterConfig configCenter;
+    // ----------------------
     /**
      * Local impl class name for the service interface
      */
@@ -61,12 +105,6 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
      * Local stub class name for the service interface
      */
     protected String stub;
-
-    /**
-     * Service monitor
-     */
-    protected MonitorConfig monitor;
-
     /**
      * Strategies for generating dynamic agents，there are two strategies can be choosed: jdk and javassist
      */
@@ -105,27 +143,6 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     protected String layer;
 
     /**
-     * The application info
-     */
-    protected ApplicationConfig application;
-
-    /**
-     * The module info
-     */
-    protected ModuleConfig module;
-
-    /**
-     * The registry list the service will register to
-     * Also see {@link #registryIds}, only one of them will work.
-     */
-    protected List<RegistryConfig> registries;
-
-    /**
-     * The method configuration
-     */
-    private List<MethodConfig> methods;
-
-    /**
      * The id list of registries the service will register to
      * Also see {@link #registries}, only one of them will work.
      */
@@ -139,14 +156,6 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
      */
     protected String ondisconnect;
 
-    /**
-     * The metrics configuration
-     */
-    protected MetricsConfig metrics;
-    protected MetadataReportConfig metadataReportConfig;
-
-    protected ConfigCenterConfig configCenter;
-
     // callback limits
     private Integer callbacks;
     // the scope for referring/exporting a service, if it's local, it means searching in current JVM only.
@@ -156,11 +165,12 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
 
     private  Boolean auth;
 
-
     /**
      * The url of the reference service
      */
     protected final List<URL> urls = new ArrayList<URL>();
+
+
 
     public List<URL> getExportedUrls() {
         return urls;
@@ -181,6 +191,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         convertRegistryIdsToRegistries();
 
         for (RegistryConfig registryConfig : registries) {
+            // 有效的定义是:存在有效的address
             if (!registryConfig.isValid()) {
                 throw new IllegalStateException("No registry config found or it's not a valid config! " +
                         "The registry config is: " + registryConfig);
@@ -189,9 +200,13 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     }
 
     public static void appendRuntimeParameters(Map<String, String> map) {
+        // dubbo=2.0.2
         map.put(DUBBO_VERSION_KEY, Version.getProtocolVersion());
+        // release=dubbo的版本
         map.put(RELEASE_KEY, Version.getVersion());
+        // timestamp=当前时间
         map.put(TIMESTAMP_KEY, String.valueOf(System.currentTimeMillis()));
+        // pid=进程id
         if (ConfigUtils.getPid() > 0) {
             map.put(PID_KEY, String.valueOf(ConfigUtils.getPid()));
         }
@@ -312,15 +327,20 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
 
     public void completeCompoundConfigs(AbstractInterfaceConfig interfaceConfig) {
         if (interfaceConfig != null) {
+            // 应用名称
             if (application == null) {
                 setApplication(interfaceConfig.getApplication());
             }
+            // 模块名称
             if (module == null) {
                 setModule(interfaceConfig.getModule());
             }
+            // 注册中心
+            // RegistryConfig列表
             if (registries == null) {
                 setRegistries(interfaceConfig.getRegistries());
             }
+            // 监听器,MonitorConfig
             if (monitor == null) {
                 setMonitor(interfaceConfig.getMonitor());
             }

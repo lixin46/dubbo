@@ -101,6 +101,11 @@ import static org.apache.dubbo.rpc.Constants.SCOPE_REMOTE;
 import static org.apache.dubbo.rpc.Constants.TOKEN_KEY;
 import static org.apache.dubbo.rpc.cluster.Constants.EXPORT_KEY;
 
+/**
+ * 服务配置
+ *
+ * @param <T>
+ */
 public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
     public static final Logger logger = LoggerFactory.getLogger(ServiceConfig.class);
@@ -217,39 +222,54 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
     private void checkAndUpdateSubConfigs() {
         // Use default configs defined explicitly with global scope
         completeCompoundConfigs();
+        // 确保provider非null
         checkDefault();
+        // 确保设置了协议
         checkProtocol();
         // init some null configuration.
-        List<ConfigInitializer> configInitializers = ExtensionLoader.getExtensionLoader(ConfigInitializer.class)
-                .getActivateExtension(URL.valueOf("configInitializer://"), (String[]) null);
+        ExtensionLoader<ConfigInitializer> extensionLoader = ExtensionLoader.getExtensionLoader(ConfigInitializer.class);
+        // 获取配置初始化器
+        List<ConfigInitializer> configInitializers = extensionLoader.getActivateExtension(URL.valueOf("configInitializer://"), (String[]) null);
+        // 遍历,调用初始化服务配置
         configInitializers.forEach(e -> e.initServiceConfig(this));
 
         // if protocol is not injvm checkRegistry
+        // 如果协议不是injvm,则检查注册表
         if (!isOnlyInJvm()) {
             checkRegistry();
         }
+        // 刷新
         this.refresh();
 
+        // 接口名为空报错
         if (StringUtils.isEmpty(interfaceName)) {
             throw new IllegalStateException("<dubbo:service interface=\"\" /> interface not allow null!");
         }
 
+        // 引用实现了通用服务接口
         if (ref instanceof GenericService) {
             interfaceClass = GenericService.class;
             if (StringUtils.isEmpty(generic)) {
                 generic = Boolean.TRUE.toString();
             }
-        } else {
+        }
+        // 自己实现的接口
+        else {
             try {
+                // 加载类
                 interfaceClass = Class.forName(interfaceName, true, Thread.currentThread()
                         .getContextClassLoader());
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
+            // 检查接口和方法
             checkInterfaceAndMethods(interfaceClass, getMethods());
+            //
             checkRef();
+            // 非通用服务
             generic = Boolean.FALSE.toString();
         }
+        // 本地又是什么???
         if (local != null) {
             if ("true".equals(local)) {
                 local = interfaceName + "Local";
@@ -264,6 +284,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                 throw new IllegalStateException("The local implementation class " + localClass.getName() + " not implement interface " + interfaceName);
             }
         }
+        // 桩是什么???
         if (stub != null) {
             if ("true".equals(stub)) {
                 stub = interfaceName + "Stub";
@@ -278,9 +299,13 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                 throw new IllegalStateException("The stub implementation class " + stubClass.getName() + " not implement interface " + interfaceName);
             }
         }
+        // 检查桩和本地
         checkStubAndLocal(interfaceClass);
+        // 检查模拟配置
         ConfigValidationUtils.checkMock(interfaceClass, this);
+        // 验证服务配置
         ConfigValidationUtils.validateServiceConfig(this);
+        //
         postProcessConfig();
     }
 
@@ -425,7 +450,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         /**
          * Here the token value configured by the provider is used to assign the value to ServiceConfig#token
          */
-        if(ConfigUtils.isEmpty(token) && provider != null) {
+        if (ConfigUtils.isEmpty(token) && provider != null) {
             token = provider.getToken();
         }
 
@@ -706,8 +731,10 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
     }
 
     private void postProcessConfig() {
-        List<ConfigPostProcessor> configPostProcessors =ExtensionLoader.getExtensionLoader(ConfigPostProcessor.class)
-                .getActivateExtension(URL.valueOf("configPostProcessor://"), (String[]) null);
+        ExtensionLoader<ConfigPostProcessor> extensionLoader = ExtensionLoader.getExtensionLoader(ConfigPostProcessor.class);
+        // 配置处理器
+        List<ConfigPostProcessor> configPostProcessors = extensionLoader.getActivateExtension(URL.valueOf("configPostProcessor://"), (String[]) null);
+        // 后置处理服务配置
         configPostProcessors.forEach(component -> component.postProcessServiceConfig(this));
     }
 

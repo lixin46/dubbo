@@ -35,6 +35,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.DUBBO;
 
 /**
  * ReferenceConfig
+ * 引用配置
  *
  * @export
  */
@@ -49,6 +50,7 @@ public abstract class ReferenceConfigBase<T> extends AbstractReferenceConfig {
 
     /**
      * The interface class of the reference service
+     * 服务接口类,setter注入,<dubbo:reference interfaceClass="">配置
      */
     protected Class<?> interfaceClass;
 
@@ -64,6 +66,7 @@ public abstract class ReferenceConfigBase<T> extends AbstractReferenceConfig {
 
     /**
      * The consumer config (default)
+     * 消费者配置
      */
     protected ConsumerConfig consumer;
 

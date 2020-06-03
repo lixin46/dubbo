@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * Replaced with {@link MethodDescriptor}
+ * 使用MethodDescriptor替换之
  */
 @Deprecated
 public class ProviderMethodModel {

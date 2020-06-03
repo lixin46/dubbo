@@ -153,7 +153,8 @@ public class ConfigManager extends LifecycleAdapter implements FrameworkExt {
     }
 
     public Collection<ConfigCenterConfig> getConfigCenters() {
-        return getConfigs(getTagName(ConfigCenterConfig.class));
+        String tagName = getTagName(ConfigCenterConfig.class);
+        return getConfigs(tagName);
     }
 
     // MetadataReportConfig correlative methods

@@ -22,6 +22,7 @@ import java.util.Map;
 
 /**
  * AbstractMethodConfig
+ * 抽象的方法配置
  *
  * @export
  */

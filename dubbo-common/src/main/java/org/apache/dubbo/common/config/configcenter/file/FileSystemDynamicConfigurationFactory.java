@@ -22,6 +22,7 @@ import org.apache.dubbo.common.config.configcenter.DynamicConfiguration;
 import org.apache.dubbo.common.config.configcenter.DynamicConfigurationFactory;
 
 /**
+ * 基于文件系统的动态配置对象的工厂
  * File-System based {@link DynamicConfigurationFactory} implementation
  *
  * @since 2.7.5

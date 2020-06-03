@@ -31,9 +31,6 @@ public interface Constants {
     String LAYER_KEY = "layer";
 
     /**
-     * General
-     */
-    /**
      * Application name;
      */
     String NAME = "name";
