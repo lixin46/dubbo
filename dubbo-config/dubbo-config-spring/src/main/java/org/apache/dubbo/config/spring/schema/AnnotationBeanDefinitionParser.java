@@ -38,6 +38,7 @@ import static org.springframework.util.StringUtils.trimArrayElements;
 public class AnnotationBeanDefinitionParser extends AbstractSingleBeanDefinitionParser {
 
     /**
+     * bean的类型为ServiceAnnotationBeanPostProcessor
      * parse
      * <prev>
      * &lt;dubbo:annotation package="" /&gt;
@@ -70,6 +71,7 @@ public class AnnotationBeanDefinitionParser extends AbstractSingleBeanDefinition
 
     @Override
     protected Class<?> getBeanClass(Element element) {
+        // bean类型
         return ServiceAnnotationBeanPostProcessor.class;
     }
 

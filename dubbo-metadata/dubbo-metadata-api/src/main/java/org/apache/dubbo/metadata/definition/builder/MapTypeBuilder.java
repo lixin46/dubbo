@@ -32,6 +32,7 @@ import static org.apache.dubbo.common.utils.TypeUtils.isParameterizedType;
 
 /**
  * 2015/1/27.
+ * 只接受Map接口实现
  */
 public class MapTypeBuilder implements TypeBuilder {
 

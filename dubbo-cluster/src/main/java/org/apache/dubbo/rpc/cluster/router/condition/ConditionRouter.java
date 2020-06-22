@@ -50,18 +50,33 @@ import static org.apache.dubbo.rpc.cluster.Constants.RUNTIME_KEY;
 
 /**
  * ConditionRouter
- *
+ * 条件路由器
  */
 public class ConditionRouter extends AbstractRouter {
     public static final String NAME = "condition";
 
     private static final Logger logger = LoggerFactory.getLogger(ConditionRouter.class);
     protected static final Pattern ROUTE_PATTERN = Pattern.compile("([&!=,]*)\\s*([^&!=,\\s]+)");
+    /**
+     * when条件
+     */
     protected Map<String, MatchPair> whenCondition;
+    /**
+     * then条件映射
+     */
     protected Map<String, MatchPair> thenCondition;
 
+    /**
+     * 是否开启
+     */
     private boolean enabled;
 
+    /**
+     * 构造方法
+     * @param rule 规则
+     * @param force 是否强制
+     * @param enabled 是否开启
+     */
     public ConditionRouter(String rule, boolean force, boolean enabled) {
         this.force = force;
         this.enabled = enabled;
@@ -78,14 +93,21 @@ public class ConditionRouter extends AbstractRouter {
 
     public void init(String rule) {
         try {
+            // 为空则报错
             if (rule == null || rule.trim().length() == 0) {
                 throw new IllegalArgumentException("Illegal route rule!");
             }
+            // 去掉consumer.
+            // 去掉provider.
             rule = rule.replace("consumer.", "").replace("provider.", "");
+            // when => then
+            // 其中when是可选的
             int i = rule.indexOf("=>");
             String whenRule = i < 0 ? null : rule.substring(0, i).trim();
             String thenRule = i < 0 ? rule.trim() : rule.substring(i + 2).trim();
+            // when为空或为true,则使用空Map,否则解析规则
             Map<String, MatchPair> when = StringUtils.isBlank(whenRule) || "true".equals(whenRule) ? new HashMap<String, MatchPair>() : parseRule(whenRule);
+            // then为空或为false,则为null,否则解析规则
             Map<String, MatchPair> then = StringUtils.isBlank(thenRule) || "false".equals(thenRule) ? null : parseRule(thenRule);
             // NOTE: It should be determined on the business level whether the `When condition` can be empty or not.
             this.whenCondition = when;
@@ -95,8 +117,7 @@ public class ConditionRouter extends AbstractRouter {
         }
     }
 
-    private static Map<String, MatchPair> parseRule(String rule)
-            throws ParseException {
+    private static Map<String, MatchPair> parseRule(String rule) throws ParseException {
         Map<String, MatchPair> condition = new HashMap<String, MatchPair>();
         if (StringUtils.isBlank(rule)) {
             return condition;
@@ -105,6 +126,7 @@ public class ConditionRouter extends AbstractRouter {
         MatchPair pair = null;
         // Multiple values
         Set<String> values = null;
+        //
         final Matcher matcher = ROUTE_PATTERN.matcher(rule);
         while (matcher.find()) { // Try to match one by one
             String separator = matcher.group(1);

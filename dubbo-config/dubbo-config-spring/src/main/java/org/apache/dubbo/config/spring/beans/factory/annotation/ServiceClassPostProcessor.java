@@ -101,6 +101,9 @@ public class ServiceClassPostProcessor implements BeanDefinitionRegistryPostProc
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
+    /**
+     * 要扫描的包
+     */
     protected final Set<String> packagesToScan;
 
 

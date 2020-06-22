@@ -47,7 +47,11 @@ public class ApplicationModel {
     protected static final Logger LOGGER = LoggerFactory.getLogger(ApplicationModel.class);
     public static final String NAME = "application";
 
+    /**
+     * 模型类初始化标记
+     */
     private static AtomicBoolean INIT_FLAG = new AtomicBoolean(false);
+
     /**
      * 扩展加载器,加载框架扩展
      */
@@ -68,52 +72,6 @@ public class ApplicationModel {
                 // 初始化
                 extensionInstance.init();
             }
-        }
-    }
-
-    /**
-     * @return 所有的消费者模型
-     */
-    public static Collection<ConsumerModel> allConsumerModels() {
-        ServiceRepository serviceRepository = getServiceRepository();
-        return serviceRepository.getReferredServices();
-    }
-
-    /**
-     * @return 所有的提供者模型
-     */
-    public static Collection<ProviderModel> allProviderModels() {
-        ServiceRepository serviceRepository = getServiceRepository();
-        return serviceRepository.getExportedServices();
-    }
-
-    public static ProviderModel getProviderModel(String serviceKey) {
-        ServiceRepository serviceRepository = getServiceRepository();
-        // 查找导出的服务
-        return serviceRepository.lookupExportedService(serviceKey);
-    }
-
-    /**
-     * @param serviceKey 指定的服务键
-     * @return 指定服务键对应的消费者模型
-     */
-    public static ConsumerModel getConsumerModel(String serviceKey) {
-        ServiceRepository serviceRepository = getServiceRepository();
-        return serviceRepository.lookupReferredService(serviceKey);
-    }
-
-
-    /**
-     * 初始化框架扩展???
-     */
-    public static void initFrameworkExts() {
-        // 获取指定类型对应的扩展加载器
-        ExtensionLoader<FrameworkExt> extensionLoader = ExtensionLoader.getExtensionLoader(FrameworkExt.class);
-        // 获取支持的扩展实例
-        Set<FrameworkExt> exts = extensionLoader.getSupportedExtensionInstances();
-        // 遍历,并初始化
-        for (FrameworkExt ext : exts) {
-            ext.initialize();
         }
     }
     // ----------------------------------------------------
@@ -142,6 +100,56 @@ public class ApplicationModel {
         return (ServiceRepository) LOADER.getExtension(ServiceRepository.NAME);
     }
     // ----------------------------------------------------
+
+    /**
+     * @return 所有的消费者模型
+     */
+    public static Collection<ConsumerModel> allConsumerModels() {
+        ServiceRepository serviceRepository = getServiceRepository();
+        return serviceRepository.getReferredServices();
+    }
+
+    /**
+     * @return 所有的提供者模型
+     */
+    public static Collection<ProviderModel> allProviderModels() {
+        ServiceRepository serviceRepository = getServiceRepository();
+        return serviceRepository.getExportedServices();
+    }
+
+    public static ProviderModel getProviderModel(String serviceKey) {
+        ServiceRepository serviceRepository = getServiceRepository();
+        // 查找导出的服务
+        return serviceRepository.lookupExportedService(serviceKey);
+    }
+
+    /**
+     * @param serviceKey 指定的服务键
+     * @return 指定服务键对应的消费者模型
+     */
+    public static ConsumerModel getConsumerModel(String serviceKey) {
+        //
+        ServiceRepository serviceRepository = getServiceRepository();
+        //
+        return serviceRepository.lookupReferredService(serviceKey);
+    }
+
+
+    /**
+     * 初始化框架扩展???
+     */
+    public static void initFrameworkExts() {
+        // 获取指定类型对应的扩展加载器
+        ExtensionLoader<FrameworkExt> extensionLoader = ExtensionLoader.getExtensionLoader(FrameworkExt.class);
+        // 获取支持的扩展实例
+        Set<FrameworkExt> exts = extensionLoader.getSupportedExtensionInstances();
+        // 遍历,并初始化
+        for (FrameworkExt ext : exts) {
+            // 只有Environment会初始化
+            ext.initialize();
+        }
+    }
+
 
     /**
      * 配置管理器中包含应用配置

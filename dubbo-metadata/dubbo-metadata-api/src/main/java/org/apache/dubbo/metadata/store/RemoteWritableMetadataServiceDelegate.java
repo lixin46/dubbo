@@ -23,14 +23,24 @@ import java.util.SortedSet;
 import java.util.function.BiFunction;
 
 /**
- * 2019-08-14
+ * 组件名称为remote
  *
  * @since 2.7.5
  */
 public class RemoteWritableMetadataServiceDelegate implements WritableMetadataService {
+
+    /**
+     * 默认的元数据服务,内存级
+     */
     InMemoryWritableMetadataService defaultWritableMetadataService;
+    /**
+     * 远程元数据服务,内部引用内存元数据服务
+     */
     RemoteWritableMetadataService remoteWritableMetadataService;
 
+    /**
+     * 构造方法
+     */
     public RemoteWritableMetadataServiceDelegate() {
         defaultWritableMetadataService = (InMemoryWritableMetadataService) WritableMetadataService.getExtension("local");
         remoteWritableMetadataService = new RemoteWritableMetadataService(defaultWritableMetadataService);

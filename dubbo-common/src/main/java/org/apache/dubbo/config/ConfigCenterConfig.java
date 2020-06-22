@@ -40,6 +40,7 @@ import static org.apache.dubbo.config.Constants.ZOOKEEPER_PROTOCOL;
  * 配置中心配置
  */
 public class ConfigCenterConfig extends AbstractConfig {
+
     private AtomicBoolean inited = new AtomicBoolean(false);
 
     private String protocol;
@@ -71,10 +72,17 @@ public class ConfigCenterConfig extends AbstractConfig {
     /* Used to specify the key that your properties file mapping to, most of the time you do not need to change this parameter.
     Notice that for Apollo, this parameter is meaningless, set the 'namespace' is enough.
     */
+    /**
+     * 全局属性配置文件路径
+     * 默认为dubbo.properties
+     */
     private String configFile = CommonConstants.DEFAULT_DUBBO_PROPERTIES;
 
     /* the .properties file under 'configFile' is global shared while .properties under this one is limited only to this application
-    */
+     */
+    /**
+     * 应用属性配置文件路径
+     */
     private String appConfigFile;
 
     /* If the Config Center product you use have some special parameters that is not covered by this class, you can add it to here.
@@ -85,25 +93,154 @@ public class ConfigCenterConfig extends AbstractConfig {
      */
     private Map<String, String> parameters;
 
+    /**
+     * 全局属性配置
+     */
     private Map<String, String> externalConfiguration;
 
+    /**
+     * 应用属性配置
+     */
     private Map<String, String> appExternalConfiguration;
 
+    /**
+     * 构造方法
+     */
     public ConfigCenterConfig() {
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可导出getter
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public Integer getPort() {
+        return port;
+    }
+
+    public String getCluster() {
+        return cluster;
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public Boolean isCheck() {
+        return check;
+    }
+
+    @Parameter(key = CONFIG_ENABLE_KEY)
+    public Boolean isHighestPriority() {
+        return highestPriority;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Long getTimeout() {
+        return timeout;
+    }
+
+    @Parameter(key = CONFIG_CONFIGFILE_KEY)
+    public String getConfigFile() {
+        return configFile;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可注入setter
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+        if (address != null) {
+            try {
+                URL url = URL.valueOf(address);
+                setUsername(url.getUsername());
+                setPassword(url.getPassword());
+                updateIdIfAbsent(url.getProtocol());
+                updateProtocolIfAbsent(url.getProtocol());
+                updatePortIfAbsent(url.getPort());
+                updateParameters(url.getParameters());
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    public void setPort(Integer port) {
+        this.port = port;
+    }
+
+    public void setCluster(String cluster) {
+        this.cluster = cluster;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public void setCheck(Boolean check) {
+        this.check = check;
+    }
+
+    public void setHighestPriority(Boolean highestPriority) {
+        this.highestPriority = highestPriority;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setTimeout(Long timeout) {
+        this.timeout = timeout;
+    }
+
+    public void setConfigFile(String configFile) {
+        this.configFile = configFile;
+    }
+
+    public void setAppConfigFile(String appConfigFile) {
+        this.appConfigFile = appConfigFile;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 普通
     public URL toUrl() {
-        Map<String, String> map = new HashMap<>();
-        appendParameters(map, this);
+        Map<String, String> parameters = new HashMap<>();
+        // getter获取参数
+        appendParameters(parameters, this);
+        // 地址为空则默认为0.0.0.0
         if (StringUtils.isEmpty(address)) {
             address = ANYHOST_VALUE;
         }
-        map.put(PATH_KEY, ConfigCenterConfig.class.getSimpleName());
+        // path参数为ConfigCenterConfig类名
+        parameters.put(PATH_KEY, ConfigCenterConfig.class.getSimpleName());
         // use 'zookeeper' as the default configcenter.
-        if (StringUtils.isEmpty(map.get(PROTOCOL_KEY))) {
-            map.put(PROTOCOL_KEY, ZOOKEEPER_PROTOCOL);
+        // protocol参数为空,则默认使用zookeeper
+        if (StringUtils.isEmpty(parameters.get(PROTOCOL_KEY))) {
+            parameters.put(PROTOCOL_KEY, ZOOKEEPER_PROTOCOL);
         }
-        return UrlUtils.parseURL(address, map);
+        return UrlUtils.parseURL(address, parameters);
     }
 
     public boolean checkOrUpdateInited() {
@@ -126,124 +263,14 @@ public class ConfigCenterConfig extends AbstractConfig {
         this.appExternalConfiguration = appExternalConfiguration;
     }
 
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-
     @Parameter(excluded = true)
     public String getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
-        if (address != null) {
-            try {
-                URL url = URL.valueOf(address);
-                setUsername(url.getUsername());
-                setPassword(url.getPassword());
-                updateIdIfAbsent(url.getProtocol());
-                updateProtocolIfAbsent(url.getProtocol());
-                updatePortIfAbsent(url.getPort());
-                updateParameters(url.getParameters());
-            } catch (Exception ignored) {
-            }
-        }
-    }
-
-    public Integer getPort() {
-        return port;
-    }
-
-    public void setPort(Integer port) {
-        this.port = port;
-    }
-
-    public String getCluster() {
-        return cluster;
-    }
-
-    public void setCluster(String cluster) {
-        this.cluster = cluster;
-    }
-
-    public String getNamespace() {
-        return namespace;
-    }
-
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
-    public Boolean isCheck() {
-        return check;
-    }
-
-    public void setCheck(Boolean check) {
-        this.check = check;
-    }
-
-    @Parameter(key = CONFIG_ENABLE_KEY)
-    public Boolean isHighestPriority() {
-        return highestPriority;
-    }
-
-    public void setHighestPriority(Boolean highestPriority) {
-        this.highestPriority = highestPriority;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Long getTimeout() {
-        return timeout;
-    }
-
-    public void setTimeout(Long timeout) {
-        this.timeout = timeout;
-    }
-
-    @Parameter(key = CONFIG_CONFIGFILE_KEY)
-    public String getConfigFile() {
-        return configFile;
-    }
-
-    public void setConfigFile(String configFile) {
-        this.configFile = configFile;
-    }
-
     @Parameter(excluded = true, key = CONFIG_APP_CONFIGFILE_KEY)
     public String getAppConfigFile() {
         return appConfigFile;
-    }
-
-    public void setAppConfigFile(String appConfigFile) {
-        this.appConfigFile = appConfigFile;
     }
 
     public Map<String, String> getParameters() {
@@ -257,10 +284,11 @@ public class ConfigCenterConfig extends AbstractConfig {
     @Override
     @Parameter(excluded = true)
     public boolean isValid() {
+        // address为空则无效
         if (StringUtils.isEmpty(address)) {
             return false;
         }
-
+        // 包含:// 或协议非空则有效
         return address.contains("://") || StringUtils.isNotEmpty(protocol);
     }
 
@@ -286,5 +314,6 @@ public class ConfigCenterConfig extends AbstractConfig {
             this.parameters.putAll(parameters);
         }
     }
+    // -----------------------------------------------------------------------------------------------------------------
 
 }

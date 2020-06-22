@@ -30,22 +30,37 @@ import static org.apache.dubbo.metadata.report.support.Constants.METADATA_REPORT
  */
 public class MetadataReportInstance {
 
+    /**
+     * 单例的初始化状态
+     */
     private static AtomicBoolean init = new AtomicBoolean(false);
 
+    /**
+     * 单例
+     */
     private static MetadataReport metadataReport;
 
+    /**
+     * 根据url配置,初始化元数据报告对象
+     * @param metadataReportURL 元数据报告的url配置
+     */
     public static void init(URL metadataReportURL) {
         if (init.get()) {
             return;
         }
+        // 元数据报告工厂
         MetadataReportFactory metadataReportFactory = ExtensionLoader.getExtensionLoader(MetadataReportFactory.class).getAdaptiveExtension();
+        // 协议为metadata
         if (METADATA_REPORT_KEY.equals(metadataReportURL.getProtocol())) {
+            // 获取metadata参数,默认为dubbo
             String protocol = metadataReportURL.getParameter(METADATA_REPORT_KEY, DEFAULT_DIRECTORY);
+            //
             metadataReportURL = URLBuilder.from(metadataReportURL)
-                    .setProtocol(protocol)
-                    .removeParameter(METADATA_REPORT_KEY)
+                    .setProtocol(protocol)// 把metadata参数变成协议
+                    .removeParameter(METADATA_REPORT_KEY)// 删除metadata参数
                     .build();
         }
+        // 工厂适配器,根据metadata的配置,映射对应实例
         metadataReport = metadataReportFactory.getMetadataReport(metadataReportURL);
         init.set(true);
     }
@@ -55,6 +70,7 @@ public class MetadataReportInstance {
     }
 
     public static MetadataReport getMetadataReport(boolean checked) {
+        // 检查,则检查初始化
         if (checked) {
             checkInit();
         }

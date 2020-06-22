@@ -33,7 +33,7 @@ import static org.apache.dubbo.common.constants.RegistryConstants.EMPTY_PROTOCOL
 
 /**
  * Configurator. (SPI, Prototype, ThreadSafe)
- *
+ * 配置器???
  */
 public interface Configurator extends Comparable<Configurator> {
 

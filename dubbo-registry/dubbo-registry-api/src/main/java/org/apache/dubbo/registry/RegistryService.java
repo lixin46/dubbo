@@ -20,36 +20,36 @@ import org.apache.dubbo.common.URL;
 
 import java.util.List;
 
+
 /**
- * RegistryService. (SPI, Prototype, ThreadSafe)
+ * 注册服务(SPI, Prototype, ThreadSafe)
+ * 这是dubbo自己定义的服务接口
  *
- * @see org.apache.dubbo.registry.Registry
- * @see org.apache.dubbo.registry.RegistryFactory#getRegistry(URL)
+ * 提供以下能力:
+ * 1.注册/注销
+ * 2.订阅/取消订阅(推模式)
+ * 3.查询(拉模式)
  */
 public interface RegistryService {
 
     /**
-     * Register data, such as : provider service, consumer address, route rule, override rule and other data.
-     * <p>
-     * Registering is required to support the contract:<br>
-     * 1. When the URL sets the check=false parameter. When the registration fails, the exception is not thrown and retried in the background. Otherwise, the exception will be thrown.<br>
-     * 2. When URL sets the dynamic=false parameter, it needs to be stored persistently, otherwise, it should be deleted automatically when the registrant has an abnormal exit.<br>
-     * 3. When the URL sets category=routers, it means classified storage, the default category is providers, and the data can be notified by the classified section. <br>
-     * 4. When the registry is restarted, network jitter, data can not be lost, including automatically deleting data from the broken line.<br>
-     * 5. Allow URLs which have the same URL but different parameters to coexist,they can't cover each other.<br>
-     *
-     * @param url  Registration information , is not allowed to be empty, e.g: dubbo://10.20.153.10/org.apache.dubbo.foo.BarService?version=1.0.0&application=kylin
+     * 注册数据,例如:Provider服务,consumer地址,路由规则,重写规则和其他数据
+     * 注册被要求支持协议:
+     * 1.当url设置了check=false参数,当注册失败,不能抛出异常且需要后台重试.否则异常将被抛出.
+     * 2.当url设置了dynamic=false参数,需要持久化存储,否则当注册终止退出时被自动删除.(动态配置自动删除)
+     * 3.当url设置了category=routers参数,意味着分类存储,默认分类为providers,且数据可以被分类区域通知.
+     * 4.当注册中心重启,网络抖动,数据不能丢失,包括自动删除数据
+     * 5.允许相同url包含不同参数,他们不能彼此覆盖
+     * @param url 注册信息,不允许为空
      */
     void register(URL url);
 
     /**
-     * Unregister
-     * <p>
-     * Unregistering is required to support the contract:<br>
-     * 1. If it is the persistent stored data of dynamic=false, the registration data can not be found, then the IllegalStateException is thrown, otherwise it is ignored.<br>
-     * 2. Unregister according to the full url match.<br>
-     *
-     * @param url Registration information , is not allowed to be empty, e.g: dubbo://10.20.153.10/org.apache.dubbo.foo.BarService?version=1.0.0&application=kylin
+     * 注销数据
+     * 注销被要求支持以下协议:
+     * 1.如果是dynamic=false配置的持久化数据,则注册数据不能被找到,之后抛出IllegalStateException异常,否则会忽略.
+     * 2.注销根据完整url匹配
+     * @param url 指定的url
      */
     void unregister(URL url);
 
@@ -83,11 +83,9 @@ public interface RegistryService {
     void unsubscribe(URL url, NotifyListener listener);
 
     /**
-     * Query the registered data that matches the conditions. Corresponding to the push mode of the subscription, this is the pull mode and returns only one result.
-     *
-     * @param url Query condition, is not allowed to be empty, e.g. consumer://10.20.153.10/org.apache.dubbo.foo.BarService?version=1.0.0&application=kylin
-     * @return The registered information list, which may be empty, the meaning is the same as the parameters of {@link org.apache.dubbo.registry.NotifyListener#notify(List<URL>)}.
-     * @see org.apache.dubbo.registry.NotifyListener#notify(List)
+     * 查询匹配条件的注册数据.对应于订阅的推模式,这是拉模式只返回一个结果
+     * @param url 查询条件,不允许为空,如:consumer://10.20.153.10/org.apache.dubbo.foo.BarService?version=1.0.0&application=kylin
+     * @return 注册信息列表,可以为空
      */
     List<URL> lookup(URL url);
 

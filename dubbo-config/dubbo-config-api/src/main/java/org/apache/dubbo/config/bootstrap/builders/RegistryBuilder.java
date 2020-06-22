@@ -84,10 +84,10 @@ public class RegistryBuilder extends AbstractBuilder<RegistryConfig, RegistryBui
      */
     private String file;
 
-    /**
-     * Wait time before stop
-     */
-    private Integer wait;
+//    /**
+//     * Wait time before stop
+//     */
+//    private Integer wait;
 
     /**
      * Whether to check if register center is available when boot up
@@ -249,16 +249,16 @@ public class RegistryBuilder extends AbstractBuilder<RegistryConfig, RegistryBui
         return getThis();
     }
 
-    /**
-     * @param wait
-     * @see ProviderBuilder#wait(Integer)
-     * @deprecated
-     */
-    @Deprecated
-    public RegistryBuilder wait(Integer wait) {
-        this.wait = wait;
-        return getThis();
-    }
+//    /**
+//     * @param wait
+//     * @see ProviderBuilder#wait(Integer)
+//     * @deprecated
+//     */
+//    @Deprecated
+//    public RegistryBuilder wait(Integer wait) {
+//        this.wait = wait;
+//        return getThis();
+//    }
 
     public RegistryBuilder isCheck(Boolean check) {
         this.check = check;
@@ -356,7 +356,7 @@ public class RegistryBuilder extends AbstractBuilder<RegistryConfig, RegistryBui
         registry.setTransporter(transporter);
         registry.setUsername(username);
         registry.setVersion(version);
-        registry.setWait(wait);
+//        registry.setWait(wait);
         registry.setUseAsConfigCenter(useAsConfigCenter);
         registry.setUseAsMetadataCenter(useAsMetadataCenter);
         registry.setAccepts(accepts);

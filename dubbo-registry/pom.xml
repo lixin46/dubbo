@@ -27,7 +27,7 @@
     <name>${project.artifactId}</name>
     <description>
         The registry module of dubbo project
-        注册表的集成
+        dubbo项目的注册中心模块,定义了访问注册中心的客户端API,同时集成了各种第三方实现.
     </description>
     <properties>
         <skip_maven_deploy>false</skip_maven_deploy>

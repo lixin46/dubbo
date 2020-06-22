@@ -32,6 +32,11 @@ import java.util.Set;
  */
 public interface MetadataReport {
 
+    /**
+     * 存储提供者元数据
+     * @param providerMetadataIdentifier 元数据标识符
+     * @param serviceDefinition 完整服务定义
+     */
     void storeProviderMetadata(MetadataIdentifier providerMetadataIdentifier, ServiceDefinition serviceDefinition);
 
     void storeConsumerMetadata(MetadataIdentifier consumerMetadataIdentifier, Map<String, String> serviceParameterMap);

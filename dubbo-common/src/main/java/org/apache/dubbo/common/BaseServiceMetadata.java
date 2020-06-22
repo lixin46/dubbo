@@ -29,12 +29,22 @@ public class BaseServiceMetadata {
     protected String version;
     protected volatile String group;
 
+    /**
+     *
+     * @param path 路径,即接口名
+     * @param group 分组
+     * @param version 版本
+     * @return {group}/{path}:{version}
+     */
     public static String buildServiceKey(String path, String group, String version) {
         StringBuilder buf = new StringBuilder();
+        // group非空
         if (group != null && group.length() > 0) {
             buf.append(group).append("/");
         }
+        //
         buf.append(path);
+        // version非空
         if (version != null && version.length() > 0) {
             buf.append(":").append(version);
         }

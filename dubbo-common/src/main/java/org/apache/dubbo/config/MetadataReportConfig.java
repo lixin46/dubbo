@@ -30,6 +30,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.PROPERTIES_CHAR_
  * MetadataReportConfig
  * 元数据报告配置
  * <dubbo:metadata-report></dubbo:metadata-report>
+ *
  * @export
  */
 public class MetadataReportConfig extends AbstractConfig {
@@ -79,13 +80,107 @@ public class MetadataReportConfig extends AbstractConfig {
      */
     private Boolean cluster;
 
+    /**
+     * 构造方法
+     */
     public MetadataReportConfig() {
     }
 
+    /**
+     * 构造方法
+     *
+     * @param address
+     */
     public MetadataReportConfig(String address) {
         setAddress(address);
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可导出getter
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Integer getTimeout() {
+        return timeout;
+    }
+
+    @Parameter(key = "retry-times")
+    public Integer getRetryTimes() {
+        return retryTimes;
+    }
+
+    @Parameter(key = "retry-period")
+    public Integer getRetryPeriod() {
+        return retryPeriod;
+    }
+
+    @Parameter(key = "cycle-report")
+    public Boolean getCycleReport() {
+        return cycleReport;
+    }
+
+    @Parameter(key = "sync-report")
+    public Boolean getSyncReport() {
+        return syncReport;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public Boolean getCluster() {
+        return cluster;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可注入setter
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setTimeout(Integer timeout) {
+        this.timeout = timeout;
+    }
+
+    public void setRetryTimes(Integer retryTimes) {
+        this.retryTimes = retryTimes;
+    }
+
+    public void setRetryPeriod(Integer retryPeriod) {
+        this.retryPeriod = retryPeriod;
+    }
+
+    public void setCycleReport(Boolean cycleReport) {
+        this.cycleReport = cycleReport;
+    }
+
+    public void setSyncReport(Boolean syncReport) {
+        this.syncReport = syncReport;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public void setCluster(Boolean cluster) {
+        this.cluster = cluster;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 普通
     public URL toUrl() {
         String address = this.getAddress();
         if (StringUtils.isEmpty(address)) {
@@ -107,76 +202,12 @@ public class MetadataReportConfig extends AbstractConfig {
         return address;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Integer getTimeout() {
-        return timeout;
-    }
-
-    public void setTimeout(Integer timeout) {
-        this.timeout = timeout;
-    }
-
     public Map<String, String> getParameters() {
         return parameters;
     }
 
     public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
-    }
-
-    @Parameter(key = "retry-times")
-    public Integer getRetryTimes() {
-        return retryTimes;
-    }
-
-    public void setRetryTimes(Integer retryTimes) {
-        this.retryTimes = retryTimes;
-    }
-
-    @Parameter(key = "retry-period")
-    public Integer getRetryPeriod() {
-        return retryPeriod;
-    }
-
-    public void setRetryPeriod(Integer retryPeriod) {
-        this.retryPeriod = retryPeriod;
-    }
-
-    @Parameter(key = "cycle-report")
-    public Boolean getCycleReport() {
-        return cycleReport;
-    }
-
-    public void setCycleReport(Boolean cycleReport) {
-        this.cycleReport = cycleReport;
-    }
-
-    @Parameter(key = "sync-report")
-    public Boolean getSyncReport() {
-        return syncReport;
-    }
-
-    public void setSyncReport(Boolean syncReport) {
-        this.syncReport = syncReport;
     }
 
     @Override
@@ -190,20 +221,7 @@ public class MetadataReportConfig extends AbstractConfig {
     public boolean isValid() {
         return StringUtils.isNotEmpty(address);
     }
+    // -----------------------------------------------------------------------------------------------------------------
 
-    public String getGroup() {
-        return group;
-    }
 
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
-    public Boolean getCluster() {
-        return cluster;
-    }
-
-    public void setCluster(Boolean cluster) {
-        this.cluster = cluster;
-    }
 }

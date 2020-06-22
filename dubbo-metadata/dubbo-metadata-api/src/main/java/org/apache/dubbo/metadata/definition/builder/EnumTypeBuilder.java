@@ -23,6 +23,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
+ * 只接受枚举
  * 2015/1/27.
  */
 public class EnumTypeBuilder implements TypeBuilder {

@@ -33,7 +33,8 @@ import java.util.concurrent.ConcurrentMap;
 import static org.apache.dubbo.common.constants.CommonConstants.COMMA_SPLIT_PATTERN;
 
 /**
- * ConsistentHashLoadBalance
+ * 一致性哈希负载均衡
+ * 组件名称为consistenthash
  */
 public class ConsistentHashLoadBalance extends AbstractLoadBalance {
     public static final String NAME = "consistenthash";

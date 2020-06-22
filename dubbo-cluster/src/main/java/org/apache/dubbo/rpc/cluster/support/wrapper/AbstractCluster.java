@@ -36,12 +36,16 @@ public abstract class AbstractCluster implements Cluster {
 
     private <T> Invoker<T> buildClusterInterceptors(AbstractClusterInvoker<T> clusterInvoker, String key) {
         AbstractClusterInvoker<T> last = clusterInvoker;
+        // 集群拦截器
         List<ClusterInterceptor> interceptors = ExtensionLoader.getExtensionLoader(ClusterInterceptor.class).getActivateExtension(clusterInvoker.getUrl(), key);
-
+        // 非空
         if (!interceptors.isEmpty()) {
+            // 遍历
             for (int i = interceptors.size() - 1; i >= 0; i--) {
+                // 获取拦截器
                 final ClusterInterceptor interceptor = interceptors.get(i);
                 final AbstractClusterInvoker<T> next = last;
+                // 封装拦截器,拦截调用器
                 last = new InterceptorInvokerNode<>(clusterInvoker, interceptor, next);
             }
         }
@@ -50,15 +54,33 @@ public abstract class AbstractCluster implements Cluster {
 
     @Override
     public <T> Invoker<T> join(Directory<T> directory) throws RpcException {
-        return buildClusterInterceptors(doJoin(directory), directory.getUrl().getParameter(REFERENCE_INTERCEPTOR_KEY));
+        // 子类实现
+        AbstractClusterInvoker<T> invoker = doJoin(directory);
+        // reference.interceptor
+        String interceptor = directory.getUrl().getParameter(REFERENCE_INTERCEPTOR_KEY);
+        // 构建拦截器链
+        return buildClusterInterceptors(invoker, interceptor);
     }
 
     protected abstract <T> AbstractClusterInvoker<T> doJoin(Directory<T> directory) throws RpcException;
 
+    /**
+     * 拦截器代理
+     * @param <T>
+     */
     protected class InterceptorInvokerNode<T> extends AbstractClusterInvoker<T> {
 
+        /**
+         * 原始的调用器
+         */
         private AbstractClusterInvoker<T> clusterInvoker;
+        /**
+         * 拦截器
+         */
         private ClusterInterceptor interceptor;
+        /**
+         * 下一个被代理的调用器
+         */
         private AbstractClusterInvoker<T> next;
 
         public InterceptorInvokerNode(AbstractClusterInvoker<T> clusterInvoker,

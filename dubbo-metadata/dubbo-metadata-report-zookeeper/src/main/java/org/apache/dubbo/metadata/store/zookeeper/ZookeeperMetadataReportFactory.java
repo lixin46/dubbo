@@ -22,6 +22,7 @@ import org.apache.dubbo.metadata.report.support.AbstractMetadataReportFactory;
 import org.apache.dubbo.remoting.zookeeper.ZookeeperTransporter;
 
 /**
+ * 组件名称为zookeeper
  * ZookeeperRegistryFactory.
  */
 public class ZookeeperMetadataReportFactory extends AbstractMetadataReportFactory {

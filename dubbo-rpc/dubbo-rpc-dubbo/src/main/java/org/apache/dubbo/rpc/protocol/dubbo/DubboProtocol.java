@@ -89,6 +89,7 @@ import static org.apache.dubbo.rpc.protocol.dubbo.Constants.SHARE_CONNECTIONS_KE
 
 /**
  * dubbo protocol support.
+ * dubbo协议,默认的协议实现
  */
 public class DubboProtocol extends AbstractProtocol {
 
@@ -105,6 +106,9 @@ public class DubboProtocol extends AbstractProtocol {
     private final ConcurrentMap<String, Object> locks = new ConcurrentHashMap<>();
     private final Set<String> optimizers = new ConcurrentHashSet<>();
 
+    /**
+     * 交换处理器
+     */
     private ExchangeHandler requestHandler = new ExchangeHandlerAdapter() {
 
         @Override
@@ -117,6 +121,7 @@ public class DubboProtocol extends AbstractProtocol {
             }
 
             Invocation inv = (Invocation) message;
+            // 获取调用器
             Invoker<?> invoker = getInvoker(channel, inv);
             // need to consider backward-compatibility if it's a callback
             if (Boolean.TRUE.toString().equals(inv.getObjectAttachments().get(IS_CALLBACK_SERVICE_INVOKE))) {
@@ -141,8 +146,11 @@ public class DubboProtocol extends AbstractProtocol {
                     return null;
                 }
             }
+            //
             RpcContext.getContext().setRemoteAddress(channel.getRemoteAddress());
+            // 调用
             Result result = invoker.invoke(inv);
+            //
             return result.thenApply(Function.identity());
         }
 
@@ -282,13 +290,17 @@ public class DubboProtocol extends AbstractProtocol {
         URL url = invoker.getUrl();
 
         // export service.
+        // 服务键
         String key = serviceKey(url);
+        // 创建导出器
         DubboExporter<T> exporter = new DubboExporter<T>(invoker, key, exporterMap);
+        // 保存映射
         exporterMap.put(key, exporter);
 
         //export an stub service for dispatching event
         Boolean isStubSupportEvent = url.getParameter(STUB_EVENT_KEY, DEFAULT_STUB_EVENT);
         Boolean isCallbackservice = url.getParameter(IS_CALLBACK_SERVICE, false);
+        //
         if (isStubSupportEvent && !isCallbackservice) {
             String stubServiceMethods = url.getParameter(STUB_EVENT_METHODS_KEY);
             if (stubServiceMethods == null || stubServiceMethods.length() == 0) {
@@ -299,28 +311,39 @@ public class DubboProtocol extends AbstractProtocol {
 
             }
         }
-
+        // 启动服务器
         openServer(url);
+        // 优化序列化
         optimizeSerialization(url);
-
         return exporter;
     }
 
     private void openServer(URL url) {
-        // find server.
+        // host:port
         String key = url.getAddress();
         //client can export a service which's only for server to invoke
+        // isserver参数值
         boolean isServer = url.getParameter(IS_SERVER_KEY, true);
+        //
         if (isServer) {
+            // 协议服务器
             ProtocolServer server = serverMap.get(key);
+            // 不存在
             if (server == null) {
                 synchronized (this) {
+                    // 加锁读
                     server = serverMap.get(key);
+                    // 不存在
                     if (server == null) {
-                        serverMap.put(key, createServer(url));
+                        // 创建
+                        server = createServer(url);
+                        // 保存映射
+                        serverMap.put(key, server);
                     }
                 }
-            } else {
+            }
+            // 存在则重置
+            else {
                 // server supports reset, use together with override
                 server.reset(url);
             }
@@ -335,24 +358,28 @@ public class DubboProtocol extends AbstractProtocol {
                 .addParameterIfAbsent(HEARTBEAT_KEY, String.valueOf(DEFAULT_HEARTBEAT))
                 .addParameter(CODEC_KEY, DubboCodec.NAME)
                 .build();
-        String str = url.getParameter(SERVER_KEY, DEFAULT_REMOTING_SERVER);
-
-        if (str != null && str.length() > 0 && !ExtensionLoader.getExtensionLoader(Transporter.class).hasExtension(str)) {
-            throw new RpcException("Unsupported server type: " + str + ", url: " + url);
+        // server=netty
+        // 默认为netty
+        String transporterName = url.getParameter(SERVER_KEY, DEFAULT_REMOTING_SERVER);
+        // 扩展实例不存在,则报错
+        if (transporterName != null && transporterName.length() > 0 && !ExtensionLoader.getExtensionLoader(Transporter.class).hasExtension(transporterName)) {
+            throw new RpcException("Unsupported server type: " + transporterName + ", url: " + url);
         }
 
         ExchangeServer server;
         try {
+            // 绑定???
             server = Exchangers.bind(url, requestHandler);
         } catch (RemotingException e) {
             throw new RpcException("Fail to start server(url: " + url + ") " + e.getMessage(), e);
         }
-
-        str = url.getParameter(CLIENT_KEY);
-        if (str != null && str.length() > 0) {
+        // client
+        transporterName = url.getParameter(CLIENT_KEY);
+        // 检查客户端传输器是否支持
+        if (transporterName != null && transporterName.length() > 0) {
             Set<String> supportedTypes = ExtensionLoader.getExtensionLoader(Transporter.class).getSupportedExtensions();
-            if (!supportedTypes.contains(str)) {
-                throw new RpcException("Unsupported client type: " + str);
+            if (!supportedTypes.contains(transporterName)) {
+                throw new RpcException("Unsupported client type: " + transporterName);
             }
         }
 
@@ -360,6 +387,7 @@ public class DubboProtocol extends AbstractProtocol {
     }
 
     private void optimizeSerialization(URL url) throws RpcException {
+        // optimizer
         String className = url.getParameter(OPTIMIZER_KEY, "");
         if (StringUtils.isEmpty(className) || optimizers.contains(className)) {
             return;
@@ -368,18 +396,21 @@ public class DubboProtocol extends AbstractProtocol {
         logger.info("Optimizing the serialization process for Kryo, FST, etc...");
 
         try {
+            // 加载类
             Class clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
+            // 非SerializationOptimizer序列化优化器类型,则报错
             if (!SerializationOptimizer.class.isAssignableFrom(clazz)) {
                 throw new RpcException("The serialization optimizer " + className + " isn't an instance of " + SerializationOptimizer.class.getName());
             }
-
+            // 无参构造实例化
             SerializationOptimizer optimizer = (SerializationOptimizer) clazz.newInstance();
 
             if (optimizer.getSerializableClasses() == null) {
                 return;
             }
-
+            // 遍历可序列化的类
             for (Class c : optimizer.getSerializableClasses()) {
+                // 注册
                 SerializableClassRegistry.registerClass(c);
             }
 

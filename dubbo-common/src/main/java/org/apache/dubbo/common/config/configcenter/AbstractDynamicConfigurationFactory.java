@@ -35,9 +35,16 @@ public abstract class AbstractDynamicConfigurationFactory implements DynamicConf
 
     @Override
     public final DynamicConfiguration getDynamicConfiguration(URL url) {
+        // default或url的地址
         String key = url == null ? DEFAULT_KEY : url.getAddress();
+        // 获取,不存在时创建
         return dynamicConfigurations.computeIfAbsent(key, k -> createDynamicConfiguration(url));
     }
 
+    /**
+     * 创建动态配置对象
+     * @param url 信息
+     * @return 动态配置
+     */
     protected abstract DynamicConfiguration createDynamicConfiguration(URL url);
 }

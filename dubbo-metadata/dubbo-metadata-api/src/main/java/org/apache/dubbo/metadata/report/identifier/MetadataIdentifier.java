@@ -32,11 +32,25 @@ import static org.apache.dubbo.common.constants.CommonConstants.VERSION_KEY;
  */
 public class MetadataIdentifier extends BaseServiceMetadataIdentifier implements BaseMetadataIdentifier {
 
+    /**
+     * 应用名
+     */
     private String application;
 
+    /**
+     * 构造方法
+     */
     public MetadataIdentifier() {
     }
 
+    /**
+     * 构造方法
+     * @param serviceInterface 服务接口名
+     * @param version 版本
+     * @param group 分组
+     * @param side 客户端 or 服务端
+     * @param application 应用名
+     */
     public MetadataIdentifier(String serviceInterface, String version, String group, String side, String application) {
         this.serviceInterface = serviceInterface;
         this.version = version;
@@ -46,6 +60,10 @@ public class MetadataIdentifier extends BaseServiceMetadataIdentifier implements
     }
 
 
+    /**
+     * 构造方法
+     * @param url 信息
+     */
     public MetadataIdentifier(URL url) {
         this.serviceInterface = url.getServiceInterface();
         this.version = url.getParameter(VERSION_KEY);

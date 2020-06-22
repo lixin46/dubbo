@@ -36,6 +36,9 @@ import static org.apache.dubbo.rpc.protocol.dubbo.Constants.LAZY_CONNECT_INITIAL
 
 /**
  * dubbo protocol support class.
+ * dubbo协议支持类
+ *
+ * 记录引用的交换客户端数量???
  */
 @SuppressWarnings("deprecation")
 final class ReferenceCountExchangeClient implements ExchangeClient {
@@ -43,8 +46,15 @@ final class ReferenceCountExchangeClient implements ExchangeClient {
     private final URL url;
     private final AtomicInteger referenceCount = new AtomicInteger(0);
 
+    /**
+     * 引用的交换客户端
+     */
     private ExchangeClient client;
 
+    /**
+     * 构造方法
+     * @param client 交换客户端
+     */
     public ReferenceCountExchangeClient(ExchangeClient client) {
         this.client = client;
         referenceCount.incrementAndGet();

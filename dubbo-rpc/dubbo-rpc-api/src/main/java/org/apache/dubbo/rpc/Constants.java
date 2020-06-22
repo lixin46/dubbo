@@ -72,10 +72,16 @@ public interface Constants {
 
     String INTERFACE = "interface";
 
+    /**
+     * proxy代理需要代理的接口
+     */
     String INTERFACES = "interfaces";
 
     String GENERIC_KEY = "generic";
 
+    /**
+     * 进程内协议
+     */
     String LOCAL_PROTOCOL = "injvm";
 
     String DEFAULT_REMOTING_SERVER = "netty";

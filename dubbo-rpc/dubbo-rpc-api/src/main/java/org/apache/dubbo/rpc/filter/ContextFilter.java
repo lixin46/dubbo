@@ -55,6 +55,10 @@ import static org.apache.dubbo.rpc.Constants.TOKEN_KEY;
  *
  * @see RpcContext
  */
+
+/**
+ * 服务端的过滤器,用于处理上下文附件
+ */
 @Activate(group = PROVIDER, order = -10000)
 public class ContextFilter implements Filter, Filter.Listener {
 
@@ -81,11 +85,15 @@ public class ContextFilter implements Filter, Filter.Listener {
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
+        // 对象附件
         Map<String, Object> attachments = invocation.getObjectAttachments();
+        // 存在
         if (attachments != null) {
+            //
             Map<String, Object> newAttach = new HashMap<>(attachments.size());
             for (Map.Entry<String, Object> entry : attachments.entrySet()) {
                 String key = entry.getKey();
+                // 要卸载的key集合中不包含,则添加附件
                 if (!UNLOADING_KEYS.contains(key)) {
                     newAttach.put(key, entry.getValue());
                 }
@@ -94,14 +102,17 @@ public class ContextFilter implements Filter, Filter.Listener {
         }
 
         RpcContext context = RpcContext.getContext();
-        context.setInvoker(invoker)
-                .setInvocation(invocation)
-//                .setAttachments(attachments)  // merged from dubbox
-                .setLocalAddress(invoker.getUrl().getHost(), invoker.getUrl().getPort());
-        String remoteApplication = (String) invocation.getAttachment(REMOTE_APPLICATION_KEY);
+        context.setInvoker(invoker)// 调用器
+                .setInvocation(invocation)// 调用描述
+                .setLocalAddress(invoker.getUrl().getHost(), invoker.getUrl().getPort());// 本地主机端口
+        // 从调用描述获取
+        String remoteApplication = (String) invocation.getAttachment(REMOTE_APPLICATION_KEY);//远程应用
+        // 非空
         if (StringUtils.isNotEmpty(remoteApplication)) {
             context.setRemoteApplicationName(remoteApplication);
-        } else {
+        }
+        // 为空,则从上下文附件获取
+        else {
             context.setRemoteApplicationName((String) context.getAttachment(REMOTE_APPLICATION_KEY));
         }
 
@@ -125,6 +136,7 @@ public class ContextFilter implements Filter, Filter.Listener {
         }
 
         try {
+            //
             context.clearAfterEachInvoke(false);
             return invoker.invoke(invocation);
         } finally {

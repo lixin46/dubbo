@@ -30,6 +30,8 @@ public interface ExchangeHandler extends ChannelHandler, TelnetHandler {
     /**
      * reply.
      *
+     * 响应
+     *
      * @param channel
      * @param request
      * @return response

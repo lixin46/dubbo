@@ -24,12 +24,11 @@ import org.apache.dubbo.rpc.RpcException;
 
 import java.util.List;
 
+
 /**
- * Directory. (SPI, Prototype, ThreadSafe)
- * <p>
- * <a href="http://en.wikipedia.org/wiki/Directory_service">Directory Service</a>
- *
- * @see org.apache.dubbo.rpc.cluster.Cluster#join(Directory)
+ *  (SPI, Prototype, ThreadSafe)
+ * 目录的作用就是根据调用描述,筛选调用器返回
+ * @param <T>
  */
 public interface Directory<T> extends Node {
 
@@ -41,12 +40,17 @@ public interface Directory<T> extends Node {
     Class<T> getInterface();
 
     /**
-     * list invokers.
-     *
-     * @return invokers
+     * 根据调用描述,获取所有可用的调用器
+     * @param invocation 指定的调用描述
+     * @return 匹配的调用器
+     * @throws RpcException ???
      */
     List<Invoker<T>> list(Invocation invocation) throws RpcException;
 
+    /**
+     *
+     * @return 所有的调用器
+     */
     List<Invoker<T>> getAllInvokers();
 
     URL getConsumerUrl();

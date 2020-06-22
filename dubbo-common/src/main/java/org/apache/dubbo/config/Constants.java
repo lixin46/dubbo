@@ -18,9 +18,18 @@
 package org.apache.dubbo.config;
 
 /**
- *
+ * 常量定义
  */
 public interface Constants {
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // key定义
+    /**
+     * 要注册的注册中心目标ip
+     */
+    String DUBBO_IP_TO_REGISTRY = "DUBBO_IP_TO_REGISTRY";
+    // -----------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------
 
     String STATUS_KEY = "status";
 
@@ -77,7 +86,7 @@ public interface Constants {
     String MULTICAST = "multicast";
 
 
-    String DUBBO_IP_TO_REGISTRY = "DUBBO_IP_TO_REGISTRY";
+
 
     String DUBBO_PORT_TO_REGISTRY = "DUBBO_PORT_TO_REGISTRY";
 

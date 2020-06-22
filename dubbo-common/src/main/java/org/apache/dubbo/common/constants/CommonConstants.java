@@ -17,13 +17,61 @@
 
 package org.apache.dubbo.common.constants;
 
+import javafx.scene.shape.StrokeLineCap;
 import org.apache.dubbo.common.URL;
 
 import java.net.NetworkInterface;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 
+/**
+ * 很重要的公共常量定义
+ */
 public interface CommonConstants {
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // key定义
+    /**
+     * 接口
+     */
+    String INTERFACE_KEY = "interface";
+    /**
+     * 接口方法
+     */
+    String METHODS_KEY = "methods";
+    /**
+     * 元数据类型,remote或
+     */
+    String METADATA_KEY = "metadata-type";
+    // -----------------------------------------------------------------------------------------------------------------
+    // value定义
+    /**
+     * 默认的元数据存储方式为本地
+     */
+    String DEFAULT_METADATA_STORAGE_TYPE = "local";
+    /**
+     * 元数据存储方式为远程
+     */
+    String REMOTE_METADATA_STORAGE_TYPE = "remote";
+    /**
+     * 本机ip
+     */
+    String LOCALHOST_VALUE = "127.0.0.1";
+    // -----------------------------------------------------------------------------------------------------------------
+    /**
+     * 代表任意值
+     */
+    String ANY_VALUE = "*";
+    /**
+     * 逗号
+     */
+    String COMMA_SEPARATOR = ",";
+    /**
+     * 点
+     */
+    String DOT_SEPARATOR = ".";
+    // -----------------------------------------------------------------------------------------------------------------
+
     String DUBBO = "dubbo";
 
     String PROVIDER = "provider";
@@ -32,6 +80,9 @@ public interface CommonConstants {
 
     String APPLICATION_KEY = "application";
 
+    /**
+     * 远程应用名称对应的url参数名
+     */
     String REMOTE_APPLICATION_KEY = "remote.application";
 
     String ENABLED_KEY = "enabled";
@@ -42,11 +93,8 @@ public interface CommonConstants {
 
     String DEFAULT_DUBBO_PROPERTIES = "dubbo.properties";
 
-    String ANY_VALUE = "*";
 
-    String COMMA_SEPARATOR = ",";
 
-    String DOT_SEPARATOR = ".";
 
     Pattern COMMA_SPLIT_PATTERN = Pattern.compile("\\s*[,]+\\s*");
 
@@ -76,35 +124,66 @@ public interface CommonConstants {
 
     String DEFAULT_PROTOCOL = "dubbo";
 
-    String DEFAULT_THREAD_NAME = "Dubbo";
 
-    int DEFAULT_CORE_THREADS = 0;
-
-    int DEFAULT_THREADS = 200;
 
     String EXECUTOR_SERVICE_COMPONENT_KEY = ExecutorService.class.getName();
-
+    // -----------------------------------------------------------------------------------------------------------------
+    // 线程池相关
+    /**
+     * 默认的线程名前缀
+     */
+    String DEFAULT_THREAD_NAME = "Dubbo";
+    /**
+     * 默认的核心线程数
+     */
+    int DEFAULT_CORE_THREADS = 0;
+    /**
+     * 默认的最大线程数
+     */
+    int DEFAULT_THREADS = 200;
+    /**
+     * 默认使用的线程池实现的名称
+     */
     String THREADPOOL_KEY = "threadpool";
-
+    /**
+     * 线程名称前缀的参数名
+     */
     String THREAD_NAME_KEY = "threadname";
-
+    /**
+     * 核心线程数参数名
+     */
     String CORE_THREADS_KEY = "corethreads";
-
+    /**
+     * 最大线程数参数名
+     */
     String THREADS_KEY = "threads";
-
+    /**
+     * 队列容量参数名
+     */
     String QUEUES_KEY = "queues";
-
+    /**
+     * 线程空闲时长参数名
+     */
     String ALIVE_KEY = "alive";
-
+    /**
+     * 默认的线程池实现
+     */
     String DEFAULT_THREADPOOL = "limited";
-
+    /**
+     * 默认的客户端线程池实现
+     */
     String DEFAULT_CLIENT_THREADPOOL = "cached";
 
     String IO_THREADS_KEY = "iothreads";
-
+    /**
+     * 默认的队列长度值
+     */
     int DEFAULT_QUEUES = 0;
-
+    /**
+     * 默认的线程空闲
+     */
     int DEFAULT_ALIVE = 60 * 1000;
+    // -----------------------------------------------------------------------------------------------------------------
 
     String TIMEOUT_KEY = "timeout";
 
@@ -143,11 +222,38 @@ public interface CommonConstants {
      */
     int DEFAULT_SERVER_SHUTDOWN_TIMEOUT = 10000;
 
+    /**
+     * 用于指定是服务端还是客户端
+     */
     String SIDE_KEY = "side";
-
+    /**
+     * side=provider为服务端
+     */
     String PROVIDER_SIDE = "provider";
-
+    /**
+     * side=consumer为消费端
+     */
     String CONSUMER_SIDE = "consumer";
+
+
+    /**
+     * 用于指明dubbo协议的版本
+     */
+    String DUBBO_VERSION_KEY = "dubbo";
+    /**
+     * package version in the manifest
+     * dubbo的jar包版本
+     */
+    String RELEASE_KEY = "release";
+    /**
+     * 启动时间戳
+     */
+    String TIMESTAMP_KEY = "timestamp";
+    /**
+     * jvm进程id
+     */
+    String PID_KEY = "pid";
+
 
     String ANYHOST_KEY = "anyhost";
 
@@ -155,22 +261,24 @@ public interface CommonConstants {
 
     String LOCALHOST_KEY = "localhost";
 
-    String LOCALHOST_VALUE = "127.0.0.1";
 
-    String METHODS_KEY = "methods";
+
+
 
     String METHOD_KEY = "method";
 
-    String PID_KEY = "pid";
 
-    String TIMESTAMP_KEY = "timestamp";
+
+
 
     String GROUP_KEY = "group";
 
     String PATH_KEY = "path";
 
-    String INTERFACE_KEY = "interface";
 
+    /**
+     * 缓存文件路径
+     */
     String FILE_KEY = "file";
 
     String DUMP_DIRECTORY = "dump.directory";
@@ -178,14 +286,14 @@ public interface CommonConstants {
     String CLASSIFIER_KEY = "classifier";
 
     String VERSION_KEY = "version";
-
+    /**
+     * 修订版本
+     */
     String REVISION_KEY = "revision";
 
-    String METADATA_KEY = "metadata-type";
 
-    String DEFAULT_METADATA_STORAGE_TYPE = "local";
 
-    String REMOTE_METADATA_STORAGE_TYPE = "remote";
+
 
     /**
      * Consumer side 's proxy class
@@ -198,10 +306,7 @@ public interface CommonConstants {
     String $INVOKE = "$invoke";
     String $INVOKE_ASYNC = "$invokeAsync";
 
-    /**
-     * package version in the manifest
-     */
-    String RELEASE_KEY = "release";
+
 
     int MAX_PROXY_COUNT = 65535;
 
@@ -244,7 +349,7 @@ public interface CommonConstants {
 
     String INVOKER_LISTENER_KEY = "invoker.listener";
 
-    String DUBBO_VERSION_KEY = "dubbo";
+
 
     String TAG_KEY = "dubbo.tag";
 
@@ -272,14 +377,26 @@ public interface CommonConstants {
      */
     String EXTRA_KEYS_KEY = "extra-keys";
 
+    /**
+     * 通用服务本地java序列化方式,值定义
+     */
     String GENERIC_SERIALIZATION_NATIVE_JAVA = "nativejava";
 
+    /**
+     * 通用服务默认序列化方式,值定义
+     */
     String GENERIC_SERIALIZATION_DEFAULT = "true";
-
+    /**
+     * 通用服务bean序列化方式,值定义
+     */
     String GENERIC_SERIALIZATION_BEAN = "bean";
-
+    /**
+     * 通用服务返回原始
+     */
     String GENERIC_RAW_RETURN = "raw.return";
-
+    /**
+     * 通用服务gson序列化
+     */
     String GENERIC_SERIALIZATION_PROTOBUF = "protobuf-json";
 
     String GENERIC_WITH_CLZ_KEY = "generic.include.class";

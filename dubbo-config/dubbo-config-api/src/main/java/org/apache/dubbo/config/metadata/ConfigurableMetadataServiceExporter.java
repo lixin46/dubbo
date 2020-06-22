@@ -57,6 +57,10 @@ public class ConfigurableMetadataServiceExporter implements MetadataServiceExpor
 
     private volatile ServiceConfig<MetadataService> serviceConfig;
 
+    /**
+     * 构造方法
+     * @param metadataService 元数据服务
+     */
     public ConfigurableMetadataServiceExporter(MetadataService metadataService) {
         this.metadataService = metadataService;
     }

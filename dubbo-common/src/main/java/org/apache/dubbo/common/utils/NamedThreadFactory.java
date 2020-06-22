@@ -38,11 +38,16 @@ public class NamedThreadFactory implements ThreadFactory {
         this("pool-" + POOL_SEQ.getAndIncrement(), false);
     }
 
+    /**
+     * 构造方法
+     * @param prefix 线程名前缀
+     */
     public NamedThreadFactory(String prefix) {
         this(prefix, false);
     }
 
     public NamedThreadFactory(String prefix, boolean daemon) {
+        // Dubbo-thread-n
         mPrefix = prefix + "-thread-";
         mDaemon = daemon;
         SecurityManager s = System.getSecurityManager();

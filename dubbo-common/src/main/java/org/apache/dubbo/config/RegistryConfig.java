@@ -39,8 +39,10 @@ public class RegistryConfig extends AbstractConfig {
     private static final long serialVersionUID = 5508512956753757169L;
 
     /**
-     * Register center address
      * 注册中心的原始地址
+     * 通过address属性配置,可以是完整的url,也可以不是
+     * 框架会使用默认参数装填
+     * url中必要的信息包括:protocol,host,port,path,parameters
      */
     private String address;
 
@@ -193,7 +195,6 @@ public class RegistryConfig extends AbstractConfig {
     private Integer weight;
 
 
-
     /**
      * 构造方法
      */
@@ -202,6 +203,7 @@ public class RegistryConfig extends AbstractConfig {
 
     /**
      * 构造方法
+     *
      * @param address 地址???
      */
     public RegistryConfig(String address) {
@@ -210,7 +212,8 @@ public class RegistryConfig extends AbstractConfig {
 
     /**
      * 构造方法
-     * @param address 地址???
+     *
+     * @param address  地址???
      * @param protocol 协议
      */
     public RegistryConfig(String address, String protocol) {
@@ -218,18 +221,110 @@ public class RegistryConfig extends AbstractConfig {
         setProtocol(protocol);
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可导出getter
     public String getProtocol() {
         return protocol;
     }
 
+    public Integer getPort() {
+        return port;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public Boolean isCheck() {
+        return check;
+    }
+
+    public String getFile() {
+        return file;
+    }
+
+    public String getTransporter() {
+        return transporter;
+    }
+
+    public String getServer() {
+        return server;
+    }
+
+    public String getClient() {
+        return client;
+    }
+
+    public Integer getTimeout() {
+        return timeout;
+    }
+
+    public Integer getSession() {
+        return session;
+    }
+
+    public Boolean isDynamic() {
+        return dynamic;
+    }
+
+    public Boolean isRegister() {
+        return register;
+    }
+
+    public Boolean isSubscribe() {
+        return subscribe;
+    }
+
+    public String getCluster() {
+        return cluster;
+    }
+
+    public String getZone() {
+        return zone;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public Boolean isDefault() {
+        return isDefault;
+    }
+
+    public Boolean getSimplified() {
+        return simplified;
+    }
+
+    @Parameter(key = EXTRA_KEYS_KEY)
+    public String getExtraKeys() {
+        return extraKeys;
+    }
+
+    public String getAccepts() {
+        return accepts;
+    }
+
+    public Boolean getPreferred() {
+        return preferred;
+    }
+
+    public Integer getWeight() {
+        return weight;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可注入setter
     public void setProtocol(String protocol) {
         this.protocol = protocol;
         this.updateIdIfAbsent(protocol);
-    }
-
-    @Parameter(excluded = true)
-    public String getAddress() {
-        return address;
     }
 
     public void setAddress(String address) {
@@ -252,92 +347,24 @@ public class RegistryConfig extends AbstractConfig {
         }
     }
 
-    public Integer getPort() {
-        return port;
-    }
-
     public void setPort(Integer port) {
         this.port = port;
-    }
-
-    public String getUsername() {
-        return username;
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    /**
-     * @return wait
-     * @see org.apache.dubbo.config.ProviderConfig#getWait()
-     * @deprecated
-     */
-    @Deprecated
-    public Integer getWait() {
-        return wait;
-    }
-
-    /**
-     * @param wait
-     * @see org.apache.dubbo.config.ProviderConfig#setWait(Integer)
-     * @deprecated
-     */
-    @Deprecated
-    public void setWait(Integer wait) {
-        this.wait = wait;
-        if (wait != null && wait > 0) {
-            System.setProperty(SHUTDOWN_WAIT_KEY, String.valueOf(wait));
-        }
-    }
-
-    public Boolean isCheck() {
-        return check;
     }
 
     public void setCheck(Boolean check) {
         this.check = check;
     }
 
-    public String getFile() {
-        return file;
-    }
-
     public void setFile(String file) {
         this.file = file;
-    }
-
-    /**
-     * @return transport
-     * @see #getTransporter()
-     * @deprecated
-     */
-    @Deprecated
-    @Parameter(excluded = true)
-    public String getTransport() {
-        return getTransporter();
-    }
-
-    /**
-     * @param transport
-     * @see #setTransporter(String)
-     * @deprecated
-     */
-    @Deprecated
-    public void setTransport(String transport) {
-        setTransporter(transport);
-    }
-
-    public String getTransporter() {
-        return transporter;
     }
 
     public void setTransporter(String transporter) {
@@ -347,19 +374,11 @@ public class RegistryConfig extends AbstractConfig {
         this.transporter = transporter;
     }
 
-    public String getServer() {
-        return server;
-    }
-
     public void setServer(String server) {
         /*if(server != null && server.length() > 0 && ! ExtensionLoader.getExtensionLoader(Transporter.class).hasExtension(server)){
             throw new IllegalStateException("No such server type : " + server);
         }*/
         this.server = server;
-    }
-
-    public String getClient() {
-        return client;
     }
 
     public void setClient(String client) {
@@ -369,76 +388,79 @@ public class RegistryConfig extends AbstractConfig {
         this.client = client;
     }
 
-    public Integer getTimeout() {
-        return timeout;
-    }
-
     public void setTimeout(Integer timeout) {
         this.timeout = timeout;
-    }
-
-    public Integer getSession() {
-        return session;
     }
 
     public void setSession(Integer session) {
         this.session = session;
     }
 
-    public Boolean isDynamic() {
-        return dynamic;
-    }
-
     public void setDynamic(Boolean dynamic) {
         this.dynamic = dynamic;
-    }
-
-    public Boolean isRegister() {
-        return register;
     }
 
     public void setRegister(Boolean register) {
         this.register = register;
     }
 
-    public Boolean isSubscribe() {
-        return subscribe;
-    }
-
     public void setSubscribe(Boolean subscribe) {
         this.subscribe = subscribe;
-    }
-
-    public String getCluster() {
-        return cluster;
     }
 
     public void setCluster(String cluster) {
         this.cluster = cluster;
     }
 
-    public String getZone() {
-        return zone;
-    }
-
     public void setZone(String zone) {
         this.zone = zone;
-    }
-
-    public String getGroup() {
-        return group;
     }
 
     public void setGroup(String group) {
         this.group = group;
     }
 
-    public String getVersion() {
-        return version;
-    }
-
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public void setDefault(Boolean isDefault) {
+        this.isDefault = isDefault;
+    }
+
+    public void setSimplified(Boolean simplified) {
+        this.simplified = simplified;
+    }
+
+    public void setExtraKeys(String extraKeys) {
+        this.extraKeys = extraKeys;
+    }
+
+    public void setUseAsConfigCenter(Boolean useAsConfigCenter) {
+        this.useAsConfigCenter = useAsConfigCenter;
+    }
+
+    public void setUseAsMetadataCenter(Boolean useAsMetadataCenter) {
+        this.useAsMetadataCenter = useAsMetadataCenter;
+    }
+
+    public void setAccepts(String accepts) {
+        this.accepts = accepts;
+    }
+
+    public void setPreferred(Boolean preferred) {
+        this.preferred = preferred;
+    }
+
+    public void setWeight(Integer weight) {
+        this.weight = weight;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 普通
+    @Parameter(excluded = true)
+    public String getAddress() {
+        return address;
     }
 
     public Map<String, String> getParameters() {
@@ -460,71 +482,14 @@ public class RegistryConfig extends AbstractConfig {
         }
     }
 
-    public Boolean isDefault() {
-        return isDefault;
-    }
-
-    public void setDefault(Boolean isDefault) {
-        this.isDefault = isDefault;
-    }
-
-    public Boolean getSimplified() {
-        return simplified;
-    }
-
-    public void setSimplified(Boolean simplified) {
-        this.simplified = simplified;
-    }
-
-    @Parameter(key = EXTRA_KEYS_KEY)
-    public String getExtraKeys() {
-        return extraKeys;
-    }
-
-    public void setExtraKeys(String extraKeys) {
-        this.extraKeys = extraKeys;
-    }
-
     @Parameter(excluded = true)
     public Boolean getUseAsConfigCenter() {
         return useAsConfigCenter;
     }
 
-    public void setUseAsConfigCenter(Boolean useAsConfigCenter) {
-        this.useAsConfigCenter = useAsConfigCenter;
-    }
-
     @Parameter(excluded = true)
     public Boolean getUseAsMetadataCenter() {
         return useAsMetadataCenter;
-    }
-
-    public void setUseAsMetadataCenter(Boolean useAsMetadataCenter) {
-        this.useAsMetadataCenter = useAsMetadataCenter;
-    }
-
-    public String getAccepts() {
-        return accepts;
-    }
-
-    public void setAccepts(String accepts) {
-        this.accepts = accepts;
-    }
-
-    public Boolean getPreferred() {
-        return preferred;
-    }
-
-    public void setPreferred(Boolean preferred) {
-        this.preferred = preferred;
-    }
-
-    public Integer getWeight() {
-        return weight;
-    }
-
-    public void setWeight(Integer weight) {
-        this.weight = weight;
     }
 
     @Override
@@ -554,4 +519,29 @@ public class RegistryConfig extends AbstractConfig {
             this.protocol = value;
         }
     }
+    // -----------------------------------------------------------------------------------------------------------------
+
+//    /**
+//     * @return wait
+//     * @see org.apache.dubbo.config.ProviderConfig#getWait()
+//     * @deprecated
+//     */
+//    @Deprecated
+//    public Integer getWait() {
+//        return wait;
+//    }
+//
+//    /**
+//     * @param wait
+//     * @see org.apache.dubbo.config.ProviderConfig#setWait(Integer)
+//     * @deprecated
+//     */
+//    @Deprecated
+//    public void setWait(Integer wait) {
+//        this.wait = wait;
+//        if (wait != null && wait > 0) {
+//            System.setProperty(SHUTDOWN_WAIT_KEY, String.valueOf(wait));
+//        }
+//    }
+
 }

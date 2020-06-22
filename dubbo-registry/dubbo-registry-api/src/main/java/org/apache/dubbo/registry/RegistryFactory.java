@@ -42,6 +42,11 @@ public interface RegistryFactory {
      * @param url Registry address, is not allowed to be empty
      * @return Registry reference, never return empty value
      */
+    /**
+     * 获取注册中心服务
+     * @param url 指定的信息
+     * @return 注册中心实例
+     */
     @Adaptive({"protocol"})
     Registry getRegistry(URL url);
 

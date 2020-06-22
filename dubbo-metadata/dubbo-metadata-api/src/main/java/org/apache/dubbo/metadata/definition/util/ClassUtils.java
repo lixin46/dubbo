@@ -37,12 +37,14 @@ public final class ClassUtils {
      * @return Jar file name or class path.
      */
     public static String getCodeSource(Class<?> clazz) {
+        // 保护域
         ProtectionDomain protectionDomain = clazz.getProtectionDomain();
         if (protectionDomain == null || protectionDomain.getCodeSource() == null) {
             return null;
         }
 
         CodeSource codeSource = clazz.getProtectionDomain().getCodeSource();
+        // 类的来源位置
         URL location = codeSource.getLocation();
         if (location == null) {
             return null;
@@ -70,10 +72,12 @@ public final class ClassUtils {
             if (JaketConfigurationUtils.isExcludedType(target)) {
                 break;
             }
-
+            // 声明的字段
             Field[] fields = target.getDeclaredFields();
+            // 遍历
             for (Field field : fields) {
                 int modifiers = field.getModifiers();
+                // 静态或transient则跳过
                 if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
                     continue;
                 }

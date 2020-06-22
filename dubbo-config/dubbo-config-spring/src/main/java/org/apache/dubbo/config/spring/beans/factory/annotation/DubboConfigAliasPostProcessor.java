@@ -63,7 +63,10 @@ public class DubboConfigAliasPostProcessor implements BeanDefinitionRegistryPost
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (bean instanceof AbstractConfig) {
+            // id属性
             String id = ((AbstractConfig) bean).getId();
+            // id非空,且不等于beanName,且不存在beanName到id的别名
+            // 则注册别名映射
             if (hasText(id)                                     // id MUST be present in AbstractConfig
                     && !nullSafeEquals(id, beanName)            // id MUST NOT be equal to bean name
                     && !hasAlias(registry, beanName, id)) {     // id MUST NOT be present in AliasRegistry

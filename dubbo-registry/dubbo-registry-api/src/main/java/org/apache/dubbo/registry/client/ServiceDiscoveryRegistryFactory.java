@@ -24,6 +24,9 @@ import static org.apache.dubbo.common.constants.RegistryConstants.REGISTRY_KEY;
 import static org.apache.dubbo.common.constants.RegistryConstants.SERVICE_REGISTRY_PROTOCOL;
 import static org.apache.dubbo.registry.Constants.DEFAULT_REGISTRY;
 
+/**
+ * 组件名称为service-discovery-registry
+ */
 public class ServiceDiscoveryRegistryFactory extends AbstractRegistryFactory {
 
     @Override

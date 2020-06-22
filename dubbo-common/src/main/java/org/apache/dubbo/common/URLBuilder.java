@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * 与URL相比,URLBuilder是可变对象
+ */
 public final class URLBuilder {
     private String protocol;
 
@@ -104,6 +107,11 @@ public final class URLBuilder {
         this.methodParameters = (methodParameters != null ? methodParameters : new HashMap<>());
     }
 
+    /**
+     * protocol://username:password@host:port/path?parameters
+     * @param url
+     * @return
+     */
     public static URLBuilder from(URL url) {
         String protocol = url.getProtocol();
         String username = url.getUsername();

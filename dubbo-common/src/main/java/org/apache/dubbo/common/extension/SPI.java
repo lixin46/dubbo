@@ -51,6 +51,10 @@ import java.lang.annotation.Target;
  * instead of reporting which extract extension implementation fails and the extract reason.
  * </p>
  */
+
+/**
+ * 用于标记扩展实现接口
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
@@ -58,6 +62,7 @@ public @interface SPI {
 
     /**
      * default extension name
+     * 默认使用的扩展实现类对应的名称
      */
     String value() default "";
 

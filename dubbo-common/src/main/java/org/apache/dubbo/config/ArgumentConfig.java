@@ -45,9 +45,16 @@ public class ArgumentConfig implements Serializable {
      */
     private Boolean callback;
 
+    /**
+     * 构造方法
+     */
     public ArgumentConfig() {
     }
 
+    /**
+     * 构造方法
+     * @param argument 参数注解
+     */
     public ArgumentConfig(Argument argument) {
         this.index = argument.index();
         this.type = argument.type();

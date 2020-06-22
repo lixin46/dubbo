@@ -18,28 +18,25 @@ package org.apache.dubbo.rpc;
 
 import org.apache.dubbo.common.Node;
 
+
 /**
- * Invoker. (API/SPI, Prototype, ThreadSafe)
- *
- * @see org.apache.dubbo.rpc.Protocol#refer(Class, org.apache.dubbo.common.URL)
- * @see org.apache.dubbo.rpc.InvokerListener
- * @see org.apache.dubbo.rpc.protocol.AbstractInvoker
+ * 统一的调用器
+ * 调用器内部可能调用本地实现实例,也可能调用远程,还可能调用集群
+ * @param <T>
  */
 public interface Invoker<T> extends Node {
 
     /**
-     * get service interface.
-     *
-     * @return service interface.
+     * 调用器要调用的接口实例
+     * @return 当前调用器绑定的接口
      */
     Class<T> getInterface();
 
     /**
-     * invoke.
-     *
-     * @param invocation
-     * @return result
-     * @throws RpcException
+     * 进行调用
+     * @param invocation 指定的调用封装
+     * @return 调用结果
+     * @throws RpcException 调用异常
      */
     Result invoke(Invocation invocation) throws RpcException;
 

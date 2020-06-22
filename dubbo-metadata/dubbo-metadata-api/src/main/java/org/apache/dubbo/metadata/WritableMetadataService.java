@@ -25,10 +25,10 @@ import org.apache.dubbo.rpc.model.ApplicationModel;
 import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_METADATA_STORAGE_TYPE;
 import static org.apache.dubbo.common.extension.ExtensionLoader.getExtensionLoader;
 
+
 /**
- * Local {@link MetadataService} that extends {@link MetadataService} and provides the modification, which is used for
- * Dubbo's consumers and providers.
- *
+ * 可写的元数据服务
+ * 默认使用名称为local的扩展实例
  * @since 2.7.5
  */
 @SPI(DEFAULT_METADATA_STORAGE_TYPE)
@@ -44,18 +44,16 @@ public interface WritableMetadataService extends MetadataService {
     }
 
     /**
-     * Exports a {@link URL}
-     *
-     * @param url a {@link URL}
-     * @return If success , return <code>true</code>
+     * 到处指定的信息
+     * @param url 指定的url
+     * @return 是否成功
      */
     boolean exportURL(URL url);
 
     /**
-     * Unexports a {@link URL}
-     *
-     * @param url a {@link URL}
-     * @return If success , return <code>true</code>
+     * 取消导出
+     * @param url 指定的信息
+     * @return 是否成功
      */
     boolean unexportURL(URL url);
 
@@ -69,21 +67,24 @@ public interface WritableMetadataService extends MetadataService {
     }
 
     /**
-     * Subscribes a {@link URL}
-     *
-     * @param url a {@link URL}
-     * @return If success , return <code>true</code>
+     * 订阅
+     * @param url 指定的信息
+     * @return 是否成功
      */
     boolean subscribeURL(URL url);
 
     /**
-     * Unsubscribes a {@link URL}
-     *
-     * @param url a {@link URL}
-     * @return If success , return <code>true</code>
+     * 取消订阅
+     * @param url 指定的信息
+     * @return 是否成功
      */
     boolean unsubscribeURL(URL url);
 
+    /**
+     * 发布服务定义
+     *
+     * @param providerUrl url
+     */
     void publishServiceDefinition(URL providerUrl);
 
     /**
@@ -97,6 +98,7 @@ public interface WritableMetadataService extends MetadataService {
     }
 
     static WritableMetadataService getExtension(String name) {
-        return getExtensionLoader(WritableMetadataService.class).getOrDefaultExtension(name);
+        ExtensionLoader<WritableMetadataService> extensionLoader = getExtensionLoader(WritableMetadataService.class);
+        return extensionLoader.getOrDefaultExtension(name);
     }
 }

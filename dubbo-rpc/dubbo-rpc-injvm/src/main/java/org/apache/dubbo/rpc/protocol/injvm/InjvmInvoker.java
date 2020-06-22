@@ -17,11 +17,7 @@
 package org.apache.dubbo.rpc.protocol.injvm;
 
 import org.apache.dubbo.common.URL;
-import org.apache.dubbo.rpc.Exporter;
-import org.apache.dubbo.rpc.Invocation;
-import org.apache.dubbo.rpc.Result;
-import org.apache.dubbo.rpc.RpcContext;
-import org.apache.dubbo.rpc.RpcException;
+import org.apache.dubbo.rpc.*;
 import org.apache.dubbo.rpc.protocol.AbstractInvoker;
 
 import java.util.Map;
@@ -37,6 +33,13 @@ class InjvmInvoker<T> extends AbstractInvoker<T> {
 
     private final Map<String, Exporter<?>> exporterMap;
 
+    /**
+     * 构造方法
+     * @param type 接口类型
+     * @param url 配置
+     * @param key 服务标识
+     * @param exporterMap 导出器map
+     */
     InjvmInvoker(Class<T> type, URL url, String key, Map<String, Exporter<?>> exporterMap) {
         super(type, url);
         this.key = key;
@@ -55,11 +58,14 @@ class InjvmInvoker<T> extends AbstractInvoker<T> {
 
     @Override
     public Result doInvoke(Invocation invocation) throws Throwable {
+        // 获取导出器
         Exporter<?> exporter = InjvmProtocol.getExporter(exporterMap, getUrl());
         if (exporter == null) {
             throw new RpcException("Service [" + key + "] not found.");
         }
+        // 设置远程地址为127.0.0.1:0
         RpcContext.getContext().setRemoteAddress(LOCALHOST_VALUE, 0);
-        return exporter.getInvoker().invoke(invocation);
+        Invoker<?> invoker = exporter.getInvoker();
+        return invoker.invoke(invocation);
     }
 }

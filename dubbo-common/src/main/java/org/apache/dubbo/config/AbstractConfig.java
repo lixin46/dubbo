@@ -49,6 +49,9 @@ import static org.apache.dubbo.common.utils.ReflectUtils.findMethodByMethodSigna
 /**
  * Utility methods and public methods for parsing configuration
  * 配置的基类
+ * <p>
+ * 包含的配置项:id,prefix,valid
+ *
  * @export
  */
 public abstract class AbstractConfig implements Serializable {
@@ -77,18 +80,6 @@ public abstract class AbstractConfig implements Serializable {
         LEGACY_PROPERTIES.put("dubbo.service.url", "dubbo.service.address");
     }
 
-    /**
-     * The config id
-     * 配置的id,唯一标识一个配置对象
-     */
-    protected String id;
-    /**
-     *
-     */
-    protected String prefix;
-
-    protected final AtomicBoolean refreshed = new AtomicBoolean(false);
-
     private static String convertLegacyValue(String key, String value) {
         if (value != null && value.length() > 0) {
             if ("dubbo.service.max.retry.providers".equals(key)) {
@@ -101,60 +92,102 @@ public abstract class AbstractConfig implements Serializable {
     }
 
     public static String getTagName(Class<?> cls) {
+        // 简单类名
         String tag = cls.getSimpleName();
+        // 遍历后缀,包括:Config,Bean,ConfigBase
         for (String suffix : SUFFIXES) {
+            // 截掉后缀
             if (tag.endsWith(suffix)) {
                 tag = tag.substring(0, tag.length() - suffix.length());
                 break;
             }
         }
+        // 驼峰转
         return StringUtils.camelToSplitName(tag, "-");
     }
 
+    /**
+     * 把指定的配置对象中的配置,追加到指定的参数Map中
+     * 没有key前缀
+     *
+     * @param parameters 保存参数的Map
+     * @param config     指定的配置对象
+     */
     public static void appendParameters(Map<String, String> parameters, Object config) {
         appendParameters(parameters, config, null);
     }
 
+    /**
+     * 把指定的配置对象中的配置,追加到指定的参数Map中
+     * 参数名全部采用点分隔格式
+     *
+     * @param parameters 保存参数的Map
+     * @param config     指定的配置对象
+     * @param prefix     key的前缀
+     */
     @SuppressWarnings("unchecked")
     public static void appendParameters(Map<String, String> parameters, Object config, String prefix) {
+        // 配置对象为null,则无法追加
         if (config == null) {
             return;
         }
+        // public方法
         Method[] methods = config.getClass().getMethods();
+        // 遍历
         for (Method method : methods) {
             try {
+                // 方法名
                 String name = method.getName();
+                // getter方法
                 if (MethodUtils.isGetter(method)) {
                     Parameter parameter = method.getAnnotation(Parameter.class);
+                    // 返回值为Object则跳过
+                    // 存在注解且显示排除则跳过
                     if (method.getReturnType() == Object.class || parameter != null && parameter.excluded()) {
                         continue;
                     }
                     String key;
+                    // 存在注解且显示指定了key.则使用
                     if (parameter != null && parameter.key().length() > 0) {
                         key = parameter.key();
-                    } else {
+                    }
+                    // 不存在注解,或没有显示指定key,则计算
+                    else {
+                        // 方法名按单词切分,点分隔
                         key = calculatePropertyFromGetter(name);
                     }
+                    // 调用方法获取值
                     Object value = method.invoke(config);
+                    // 转字符串
                     String str = String.valueOf(value).trim();
+                    // 值非null且非空
                     if (value != null && str.length() > 0) {
+                        // 转义,url编码
                         if (parameter != null && parameter.escaped()) {
                             str = URL.encode(str);
                         }
+                        // 追加
                         if (parameter != null && parameter.append()) {
                             String pre = parameters.get(key);
                             if (pre != null && pre.length() > 0) {
                                 str = pre + "," + str;
                             }
                         }
+                        // 指定了key的前缀,则追加,点分隔
                         if (prefix != null && prefix.length() > 0) {
                             key = prefix + "." + key;
                         }
+                        // 保存参数
                         parameters.put(key, str);
-                    } else if (parameter != null && parameter.required()) {
+                    }
+                    // 值为null或为空
+                    // 注解配置了require=true,则报错
+                    else if (parameter != null && parameter.required()) {
                         throw new IllegalStateException(config.getClass().getSimpleName() + "." + key + " == null");
                     }
-                } else if (isParametersGetter(method)) {
+                }
+                // getParameters()方法
+                else if (isParametersGetter(method)) {
                     Map<String, String> map = (Map<String, String>) method.invoke(config, new Object[0]);
                     parameters.putAll(convert(map, prefix));
                 }
@@ -164,44 +197,6 @@ public abstract class AbstractConfig implements Serializable {
         }
     }
 
-    @Deprecated
-    protected static void appendAttributes(Map<String, Object> parameters, Object config) {
-        appendAttributes(parameters, config, null);
-    }
-
-    @Deprecated
-    protected static void appendAttributes(Map<String, Object> parameters, Object config, String prefix) {
-        if (config == null) {
-            return;
-        }
-        Method[] methods = config.getClass().getMethods();
-        for (Method method : methods) {
-            try {
-                Parameter parameter = method.getAnnotation(Parameter.class);
-                if (parameter == null || !parameter.attribute()) {
-                    continue;
-                }
-                String name = method.getName();
-                if (MethodUtils.isGetter(method)) {
-                    String key;
-                    if (parameter.key().length() > 0) {
-                        key = parameter.key();
-                    } else {
-                        key = calculateAttributeFromGetter(name);
-                    }
-                    Object value = method.invoke(config);
-                    if (value != null) {
-                        if (prefix != null && prefix.length() > 0) {
-                            key = prefix + "." + key;
-                        }
-                        parameters.put(key, value);
-                    }
-                }
-            } catch (Exception e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
-        }
-    }
 
     protected static AsyncMethodInfo convertMethodConfig2AsyncInfo(MethodConfig methodConfig) {
         if (methodConfig == null || (methodConfig.getOninvoke() == null && methodConfig.getOnreturn() == null && methodConfig.getOnthrow() == null)) {
@@ -257,7 +252,9 @@ public abstract class AbstractConfig implements Serializable {
     }
 
     private static String extractPropertyName(Class<?> clazz, Method setter) throws Exception {
+        // 属性名,驼峰
         String propertyName = setter.getName().substring("set".length());
+        // getter方法
         Method getter = null;
         try {
             getter = clazz.getMethod("get" + propertyName);
@@ -265,9 +262,13 @@ public abstract class AbstractConfig implements Serializable {
             getter = clazz.getMethod("is" + propertyName);
         }
         Parameter parameter = getter.getAnnotation(Parameter.class);
+        // 使用key作为属性名
         if (parameter != null && StringUtils.isNotEmpty(parameter.key()) && parameter.useKeyAsProperty()) {
             propertyName = parameter.key();
-        } else {
+        }
+        // 不存在配置,或为空,或不使用key作为属性名
+        // 则默认驼峰名称
+        else {
             propertyName = propertyName.substring(0, 1).toLowerCase() + propertyName.substring(1);
         }
         return propertyName;
@@ -341,6 +342,46 @@ public abstract class AbstractConfig implements Serializable {
         return result;
     }
 
+    // ------------------------------------------------------------------------------------------
+
+    /**
+     * The config id
+     * 配置的id,唯一标识一个配置对象
+     */
+    protected String id;
+    /**
+     * 当前对象所有参数key的前缀,
+     * 默认为dubbo.类名的中划线命名,
+     * 如:ConfigCenterConfig为dubbo.config-center
+     */
+    protected String prefix;
+
+    /**
+     * 是否已刷新
+     */
+    protected final AtomicBoolean refreshed = new AtomicBoolean(false);
+
+
+    /**
+     * 当前对象把自己追加到配置管理器中
+     * 当前方法将会被spring或javaEE容器自动调用,
+     * 或者需要手动调用触发.
+     *
+     * @since 2.7.5
+     */
+    @PostConstruct
+    public void addIntoConfigManager() {
+        ConfigManager configManager = ApplicationModel.getConfigManager();
+        // 把当前对象追加到单例的配置管理器中
+        configManager.addConfig(this);
+    }
+
+
+    /**
+     * 不作为参数导出
+     *
+     * @return id, 也是beanName
+     */
     @Parameter(excluded = true)
     public String getId() {
         return id;
@@ -348,6 +389,31 @@ public abstract class AbstractConfig implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    /**
+     * 不作为参数导出
+     *
+     * @return 参数前缀, 默认为dubbo.类名(spinal - case)
+     */
+    @Parameter(excluded = true)
+    public String getPrefix() {
+        return StringUtils.isNotEmpty(prefix) ? prefix : (CommonConstants.DUBBO + "." + getTagName(this.getClass()));
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+
+    /**
+     * 不作为参数导出
+     *
+     * @return 是否有效
+     */
+    @Parameter(excluded = true)
+    public boolean isValid() {
+        return true;
     }
 
     public void updateIdIfAbsent(String value) {
@@ -395,26 +461,32 @@ public abstract class AbstractConfig implements Serializable {
     }
 
     /**
-     * Should be called after Config was fully initialized.
-     * // FIXME: this method should be completely replaced by appendParameters
+     * 应该在配置完全初始化之后被调用
+     * 获取元数据
+     * 注意:这个方法应该包含所有属性,@Parameter与追加的参数不同对待
      *
-     * @return
-     * @see AbstractConfig#appendParameters(Map, Object, String)
-     * <p>
-     * Notice! This method should include all properties in the returning map, treat @Parameter differently compared to appendParameters.
+     * @return 元数据, 包含配置对象的所有参数
      */
     public Map<String, String> getMetaData() {
         Map<String, String> metaData = new HashMap<>();
+        // public方法
         Method[] methods = this.getClass().getMethods();
+        // 遍历方法
         for (Method method : methods) {
             try {
+                // 方法名
                 String name = method.getName();
+                // getter方法
                 if (MethodUtils.isMetaMethod(method)) {
                     String key;
+                    // 获取方法上的注解
                     Parameter parameter = method.getAnnotation(Parameter.class);
+                    // 显示指定了key
                     if (parameter != null && parameter.key().length() > 0 && parameter.useKeyAsProperty()) {
                         key = parameter.key();
-                    } else {
+                    }
+                    // 计算key
+                    else {
                         key = calculateAttributeFromGetter(name);
                     }
                     // treat url and configuration differently, the value should always present in configuration though it may not need to present in url.
@@ -431,6 +503,7 @@ public abstract class AbstractConfig implements Serializable {
                         continue;
                     }
 
+                    // 获取值
                     Object value = method.invoke(this);
                     String str = String.valueOf(value).trim();
                     if (value != null && str.length() > 0) {
@@ -438,7 +511,9 @@ public abstract class AbstractConfig implements Serializable {
                     } else {
                         metaData.put(key, null);
                     }
-                } else if (isParametersGetter(method)) {
+                }
+                // public Map getParameters()方法
+                else if (isParametersGetter(method)) {
                     Map<String, String> map = (Map<String, String>) method.invoke(this, new Object[0]);
                     metaData.putAll(convert(map, ""));
                 }
@@ -449,20 +524,17 @@ public abstract class AbstractConfig implements Serializable {
         return metaData;
     }
 
-    @Parameter(excluded = true)
-    public String getPrefix() {
-        return StringUtils.isNotEmpty(prefix) ? prefix : (CommonConstants.DUBBO + "." + getTagName(this.getClass()));
-    }
-
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-    }
-
-    public void refresh() {
+    /**
+     * 刷新
+     * 就是根据当前实例的setter,从全局环境中获取Configuration对象,并注入属性
+     */
+    public void
+    refresh() {
         // 获取环境
         Environment env = ApplicationModel.getEnvironment();
         try {
             // 组合配置
+            // dubbo.config-center
             CompositeConfiguration compositeConfiguration = env.getPrefixedConfiguration(this);
             // loop methods, get override value and set the new value back to method
             // 方法
@@ -472,9 +544,15 @@ public abstract class AbstractConfig implements Serializable {
                 // 是setter
                 if (MethodUtils.isSetter(method)) {
                     try {
-                        String value = StringUtils.trim(compositeConfiguration.getString(extractPropertyName(getClass(), method)));
+                        // 属性名
+                        String propertyName = extractPropertyName(getClass(), method);
+                        // 获取配置值
+                        String value = compositeConfiguration.getString(propertyName);
+                        value = StringUtils.trim(value);
                         // isTypeMatch() is called to avoid duplicate and incorrect update, for example, we have two 'setGeneric' methods in ReferenceConfig.
+                        // value非空,且与setter参数类型匹配
                         if (StringUtils.isNotEmpty(value) && ClassUtils.isTypeMatch(method.getParameterTypes()[0], value)) {
+                            // 调用setter进行属性注入
                             method.invoke(this, ClassUtils.convertPrimitive(method.getParameterTypes()[0], value));
                         }
                     } catch (NoSuchMethodException e) {
@@ -495,6 +573,61 @@ public abstract class AbstractConfig implements Serializable {
         } catch (Exception e) {
             logger.error("Failed to override ", e);
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int hashCode = 1;
+
+        Method[] methods = this.getClass().getMethods();
+        for (Method method : methods) {
+            if (MethodUtils.isGetter(method)) {
+                Parameter parameter = method.getAnnotation(Parameter.class);
+                if (parameter != null && parameter.excluded()) {
+                    continue;
+                }
+                try {
+                    Object value = method.invoke(this, new Object[]{});
+                    hashCode = 31 * hashCode + value.hashCode();
+                } catch (Exception ignored) {
+                    //ignored
+                }
+            }
+        }
+
+        if (hashCode == 0) {
+            hashCode = 1;
+        }
+
+        return hashCode;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !(obj.getClass().getName().equals(this.getClass().getName()))) {
+            return false;
+        }
+
+        Method[] methods = this.getClass().getMethods();
+        for (Method method1 : methods) {
+            if (MethodUtils.isGetter(method1)) {
+                Parameter parameter = method1.getAnnotation(Parameter.class);
+                if (parameter != null && parameter.excluded()) {
+                    continue;
+                }
+                try {
+                    Method method2 = obj.getClass().getMethod(method1.getName(), method1.getParameterTypes());
+                    Object value1 = method1.invoke(this, new Object[]{});
+                    Object value2 = method2.invoke(obj, new Object[]{});
+                    if (!Objects.equals(value1, value2)) {
+                        return false;
+                    }
+                } catch (Exception e) {
+                    return true;
+                }
+            }
+        }
+        return true;
     }
 
     @Override
@@ -536,82 +669,5 @@ public abstract class AbstractConfig implements Serializable {
             logger.warn(t.getMessage(), t);
             return super.toString();
         }
-    }
-
-    /**
-     * FIXME check @Parameter(required=true) and any conditions that need to match.
-     */
-    @Parameter(excluded = true)
-    public boolean isValid() {
-        return true;
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null || !(obj.getClass().getName().equals(this.getClass().getName()))) {
-            return false;
-        }
-
-        Method[] methods = this.getClass().getMethods();
-        for (Method method1 : methods) {
-            if (MethodUtils.isGetter(method1)) {
-                Parameter parameter = method1.getAnnotation(Parameter.class);
-                if (parameter != null && parameter.excluded()) {
-                    continue;
-                }
-                try {
-                    Method method2 = obj.getClass().getMethod(method1.getName(), method1.getParameterTypes());
-                    Object value1 = method1.invoke(this, new Object[]{});
-                    Object value2 = method2.invoke(obj, new Object[]{});
-                    if (!Objects.equals(value1, value2)) {
-                        return false;
-                    }
-                } catch (Exception e) {
-                    return true;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Add {@link AbstractConfig instance} into {@link ConfigManager}
-     * <p>
-     * Current method will invoked by Spring or Java EE container automatically, or should be triggered manually.
-     *
-     * @see ConfigManager#addConfig(AbstractConfig)
-     * @since 2.7.5
-     */
-    @PostConstruct
-    public void addIntoConfigManager() {
-        ApplicationModel.getConfigManager().addConfig(this);
-    }
-
-    @Override
-    public int hashCode() {
-        int hashCode = 1;
-
-        Method[] methods = this.getClass().getMethods();
-        for (Method method : methods) {
-            if (MethodUtils.isGetter(method)) {
-                Parameter parameter = method.getAnnotation(Parameter.class);
-                if (parameter != null && parameter.excluded()) {
-                    continue;
-                }
-                try {
-                    Object value = method.invoke(this, new Object[]{});
-                    hashCode = 31 * hashCode + value.hashCode();
-                } catch (Exception ignored) {
-                    //ignored
-                }
-            }
-        }
-
-        if (hashCode == 0) {
-            hashCode = 1;
-        }
-
-        return hashCode;
     }
 }

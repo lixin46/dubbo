@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
+ * 只接收Collection接口实现
  * 2015/1/27.
  */
 public class CollectionTypeBuilder implements TypeBuilder {

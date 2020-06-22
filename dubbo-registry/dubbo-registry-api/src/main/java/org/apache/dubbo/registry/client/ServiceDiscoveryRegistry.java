@@ -123,10 +123,18 @@ import static org.apache.dubbo.registry.client.metadata.ServiceInstanceMetadataU
  * @see WritableMetadataService
  * @since 2.7.5
  */
+
+/**
+ * 服务发现注册中心
+ * @since 2.7.5
+ */
 public class ServiceDiscoveryRegistry extends FailbackRegistry {
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
+    /**
+     * 服务发现
+     */
     private final ServiceDiscovery serviceDiscovery;
 
     private final Set<String> subscribedServices;
@@ -148,13 +156,22 @@ public class ServiceDiscoveryRegistry extends FailbackRegistry {
      */
     private final Map<String, Map<String, List<URL>>> serviceRevisionExportedURLsCache = new LinkedHashMap<>();
 
+    /**
+     * 构造方法
+     * @param registryURL 注册中心配置
+     */
     public ServiceDiscoveryRegistry(URL registryURL) {
         super(registryURL);
         this.serviceDiscovery = createServiceDiscovery(registryURL);
+        // 逗号拆分,得到订阅的服务
         this.subscribedServices = parseServices(registryURL.getParameter(SUBSCRIBED_SERVICE_NAMES_KEY));
+        // 默认的服务名称映射
         this.serviceNameMapping = ServiceNameMapping.getDefaultExtension();
+        // 元数据存储类型
         String metadataStorageType = getMetadataStorageType(registryURL);
+        // 可写的元数据服务
         this.writableMetadataService = WritableMetadataService.getExtension(metadataStorageType);
+        // 订阅的url同步器
         this.subscribedURLsSynthesizers = initSubscribedURLsSynthesizers();
     }
 
@@ -178,17 +195,22 @@ public class ServiceDiscoveryRegistry extends FailbackRegistry {
     }
 
     /**
-     * Create the {@link ServiceDiscovery} from the registry {@link URL}
-     *
-     * @param registryURL the {@link URL} to connect the registry
-     * @return non-null
+     * 根据协议,获取服务发现工厂,调用工厂创建服务发现实例,并进行初始化
+     * @param registryURL 信息
+     * @return 服务发现实例
      */
     protected ServiceDiscovery createServiceDiscovery(URL registryURL) {
+        //
         ServiceDiscovery originalServiceDiscovery = getServiceDiscovery(registryURL);
+        // 增强事件发布,进行了装饰
         ServiceDiscovery serviceDiscovery = enhanceEventPublishing(originalServiceDiscovery);
+        //
         execute(() -> {
-            serviceDiscovery.initialize(registryURL.addParameter(INTERFACE_KEY, ServiceDiscovery.class.getName())
-                    .removeParameter(REGISTRY_TYPE_KEY));
+            // interface为ServiceDiscovery,删除registry参数
+            URL info = registryURL.addParameter(INTERFACE_KEY, ServiceDiscovery.class.getName())
+                    .removeParameter(REGISTRY_TYPE_KEY);
+            // 初始化
+            serviceDiscovery.initialize(info);
         });
         return serviceDiscovery;
     }
@@ -206,7 +228,9 @@ public class ServiceDiscoveryRegistry extends FailbackRegistry {
      * @return
      */
     private ServiceDiscovery getServiceDiscovery(URL registryURL) {
+        // 根据协议,获取服务发现工厂
         ServiceDiscoveryFactory factory = getExtension(registryURL);
+        // 通过通常获取服务发现实例
         return factory.getServiceDiscovery(registryURL);
     }
 
@@ -249,11 +273,14 @@ public class ServiceDiscoveryRegistry extends FailbackRegistry {
 
     @Override
     public void doRegister(URL url) {
+        // 导出url成功
         if (writableMetadataService.exportURL(url)) {
             if (logger.isInfoEnabled()) {
                 logger.info(format("The URL[%s] registered successfully.", url.toString()));
             }
-        } else {
+        }
+        // 导出失败
+        else {
             if (logger.isWarnEnabled()) {
                 logger.info(format("The URL[%s] has been registered.", url.toString()));
             }
@@ -823,6 +850,11 @@ public class ServiceDiscoveryRegistry extends FailbackRegistry {
         return subscribedServices;
     }
 
+    /**
+     *
+     * @param literalServices subscribed-services参数值
+     * @return
+     */
     public static Set<String> parseServices(String literalServices) {
         return isBlank(literalServices) ? emptySet() :
                 unmodifiableSet(of(literalServices.split(","))

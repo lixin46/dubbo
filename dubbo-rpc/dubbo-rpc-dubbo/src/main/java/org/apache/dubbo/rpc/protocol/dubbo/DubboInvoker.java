@@ -54,6 +54,7 @@ import static org.apache.dubbo.rpc.Constants.TOKEN_KEY;
 
 /**
  * DubboInvoker
+ * dubbo协议的调用器
  */
 public class DubboInvoker<T> extends AbstractInvoker<T> {
 
@@ -61,7 +62,9 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
      * 交换客户端
      */
     private final ExchangeClient[] clients;
-
+    /**
+     * 客户端轮询索引
+     */
     private final AtomicPositiveInteger index = new AtomicPositiveInteger();
 
     private final String version;
@@ -99,14 +102,20 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
     protected Result doInvoke(final Invocation invocation) throws Throwable {
         RpcInvocation inv = (RpcInvocation) invocation;
         final String methodName = RpcUtils.getMethodName(invocation);
+        // path
         inv.setAttachment(PATH_KEY, getUrl().getPath());
+        // version
         inv.setAttachment(VERSION_KEY, version);
 
         // 当前客户端
         ExchangeClient currentClient;
+        // 只有一个客户端
         if (clients.length == 1) {
             currentClient = clients[0];
-        } else {
+        }
+        // 不只一个
+        else {
+            // 轮询
             currentClient = clients[index.getAndIncrement() % clients.length];
         }
         try {
@@ -147,7 +156,9 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
         if (!super.isAvailable()) {
             return false;
         }
+        // 遍历客户端,任意可用即可用
         for (ExchangeClient client : clients) {
+            // 客户端已连接,且不存在channel.readonly属性,则可用
             if (client.isConnected() && !client.hasAttribute(Constants.CHANNEL_ATTRIBUTE_READONLY_KEY)) {
                 //cannot write == not Available ?
                 return true;

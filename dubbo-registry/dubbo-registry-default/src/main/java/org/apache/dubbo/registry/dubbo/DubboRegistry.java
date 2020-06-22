@@ -40,6 +40,10 @@ import static org.apache.dubbo.registry.Constants.REGISTRY_RECONNECT_PERIOD_KEY;
 
 /**
  * DubboRegistry
+ *
+ * dubbo注册表,默认的注册表实现
+ *
+ * 好像是个代理???
  */
 public class DubboRegistry extends FailbackRegistry {
 
@@ -66,6 +70,11 @@ public class DubboRegistry extends FailbackRegistry {
      */
     private final int reconnectPeriod;
 
+    /**
+     * 唯一构造方法
+     * @param registryInvoker 注册中心服务对应的调用器
+     * @param registryService 注册中心服务实例
+     */
     public DubboRegistry(Invoker<RegistryService> registryInvoker, RegistryService registryService) {
         super(registryInvoker.getUrl());
         this.registryInvoker = registryInvoker;

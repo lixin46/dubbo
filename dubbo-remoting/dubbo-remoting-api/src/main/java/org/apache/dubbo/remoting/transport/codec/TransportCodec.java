@@ -19,6 +19,7 @@ package org.apache.dubbo.remoting.transport.codec;
 import org.apache.dubbo.common.serialize.Cleanable;
 import org.apache.dubbo.common.serialize.ObjectInput;
 import org.apache.dubbo.common.serialize.ObjectOutput;
+import org.apache.dubbo.common.serialize.Serialization;
 import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.dubbo.remoting.Channel;
 import org.apache.dubbo.remoting.buffer.ChannelBuffer;
@@ -39,10 +40,17 @@ public class TransportCodec extends AbstractCodec {
 
     @Override
     public void encode(Channel channel, ChannelBuffer buffer, Object message) throws IOException {
+        // 缓冲输出流
         OutputStream output = new ChannelBufferOutputStream(buffer);
-        ObjectOutput objectOutput = getSerialization(channel).serialize(channel.getUrl(), output);
+        // 获取通道对应的序列化对象
+        Serialization serialization = getSerialization(channel);
+        // 进行序列化
+        ObjectOutput objectOutput = serialization.serialize(channel.getUrl(), output);
+        // 编码
         encodeData(channel, objectOutput, message);
+        // 刷新缓冲区
         objectOutput.flushBuffer();
+        // 清理
         if (objectOutput instanceof Cleanable) {
             ((Cleanable) objectOutput).cleanup();
         }

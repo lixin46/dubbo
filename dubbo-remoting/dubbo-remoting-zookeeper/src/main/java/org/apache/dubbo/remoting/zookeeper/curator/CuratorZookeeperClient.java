@@ -16,6 +16,7 @@
  */
 package org.apache.dubbo.remoting.zookeeper.curator;
 
+import org.apache.curator.framework.api.CreateBuilder;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
@@ -49,33 +50,56 @@ import java.util.concurrent.TimeUnit;
 
 import static org.apache.dubbo.common.constants.CommonConstants.TIMEOUT_KEY;
 
+/**
+ * 基于curator客户端的zk客户端实现
+ */
 public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorZookeeperClient.CuratorWatcherImpl, CuratorZookeeperClient.CuratorWatcherImpl> {
 
     protected static final Logger logger = LoggerFactory.getLogger(CuratorZookeeperClient.class);
     private static final String ZK_SESSION_EXPIRE_KEY = "zk.session.expire";
 
     static final Charset CHARSET = Charset.forName("UTF-8");
+    // -----------------------------------------------------------------------------------------------------------------
+    /**
+     * 客户端
+     */
     private final CuratorFramework client;
+    /**
+     *
+     */
     private Map<String, TreeCache> treeCacheMap = new ConcurrentHashMap<>();
 
+    /**
+     * 唯一构造方法
+     * @param url 信息
+     */
     public CuratorZookeeperClient(URL url) {
         super(url);
         try {
+            // timeout参数,默认5秒
             int timeout = url.getParameter(TIMEOUT_KEY, DEFAULT_CONNECTION_TIMEOUT_MS);
+            // zk.session.expire参数,默认1分钟
             int sessionExpireMs = url.getParameter(ZK_SESSION_EXPIRE_KEY, DEFAULT_SESSION_TIMEOUT_MS);
+            //
             CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
-                    .connectString(url.getBackupAddress())
-                    .retryPolicy(new RetryNTimes(1, 1000))
-                    .connectionTimeoutMs(timeout)
-                    .sessionTimeoutMs(sessionExpireMs);
+                    .connectString(url.getBackupAddress())// 备用地址
+                    .retryPolicy(new RetryNTimes(1, 1000))// 重试策略
+                    .connectionTimeoutMs(timeout)// 连接超时
+                    .sessionTimeoutMs(sessionExpireMs);// zk会话超时
             String authority = url.getAuthority();
             if (authority != null && authority.length() > 0) {
+                // 认证信息
                 builder = builder.authorization("digest", authority.getBytes());
             }
+            // 构建客户端
             client = builder.build();
+            // 追加监听器,监听状态变化,转发内部监听器
             client.getConnectionStateListenable().addListener(new CuratorConnectionStateListener(url));
+            // 启动客户端
             client.start();
+            // 阻塞直到连接完成
             boolean connected = client.blockUntilConnected(timeout, TimeUnit.MILLISECONDS);
+            // 超时未连接完成,则异常
             if (!connected) {
                 throw new IllegalStateException("zookeeper not connected");
             }
@@ -83,13 +107,33 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorZooke
             throw new IllegalStateException(e.getMessage(), e);
         }
     }
+    // -----------------------------------------------------------------------------------------------------------------
+    // AbstractZookeeperClient类抽象方法实现
 
     @Override
     public void createPersistent(String path) {
         try {
-            client.create().forPath(path);
+            CreateBuilder builder = client.create();
+            builder.forPath(path);
         } catch (NodeExistsException e) {
             logger.warn("ZNode " + path + " already exists.", e);
+        } catch (Exception e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    protected void createPersistent(String path, String data) {
+        byte[] dataBytes = data.getBytes(CHARSET);
+        try {
+            CreateBuilder builder = client.create();
+            builder.forPath(path, dataBytes);
+        } catch (NodeExistsException e) {
+            try {
+                client.setData().forPath(path, dataBytes);
+            } catch (Exception e1) {
+                throw new IllegalStateException(e.getMessage(), e1);
+            }
         } catch (Exception e) {
             throw new IllegalStateException(e.getMessage(), e);
         }
@@ -106,22 +150,6 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorZooke
                     "we can just try to delete and create again.", e);
             deletePath(path);
             createEphemeral(path);
-        } catch (Exception e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    protected void createPersistent(String path, String data) {
-        byte[] dataBytes = data.getBytes(CHARSET);
-        try {
-            client.create().forPath(path, dataBytes);
-        } catch (NodeExistsException e) {
-            try {
-                client.setData().forPath(path, dataBytes);
-            } catch (Exception e1) {
-                throw new IllegalStateException(e.getMessage(), e1);
-            }
         } catch (Exception e) {
             throw new IllegalStateException(e.getMessage(), e);
         }
@@ -342,6 +370,9 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorZooke
         private final long UNKNOWN_SESSION_ID = -1L;
 
         private long lastSessionId;
+        /**
+         * 配置信息
+         */
         private URL url;
 
         public CuratorConnectionStateListener(URL url) {
@@ -350,7 +381,9 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorZooke
 
         @Override
         public void stateChanged(CuratorFramework client, ConnectionState state) {
+            // timeout,默认5秒
             int timeout = url.getParameter(TIMEOUT_KEY, DEFAULT_CONNECTION_TIMEOUT_MS);
+            // zk.session.timeout.默认1分钟
             int sessionExpireMs = url.getParameter(ZK_SESSION_EXPIRE_KEY, DEFAULT_SESSION_TIMEOUT_MS);
 
             long sessionId = UNKNOWN_SESSION_ID;
@@ -360,18 +393,25 @@ public class CuratorZookeeperClient extends AbstractZookeeperClient<CuratorZooke
                 logger.warn("Curator client state changed, but failed to get the related zk session instance.");
             }
 
+            // 丢失连接
             if (state == ConnectionState.LOST) {
                 logger.warn("Curator zookeeper session " + Long.toHexString(lastSessionId) + " expired.");
                 CuratorZookeeperClient.this.stateChanged(StateListener.SESSION_LOST);
-            } else if (state == ConnectionState.SUSPENDED) {
+            }
+            // 挂起
+            else if (state == ConnectionState.SUSPENDED) {
                 logger.warn("Curator zookeeper connection of session " + Long.toHexString(sessionId) + " timed out. " +
                         "connection timeout value is " + timeout + ", session expire timeout value is " + sessionExpireMs);
                 CuratorZookeeperClient.this.stateChanged(StateListener.SUSPENDED);
-            } else if (state == ConnectionState.CONNECTED) {
+            }
+            // 已连接
+            else if (state == ConnectionState.CONNECTED) {
                 lastSessionId = sessionId;
                 logger.info("Curator zookeeper client instance initiated successfully, session id is " + Long.toHexString(sessionId));
                 CuratorZookeeperClient.this.stateChanged(StateListener.CONNECTED);
-            } else if (state == ConnectionState.RECONNECTED) {
+            }
+            // 重连接
+            else if (state == ConnectionState.RECONNECTED) {
                 if (lastSessionId == sessionId && sessionId != UNKNOWN_SESSION_ID) {
                     logger.warn("Curator zookeeper connection recovered from connection lose, " +
                             "reuse the old session " + Long.toHexString(sessionId));

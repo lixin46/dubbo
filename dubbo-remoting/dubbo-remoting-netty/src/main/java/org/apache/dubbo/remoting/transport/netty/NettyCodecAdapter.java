@@ -41,26 +41,50 @@ import static org.apache.dubbo.remoting.Constants.MIN_BUFFER_SIZE;
 
 /**
  * NettyCodecAdapter.
+ * netty序列化编解码适配器
  */
 final class NettyCodecAdapter {
 
+    /**
+     * netty的编码器
+     */
     private final ChannelHandler encoder = new InternalEncoder();
-
+    /**
+     * netty的解码器
+     */
     private final ChannelHandler decoder = new InternalDecoder();
 
+
+    /**
+     * dubbo定义的编解码器
+     */
     private final Codec2 codec;
-
+    /**
+     * 配置
+     */
     private final URL url;
-
+    /**
+     * 缓冲大小
+     */
     private final int bufferSize;
-
+    /**
+     * dubbo定义的通道处理器
+     */
     private final org.apache.dubbo.remoting.ChannelHandler handler;
 
+    /**
+     * 构造方法
+     * @param codec dubbo的接口定义
+     * @param url 配置
+     * @param handler dubbo定义的通道处理器
+     */
     public NettyCodecAdapter(Codec2 codec, URL url, org.apache.dubbo.remoting.ChannelHandler handler) {
         this.codec = codec;
         this.url = url;
         this.handler = handler;
+        // buffer,默认8kb
         int b = url.getPositiveParameter(BUFFER_KEY, DEFAULT_BUFFER_SIZE);
+        // 1~16kb,超出范围则默认8kb
         this.bufferSize = b >= MIN_BUFFER_SIZE && b <= MAX_BUFFER_SIZE ? b : DEFAULT_BUFFER_SIZE;
     }
 
@@ -77,10 +101,11 @@ final class NettyCodecAdapter {
 
         @Override
         protected Object encode(ChannelHandlerContext ctx, Channel ch, Object msg) throws Exception {
-            org.apache.dubbo.remoting.buffer.ChannelBuffer buffer =
-                    org.apache.dubbo.remoting.buffer.ChannelBuffers.dynamicBuffer(1024);
+            org.apache.dubbo.remoting.buffer.ChannelBuffer buffer = org.apache.dubbo.remoting.buffer.ChannelBuffers.dynamicBuffer(1024);
+            //
             NettyChannel channel = NettyChannel.getOrAddChannel(ch, url, handler);
             try {
+                // 编码
                 codec.encode(channel, buffer, msg);
             } finally {
                 NettyChannel.removeChannelIfDisconnected(ch);
@@ -96,31 +121,43 @@ final class NettyCodecAdapter {
 
         @Override
         public void messageReceived(ChannelHandlerContext ctx, MessageEvent event) throws Exception {
+            // 消息???
             Object o = event.getMessage();
+            // ???
             if (!(o instanceof ChannelBuffer)) {
                 ctx.sendUpstream(event);
                 return;
             }
 
             ChannelBuffer input = (ChannelBuffer) o;
+            // 可读取字节数
             int readable = input.readableBytes();
             if (readable <= 0) {
                 return;
             }
-
+            //
             org.apache.dubbo.remoting.buffer.ChannelBuffer message;
+            // 内部保存的缓冲区可读
             if (buffer.readable()) {
+                // 动态通道缓冲区
                 if (buffer instanceof DynamicChannelBuffer) {
+                    // 写入刚刚读到的缓存,处理发送拆包
                     buffer.writeBytes(input.toByteBuffer());
                     message = buffer;
-                } else {
+                }
+                // 非动态
+                else {
+                    // 总字节
                     int size = buffer.readableBytes() + input.readableBytes();
+                    // 创建动态缓冲
                     message = org.apache.dubbo.remoting.buffer.ChannelBuffers.dynamicBuffer(
                             size > bufferSize ? size : bufferSize);
                     message.writeBytes(buffer, buffer.readableBytes());
                     message.writeBytes(input.toByteBuffer());
                 }
-            } else {
+            }
+            // 不可读
+            else {
                 message = org.apache.dubbo.remoting.buffer.ChannelBuffers.wrappedBuffer(
                         input.toByteBuffer());
             }
@@ -132,6 +169,7 @@ final class NettyCodecAdapter {
             try {
                 // decode object.
                 do {
+                    // 暂存当前读取位置
                     saveReaderIndex = message.readerIndex();
                     try {
                         msg = codec.decode(channel, message);
@@ -139,15 +177,21 @@ final class NettyCodecAdapter {
                         buffer = org.apache.dubbo.remoting.buffer.ChannelBuffers.EMPTY_BUFFER;
                         throw e;
                     }
+                    // 需要更多输入,说明遇到了tcp拆包
                     if (msg == Codec2.DecodeResult.NEED_MORE_INPUT) {
+                        // 恢复读取位置
                         message.readerIndex(saveReaderIndex);
+                        // 退出循环
                         break;
-                    } else {
+                    }
+                    // 跳过一些输入,说明已经解析了完整的消息,剩余了一些字节没有使用,并且已经记录了读取位置
+                    else {
                         if (saveReaderIndex == message.readerIndex()) {
                             buffer = org.apache.dubbo.remoting.buffer.ChannelBuffers.EMPTY_BUFFER;
                             throw new IOException("Decode without read data.");
                         }
                         if (msg != null) {
+                            // 接收消息回调
                             Channels.fireMessageReceived(ctx, msg, event.getRemoteAddress());
                         }
                     }

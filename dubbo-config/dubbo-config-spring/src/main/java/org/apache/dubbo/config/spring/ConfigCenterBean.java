@@ -36,19 +36,28 @@ import java.util.Map;
  * Start from 2.7.0+, export and refer will only be executed when Spring is fully initialized, and each Config bean will get refreshed on the start of the export and refer process.
  * So it's ok for this bean not to be the first Dubbo Config bean being initialized.
  * <p>
- *
+ * <p>
  * 从2.7.0+开始,导出和引用将只有在spring完全初始化之后,且每个配置bean会在暴露和引用处理的开始被刷新
  * <dubbo:config-center></dubbo:config-center>
  */
-public class ConfigCenterBean extends ConfigCenterConfig implements ApplicationContextAware, DisposableBean, EnvironmentAware {
+public class ConfigCenterBean extends ConfigCenterConfig implements DisposableBean,// 销毁
+        ApplicationContextAware, EnvironmentAware// 接口注入
+{
 
+    /**
+     * spring上下文
+     */
     private transient ApplicationContext applicationContext;
 
+    /**
+     * 是否包含spring环境
+     */
     private Boolean includeSpringEnv = false;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
+        // 追加spring上下文,扩展工厂可以查找扩展实例
         SpringExtensionFactory.addApplicationContext(applicationContext);
     }
 
@@ -59,21 +68,28 @@ public class ConfigCenterBean extends ConfigCenterConfig implements ApplicationC
 
     @Override
     public void setEnvironment(Environment environment) {
+        // 包含spring环境
         if (includeSpringEnv) {
             // Get PropertySource mapped to 'dubbo.properties' in Spring Environment.
             setExternalConfig(getConfigurations(getConfigFile(), environment));
             // Get PropertySource mapped to 'application.dubbo.properties' in Spring Environment.
-            setAppExternalConfig(getConfigurations(StringUtils.isNotEmpty(getAppConfigFile()) ? getAppConfigFile() : ("application." + getConfigFile()), environment));
+            // 默认为application.dubbo.properties
+            String appConfigFilename = StringUtils.isNotEmpty(getAppConfigFile()) ? getAppConfigFile() : ("application." + getConfigFile());
+            setAppExternalConfig(getConfigurations(appConfigFilename, environment));
         }
     }
 
     private Map<String, String> getConfigurations(String key, Environment environment) {
+        // 从spring环境获取属性
         Object rawProperties = environment.getProperty(key, Object.class);
         Map<String, String> externalProperties = new HashMap<>();
         try {
+            // Map
             if (rawProperties instanceof Map) {
                 externalProperties.putAll((Map<String, String>) rawProperties);
-            } else if (rawProperties instanceof String) {
+            }
+            // String
+            else if (rawProperties instanceof String) {
                 externalProperties.putAll(ConfigurationUtils.parseProperties((String) rawProperties));
             }
 

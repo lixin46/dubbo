@@ -21,6 +21,10 @@ import org.apache.dubbo.registry.Registry;
 import org.apache.dubbo.registry.support.AbstractRegistryFactory;
 import org.apache.dubbo.remoting.etcd.EtcdTransporter;
 
+/**
+ * 组件名称为etcd3
+ *
+ */
 public class EtcdRegistryFactory extends AbstractRegistryFactory {
 
     private EtcdTransporter etcdTransporter;

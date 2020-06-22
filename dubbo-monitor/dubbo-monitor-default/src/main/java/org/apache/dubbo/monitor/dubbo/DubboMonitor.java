@@ -51,11 +51,13 @@ public class DubboMonitor implements Monitor {
 
     /**
      * The timer for sending statistics
+     * 调度执行器线程,用于定时上报
      */
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(3, new NamedThreadFactory("DubboMonitorSendTimer", true));
 
     /**
      * The future that can cancel the <b>scheduledExecutorService</b>
+     * 调度结果
      */
     private final ScheduledFuture<?> sendFuture;
 
@@ -63,12 +65,22 @@ public class DubboMonitor implements Monitor {
 
     private final MonitorService monitorService;
 
+    /**
+     * key为统计信息,value为原子引用
+     */
     private final ConcurrentMap<Statistics, AtomicReference<long[]>> statisticsMap = new ConcurrentHashMap<Statistics, AtomicReference<long[]>>();
 
+    /**
+     * 构造方法
+     *
+     * @param monitorInvoker 监视器调用器
+     * @param monitorService 监视器服务
+     */
     public DubboMonitor(Invoker<MonitorService> monitorInvoker, MonitorService monitorService) {
         this.monitorInvoker = monitorInvoker;
         this.monitorService = monitorService;
         // The time interval for timer <b>scheduledExecutorService</b> to send data
+        // interval参数,默认1分钟
         final long monitorInterval = monitorInvoker.getUrl().getPositiveParameter("interval", 60000);
         // collect timer for collecting statistics data
         sendFuture = scheduledExecutorService.scheduleWithFixedDelay(() -> {
@@ -81,12 +93,99 @@ public class DubboMonitor implements Monitor {
         }, monitorInterval, monitorInterval, TimeUnit.MILLISECONDS);
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Node接口实现
+    @Override
+    public URL getUrl() {
+        return monitorInvoker.getUrl();
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return monitorInvoker.isAvailable();
+    }
+
+    @Override
+    public void destroy() {
+        try {
+            ExecutorUtil.cancelScheduledFuture(sendFuture);
+        } catch (Throwable t) {
+            logger.error("Unexpected error occur at cancel sender timer, cause: " + t.getMessage(), t);
+        }
+        monitorInvoker.destroy();
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // MonitorService接口实现
+    @Override
+    public void collect(URL url) {
+        // data to collect from url
+        // success参数,默认为0
+        int success = url.getParameter(MonitorService.SUCCESS, 0);
+        // failure参数,默认为0
+        int failure = url.getParameter(MonitorService.FAILURE, 0);
+        // input参数,默认为0
+        int input = url.getParameter(MonitorService.INPUT, 0);
+        // output参数,默认为0
+        int output = url.getParameter(MonitorService.OUTPUT, 0);
+        // elapsed参数,默认为0
+        int elapsed = url.getParameter(MonitorService.ELAPSED, 0);
+        // concurrent参数,默认为0
+        int concurrent = url.getParameter(MonitorService.CONCURRENT, 0);
+        // init atomic reference
+        // 创建统计
+        Statistics statistics = new Statistics(url);
+        // 原子引用
+        AtomicReference<long[]> reference = statisticsMap.computeIfAbsent(statistics, k -> new AtomicReference<>());
+        // use CompareAndSet to sum
+        long[] current;
+        // 要更新的目标值,需要CAS更新
+        long[] update = new long[LENGTH];
+        do {
+            current = reference.get();
+            // 不存在
+            if (current == null) {
+                update[0] = success;
+                update[1] = failure;
+                update[2] = input;
+                update[3] = output;
+                update[4] = elapsed;
+                update[5] = concurrent;
+                update[6] = input;
+                update[7] = output;
+                update[8] = elapsed;
+                update[9] = concurrent;
+            }
+            // 存在,则累加
+            else {
+                update[0] = current[0] + success;
+                update[1] = current[1] + failure;
+                update[2] = current[2] + input;
+                update[3] = current[3] + output;
+                update[4] = current[4] + elapsed;
+                update[5] = (current[5] + concurrent) / 2;
+                update[6] = current[6] > input ? current[6] : input;
+                update[7] = current[7] > output ? current[7] : output;
+                update[8] = current[8] > elapsed ? current[8] : elapsed;
+                update[9] = current[9] > concurrent ? current[9] : concurrent;
+            }
+        } while (!reference.compareAndSet(current, update));
+    }
+
+    @Override
+    public List<URL> lookup(URL query) {
+        return monitorService.lookup(query);
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+
+
     public void send() {
         if (logger.isDebugEnabled()) {
             logger.debug("Send statistics to monitor " + getUrl());
         }
 
         String timestamp = String.valueOf(System.currentTimeMillis());
+        // 遍历统计信息
         for (Map.Entry<Statistics, AtomicReference<long[]>> entry : statisticsMap.entrySet()) {
             // get statistics data
             Statistics statistics = entry.getKey();
@@ -102,11 +201,13 @@ public class DubboMonitor implements Monitor {
             long maxOutput = numbers[7];
             long maxElapsed = numbers[8];
             long maxConcurrent = numbers[9];
+            // dubbo参数
             String protocol = getUrl().getParameter(DEFAULT_PROTOCOL);
 
             // send statistics data
             URL url = statistics.getUrl()
-                    .addParameters(MonitorService.TIMESTAMP, timestamp,
+                    .addParameters(
+                            MonitorService.TIMESTAMP, timestamp,
                             MonitorService.SUCCESS, String.valueOf(success),
                             MonitorService.FAILURE, String.valueOf(failure),
                             MonitorService.INPUT, String.valueOf(input),
@@ -119,8 +220,10 @@ public class DubboMonitor implements Monitor {
                             MonitorService.MAX_CONCURRENT, String.valueOf(maxConcurrent),
                             DEFAULT_PROTOCOL, protocol
                     );
+            // 调用监视器服务的rpc,上报信息
             monitorService.collect(url);
 
+            // 清空上报的数据
             // reset
             long[] current;
             long[] update = new long[LENGTH];
@@ -145,72 +248,5 @@ public class DubboMonitor implements Monitor {
         }
     }
 
-    @Override
-    public void collect(URL url) {
-        // data to collect from url
-        int success = url.getParameter(MonitorService.SUCCESS, 0);
-        int failure = url.getParameter(MonitorService.FAILURE, 0);
-        int input = url.getParameter(MonitorService.INPUT, 0);
-        int output = url.getParameter(MonitorService.OUTPUT, 0);
-        int elapsed = url.getParameter(MonitorService.ELAPSED, 0);
-        int concurrent = url.getParameter(MonitorService.CONCURRENT, 0);
-        // init atomic reference
-        Statistics statistics = new Statistics(url);
-        AtomicReference<long[]> reference = statisticsMap.computeIfAbsent(statistics, k -> new AtomicReference<>());
-        // use CompareAndSet to sum
-        long[] current;
-        long[] update = new long[LENGTH];
-        do {
-            current = reference.get();
-            if (current == null) {
-                update[0] = success;
-                update[1] = failure;
-                update[2] = input;
-                update[3] = output;
-                update[4] = elapsed;
-                update[5] = concurrent;
-                update[6] = input;
-                update[7] = output;
-                update[8] = elapsed;
-                update[9] = concurrent;
-            } else {
-                update[0] = current[0] + success;
-                update[1] = current[1] + failure;
-                update[2] = current[2] + input;
-                update[3] = current[3] + output;
-                update[4] = current[4] + elapsed;
-                update[5] = (current[5] + concurrent) / 2;
-                update[6] = current[6] > input ? current[6] : input;
-                update[7] = current[7] > output ? current[7] : output;
-                update[8] = current[8] > elapsed ? current[8] : elapsed;
-                update[9] = current[9] > concurrent ? current[9] : concurrent;
-            }
-        } while (!reference.compareAndSet(current, update));
-    }
-
-    @Override
-    public List<URL> lookup(URL query) {
-        return monitorService.lookup(query);
-    }
-
-    @Override
-    public URL getUrl() {
-        return monitorInvoker.getUrl();
-    }
-
-    @Override
-    public boolean isAvailable() {
-        return monitorInvoker.isAvailable();
-    }
-
-    @Override
-    public void destroy() {
-        try {
-            ExecutorUtil.cancelScheduledFuture(sendFuture);
-        } catch (Throwable t) {
-            logger.error("Unexpected error occur at cancel sender timer, cause: " + t.getMessage(), t);
-        }
-        monitorInvoker.destroy();
-    }
 
 }

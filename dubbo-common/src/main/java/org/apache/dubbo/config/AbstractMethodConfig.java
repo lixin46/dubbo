@@ -22,7 +22,7 @@ import java.util.Map;
 
 /**
  * AbstractMethodConfig
- * 抽象的方法配置
+ * 抽象的方法配置,方法调用相关
  *
  * @export
  */
@@ -30,34 +30,42 @@ public abstract class AbstractMethodConfig extends AbstractConfig {
 
     private static final long serialVersionUID = 1L;
 
+    // -------------------------------------------------
+
     /**
      * The timeout for remote invocation in milliseconds
+     * 远程调用超时时间
      */
     protected Integer timeout;
 
     /**
      * The retry times
+     * 重试次数
      */
     protected Integer retries;
 
     /**
      * max concurrent invocations
+     * 最大并发调用量
      */
     protected Integer actives;
 
     /**
      * The load balance
+     * 负载均衡???
      */
     protected String loadbalance;
 
     /**
      * Whether to async
      * note that: it is an unreliable asynchronism that ignores return values and does not block threads.
+     * 是否异步调用
      */
     protected Boolean async;
 
     /**
      * Whether to ack async-sent
+     * 是否确认异步发送???
      */
     protected Boolean sent;
 
@@ -66,17 +74,20 @@ public abstract class AbstractMethodConfig extends AbstractConfig {
      * <p>
      * note that: the mock doesn't support on the provider side，and the mock is executed when a non-business exception
      * occurs after a remote service call
+     * 模拟类???
      */
     protected String mock;
 
     /**
      * Merger
+     * 合并器???
      */
     protected String merger;
 
     /**
      * Cache the return result with the call parameter as key, the following options are available: lru, threadlocal,
      * jcache, etc.
+     *
      */
     protected String cache;
 
@@ -88,6 +99,7 @@ public abstract class AbstractMethodConfig extends AbstractConfig {
 
     /**
      * The customized parameters
+     * 定制参数
      */
     protected Map<String, String> parameters;
 

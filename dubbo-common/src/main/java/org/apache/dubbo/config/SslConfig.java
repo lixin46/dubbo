@@ -52,13 +52,11 @@ public class SslConfig extends AbstractConfig {
     private InputStream clientPrivateKeyPathStream;
     private InputStream clientTrustCertCollectionPathStream;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可导出getter
     @Parameter(key = "server-key-cert-chain-path")
     public String getServerKeyCertChainPath() {
         return serverKeyCertChainPath;
-    }
-
-    public void setServerKeyCertChainPath(String serverKeyCertChainPath) {
-        this.serverKeyCertChainPath = serverKeyCertChainPath;
     }
 
     @Parameter(key = "server-private-key-path")
@@ -66,17 +64,9 @@ public class SslConfig extends AbstractConfig {
         return serverPrivateKeyPath;
     }
 
-    public void setServerPrivateKeyPath(String serverPrivateKeyPath) {
-        this.serverPrivateKeyPath = serverPrivateKeyPath;
-    }
-
     @Parameter(key = "server-key-password")
     public String getServerKeyPassword() {
         return serverKeyPassword;
-    }
-
-    public void setServerKeyPassword(String serverKeyPassword) {
-        this.serverKeyPassword = serverKeyPassword;
     }
 
     @Parameter(key = "server-trust-cert-collection-path")
@@ -84,17 +74,9 @@ public class SslConfig extends AbstractConfig {
         return serverTrustCertCollectionPath;
     }
 
-    public void setServerTrustCertCollectionPath(String serverTrustCertCollectionPath) {
-        this.serverTrustCertCollectionPath = serverTrustCertCollectionPath;
-    }
-
     @Parameter(key = "client-key-cert-chain-path")
     public String getClientKeyCertChainPath() {
         return clientKeyCertChainPath;
-    }
-
-    public void setClientKeyCertChainPath(String clientKeyCertChainPath) {
-        this.clientKeyCertChainPath = clientKeyCertChainPath;
     }
 
     @Parameter(key = "client-private-key-path")
@@ -102,17 +84,9 @@ public class SslConfig extends AbstractConfig {
         return clientPrivateKeyPath;
     }
 
-    public void setClientPrivateKeyPath(String clientPrivateKeyPath) {
-        this.clientPrivateKeyPath = clientPrivateKeyPath;
-    }
-
     @Parameter(key = "client-key-password")
     public String getClientKeyPassword() {
         return clientKeyPassword;
-    }
-
-    public void setClientKeyPassword(String clientKeyPassword) {
-        this.clientKeyPassword = clientKeyPassword;
     }
 
     @Parameter(key = "client-trust-cert-collection-path")
@@ -120,19 +94,71 @@ public class SslConfig extends AbstractConfig {
         return clientTrustCertCollectionPath;
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可注入setter
+    public void setServerKeyCertChainPath(String serverKeyCertChainPath) {
+        this.serverKeyCertChainPath = serverKeyCertChainPath;
+    }
+
+    public void setServerPrivateKeyPath(String serverPrivateKeyPath) {
+        this.serverPrivateKeyPath = serverPrivateKeyPath;
+    }
+
+    public void setServerKeyPassword(String serverKeyPassword) {
+        this.serverKeyPassword = serverKeyPassword;
+    }
+
+    public void setServerTrustCertCollectionPath(String serverTrustCertCollectionPath) {
+        this.serverTrustCertCollectionPath = serverTrustCertCollectionPath;
+    }
+
+    public void setClientKeyCertChainPath(String clientKeyCertChainPath) {
+        this.clientKeyCertChainPath = clientKeyCertChainPath;
+    }
+
+    public void setClientPrivateKeyPath(String clientPrivateKeyPath) {
+        this.clientPrivateKeyPath = clientPrivateKeyPath;
+    }
+
+    public void setClientKeyPassword(String clientKeyPassword) {
+        this.clientKeyPassword = clientKeyPassword;
+    }
+
     public void setClientTrustCertCollectionPath(String clientTrustCertCollectionPath) {
         this.clientTrustCertCollectionPath = clientTrustCertCollectionPath;
     }
 
+    public void setServerKeyCertChainPathStream(InputStream serverKeyCertChainPathStream) {
+        this.serverKeyCertChainPathStream = serverKeyCertChainPathStream;
+    }
+
+    public void setServerPrivateKeyPathStream(InputStream serverPrivateKeyPathStream) {
+        this.serverPrivateKeyPathStream = serverPrivateKeyPathStream;
+    }
+
+    public void setServerTrustCertCollectionPathStream(InputStream serverTrustCertCollectionPathStream) {
+        this.serverTrustCertCollectionPathStream = serverTrustCertCollectionPathStream;
+    }
+
+    public void setClientKeyCertChainPathStream(InputStream clientKeyCertChainPathStream) {
+        this.clientKeyCertChainPathStream = clientKeyCertChainPathStream;
+    }
+
+    public void setClientPrivateKeyPathStream(InputStream clientPrivateKeyPathStream) {
+        this.clientPrivateKeyPathStream = clientPrivateKeyPathStream;
+    }
+
+    public void setClientTrustCertCollectionPathStream(InputStream clientTrustCertCollectionPathStream) {
+        this.clientTrustCertCollectionPathStream = clientTrustCertCollectionPathStream;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 普通
     public InputStream getServerKeyCertChainPathStream() throws FileNotFoundException {
         if (serverKeyCertChainPath != null) {
             serverKeyCertChainPathStream = new FileInputStream(serverKeyCertChainPath);
         }
         return serverKeyCertChainPathStream;
-    }
-
-    public void setServerKeyCertChainPathStream(InputStream serverKeyCertChainPathStream) {
-        this.serverKeyCertChainPathStream = serverKeyCertChainPathStream;
     }
 
     public InputStream getServerPrivateKeyPathStream() throws FileNotFoundException {
@@ -142,19 +168,11 @@ public class SslConfig extends AbstractConfig {
         return serverPrivateKeyPathStream;
     }
 
-    public void setServerPrivateKeyPathStream(InputStream serverPrivateKeyPathStream) {
-        this.serverPrivateKeyPathStream = serverPrivateKeyPathStream;
-    }
-
     public InputStream getServerTrustCertCollectionPathStream() throws FileNotFoundException {
         if (serverTrustCertCollectionPath != null) {
             serverTrustCertCollectionPathStream = new FileInputStream(serverTrustCertCollectionPath);
         }
         return serverTrustCertCollectionPathStream;
-    }
-
-    public void setServerTrustCertCollectionPathStream(InputStream serverTrustCertCollectionPathStream) {
-        this.serverTrustCertCollectionPathStream = serverTrustCertCollectionPathStream;
     }
 
     public InputStream getClientKeyCertChainPathStream() throws FileNotFoundException {
@@ -164,19 +182,11 @@ public class SslConfig extends AbstractConfig {
         return clientKeyCertChainPathStream;
     }
 
-    public void setClientKeyCertChainPathStream(InputStream clientKeyCertChainPathStream) {
-        this.clientKeyCertChainPathStream = clientKeyCertChainPathStream;
-    }
-
     public InputStream getClientPrivateKeyPathStream() throws FileNotFoundException {
         if (clientPrivateKeyPath != null) {
             clientPrivateKeyPathStream = new FileInputStream(clientPrivateKeyPath);
         }
         return clientPrivateKeyPathStream;
-    }
-
-    public void setClientPrivateKeyPathStream(InputStream clientPrivateKeyPathStream) {
-        this.clientPrivateKeyPathStream = clientPrivateKeyPathStream;
     }
 
     public InputStream getClientTrustCertCollectionPathStream() throws FileNotFoundException {
@@ -185,8 +195,7 @@ public class SslConfig extends AbstractConfig {
         }
         return clientTrustCertCollectionPathStream;
     }
+    // -----------------------------------------------------------------------------------------------------------------
 
-    public void setClientTrustCertCollectionPathStream(InputStream clientTrustCertCollectionPathStream) {
-        this.clientTrustCertCollectionPathStream = clientTrustCertCollectionPathStream;
-    }
+
 }

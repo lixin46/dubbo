@@ -35,10 +35,14 @@ import java.util.concurrent.Executor;
 public abstract class AbstractZookeeperClient<TargetDataListener, TargetChildListener> implements ZookeeperClient {
 
     protected static final Logger logger = LoggerFactory.getLogger(AbstractZookeeperClient.class);
+    // -----------------------------------------------------------------------------------------------------------------
 
     protected int DEFAULT_CONNECTION_TIMEOUT_MS = 5 * 1000;
     protected int DEFAULT_SESSION_TIMEOUT_MS = 60 * 1000;
 
+    /**
+     * 连接url
+     */
     private final URL url;
 
     private final Set<StateListener> stateListeners = new CopyOnWriteArraySet<StateListener>();
@@ -49,11 +53,20 @@ public abstract class AbstractZookeeperClient<TargetDataListener, TargetChildLis
 
     private volatile boolean closed = false;
 
+    /**
+     * 持久的存在的节点路径
+     */
     private final Set<String>  persistentExistNodePath = new ConcurrentHashSet<>();
 
+    /**
+     * 唯一构造方法
+     * @param url
+     */
     public AbstractZookeeperClient(URL url) {
         this.url = url;
     }
+    // -----------------------------------------------------------------------------------------------------------------
+    // ZookeeperClient接口实现
 
     @Override
     public URL getUrl() {
@@ -61,34 +74,68 @@ public abstract class AbstractZookeeperClient<TargetDataListener, TargetChildLis
     }
 
     @Override
-    public void delete(String path){
-        //never mind if ephemeral
-        persistentExistNodePath.remove(path);
-        deletePath(path);
-    }
-
-
-    @Override
     public void create(String path, boolean ephemeral) {
+        // 非临时
         if (!ephemeral) {
+            // 包含则返回
             if(persistentExistNodePath.contains(path)){
                 return;
             }
+            // 经检查已存在
             if (checkExists(path)) {
+                // 添加到已存在集合中
                 persistentExistNodePath.add(path);
                 return;
             }
         }
         int i = path.lastIndexOf('/');
         if (i > 0) {
+            String parentDir = path.substring(0, i);
+            // 递归创建父节点,永久节点
+            create(parentDir, false);
+        }
+        // 临时节点
+        if (ephemeral) {
+            // 创建临时节点
+            createEphemeral(path);
+        }
+        // 持久节点
+        else {
+            // 创建持久节点
+            createPersistent(path);
+            // 增加缓存
+            persistentExistNodePath.add(path);
+        }
+    }
+    @Override
+    public void create(String path, String content, boolean ephemeral) {
+        if (checkExists(path)) {
+            delete(path);
+        }
+        int i = path.lastIndexOf('/');
+        if (i > 0) {
             create(path.substring(0, i), false);
         }
         if (ephemeral) {
-            createEphemeral(path);
+            createEphemeral(path, content);
         } else {
-            createPersistent(path);
-            persistentExistNodePath.add(path);
+            createPersistent(path, content);
         }
+    }
+
+    @Override
+    public String getContent(String path) {
+        if (!checkExists(path)) {
+            return null;
+        }
+        return doGetContent(path);
+    }
+
+    @Override
+    public void delete(String path){
+        //never mind if ephemeral
+        persistentExistNodePath.remove(path);
+        deletePath(path);
     }
 
     @Override
@@ -165,37 +212,15 @@ public abstract class AbstractZookeeperClient<TargetDataListener, TargetChildLis
         }
     }
 
-    @Override
-    public void create(String path, String content, boolean ephemeral) {
-        if (checkExists(path)) {
-            delete(path);
-        }
-        int i = path.lastIndexOf('/');
-        if (i > 0) {
-            create(path.substring(0, i), false);
-        }
-        if (ephemeral) {
-            createEphemeral(path, content);
-        } else {
-            createPersistent(path, content);
-        }
-    }
-
-    @Override
-    public String getContent(String path) {
-        if (!checkExists(path)) {
-            return null;
-        }
-        return doGetContent(path);
-    }
+    // -----------------------------------------------------------------------------------------------------------------
 
     protected abstract void doClose();
 
     protected abstract void createPersistent(String path);
 
-    protected abstract void createEphemeral(String path);
-
     protected abstract void createPersistent(String path, String data);
+
+    protected abstract void createEphemeral(String path);
 
     protected abstract void createEphemeral(String path, String data);
 

@@ -18,6 +18,7 @@ package org.apache.dubbo.registry.nacos;
 
 
 import com.alibaba.nacos.api.common.Constants;
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.URLBuilder;
@@ -113,6 +114,7 @@ public class NacosRegistry extends FailbackRegistry {
      * The interval in second of lookup Nacos service names(only for Dubbo-OPS)
      */
     private static final long LOOKUP_INTERVAL = Long.getLong("nacos.service.names.lookup.interval", 30);
+    // -----------------------------------------------------------------------------------------------------------------
 
     /**
      * {@link ScheduledExecutorService} lookup Nacos service names(only for Dubbo-OPS)
@@ -149,7 +151,9 @@ public class NacosRegistry extends FailbackRegistry {
 
     @Override
     public void doRegister(URL url) {
+        //
         final String serviceName = getServiceName(url);
+        // 创建实例
         final Instance instance = createInstance(url);
         /**
          *  namingService.registerInstance with {@link org.apache.dubbo.registry.support.AbstractRegistry#registryUrl}
@@ -157,8 +161,12 @@ public class NacosRegistry extends FailbackRegistry {
          *
          * in https://github.com/apache/dubbo/issues/5978
          */
-        execute(namingService -> namingService.registerInstance(serviceName,
-                getUrl().getParameter(GROUP_KEY, Constants.DEFAULT_GROUP), instance));
+        NamingServiceCallback callback = namingService -> namingService.registerInstance(
+                serviceName,
+                getUrl().getParameter(GROUP_KEY, Constants.DEFAULT_GROUP),
+                instance
+        );
+        execute(callback);
     }
 
     @Override

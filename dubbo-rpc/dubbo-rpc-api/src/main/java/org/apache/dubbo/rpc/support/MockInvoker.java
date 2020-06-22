@@ -46,18 +46,16 @@ import static org.apache.dubbo.rpc.Constants.RETURN_KEY;
 import static org.apache.dubbo.rpc.Constants.RETURN_PREFIX;
 import static org.apache.dubbo.rpc.Constants.THROW_PREFIX;
 
-final public class MockInvoker<T> implements Invoker<T> {
+/**
+ * 模拟调用器
+ *
+ * @param <T>
+ */
+public final class MockInvoker<T> implements Invoker<T> {
+
     private final static ProxyFactory PROXY_FACTORY = ExtensionLoader.getExtensionLoader(ProxyFactory.class).getAdaptiveExtension();
     private final static Map<String, Invoker<?>> MOCK_MAP = new ConcurrentHashMap<String, Invoker<?>>();
     private final static Map<String, Throwable> THROWABLE_MAP = new ConcurrentHashMap<String, Throwable>();
-
-    private final URL url;
-    private final Class<T> type;
-
-    public MockInvoker(URL url, Class<T> type) {
-        this.url = url;
-        this.type = type;
-    }
 
     public static Object parseMockValue(String mock) throws Exception {
         return parseMockValue(mock, null);
@@ -93,51 +91,6 @@ final public class MockInvoker<T> implements Invoker<T> {
         return value;
     }
 
-    @Override
-    public Result invoke(Invocation invocation) throws RpcException {
-        if (invocation instanceof RpcInvocation) {
-            ((RpcInvocation) invocation).setInvoker(this);
-        }
-        String mock = null;
-        if (getUrl().hasMethodParameter(invocation.getMethodName())) {
-            mock = getUrl().getParameter(invocation.getMethodName() + "." + MOCK_KEY);
-        }
-        if (StringUtils.isBlank(mock)) {
-            mock = getUrl().getParameter(MOCK_KEY);
-        }
-
-        if (StringUtils.isBlank(mock)) {
-            throw new RpcException(new IllegalAccessException("mock can not be null. url :" + url));
-        }
-        mock = normalizeMock(URL.decode(mock));
-        if (mock.startsWith(RETURN_PREFIX)) {
-            mock = mock.substring(RETURN_PREFIX.length()).trim();
-            try {
-                Type[] returnTypes = RpcUtils.getReturnTypes(invocation);
-                Object value = parseMockValue(mock, returnTypes);
-                return AsyncRpcResult.newDefaultAsyncResult(value, invocation);
-            } catch (Exception ew) {
-                throw new RpcException("mock return invoke error. method :" + invocation.getMethodName()
-                        + ", mock:" + mock + ", url: " + url, ew);
-            }
-        } else if (mock.startsWith(THROW_PREFIX)) {
-            mock = mock.substring(THROW_PREFIX.length()).trim();
-            if (StringUtils.isBlank(mock)) {
-                throw new RpcException("mocked exception for service degradation.");
-            } else { // user customized class
-                Throwable t = getThrowable(mock);
-                throw new RpcException(RpcException.BIZ_EXCEPTION, t);
-            }
-        } else { //impl mock
-            try {
-                Invoker<T> invoker = getInvoker(mock);
-                return invoker.invoke(invocation);
-            } catch (Throwable t) {
-                throw new RpcException("Failed to create mock implementation class " + mock, t);
-            }
-        }
-    }
-
     public static Throwable getThrowable(String throwstr) {
         Throwable throwable = THROWABLE_MAP.get(throwstr);
         if (throwable != null) {
@@ -157,22 +110,6 @@ final public class MockInvoker<T> implements Invoker<T> {
         } catch (Exception e) {
             throw new RpcException("mock throw error :" + throwstr + " argument error.", e);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private Invoker<T> getInvoker(String mockService) {
-        Invoker<T> invoker = (Invoker<T>) MOCK_MAP.get(mockService);
-        if (invoker != null) {
-            return invoker;
-        }
-
-        Class<T> serviceType = (Class<T>) ReflectUtils.forName(url.getServiceInterface());
-        T mockObject = (T) getMockObject(mockService, serviceType);
-        invoker = PROXY_FACTORY.getInvoker(mockObject, serviceType, url);
-        if (MOCK_MAP.size() < 10000) {
-            MOCK_MAP.put(mockService, invoker);
-        }
-        return invoker;
     }
 
     @SuppressWarnings("unchecked")
@@ -244,6 +181,98 @@ final public class MockInvoker<T> implements Invoker<T> {
 
         return mock;
     }
+
+
+    // -----------------------------------------------------------------------------------------------------------------
+    private final URL url;
+    private final Class<T> type;
+
+    /**
+     * 构造方法
+     *
+     * @param url  url
+     * @param type 接口类型
+     */
+    public MockInvoker(URL url, Class<T> type) {
+        this.url = url;
+        this.type = type;
+    }
+
+    @Override
+    public Result invoke(Invocation invocation) throws RpcException {
+        // 保存调用器
+        if (invocation instanceof RpcInvocation) {
+            ((RpcInvocation) invocation).setInvoker(this);
+        }
+        String mock = null;
+        // 存在这个方法名
+        if (getUrl().hasMethodParameter(invocation.getMethodName())) {
+            // 方法名.mock
+            mock = getUrl().getParameter(invocation.getMethodName() + "." + MOCK_KEY);
+        }
+        // 为空
+        if (StringUtils.isBlank(mock)) {
+            // 直接获取mock参数(全局默认mock)
+            mock = getUrl().getParameter(MOCK_KEY);
+        }
+
+        // 还未空,则报错
+        if (StringUtils.isBlank(mock)) {
+            throw new RpcException(new IllegalAccessException("mock can not be null. url :" + url));
+        }
+        // url解码后,进行标准化
+        mock = normalizeMock(URL.decode(mock));
+        // return开头
+        if (mock.startsWith(RETURN_PREFIX)) {
+            mock = mock.substring(RETURN_PREFIX.length()).trim();
+            try {
+                Type[] returnTypes = RpcUtils.getReturnTypes(invocation);
+                Object value = parseMockValue(mock, returnTypes);
+                return AsyncRpcResult.newDefaultAsyncResult(value, invocation);
+            } catch (Exception ew) {
+                throw new RpcException("mock return invoke error. method :" + invocation.getMethodName()
+                        + ", mock:" + mock + ", url: " + url, ew);
+            }
+        }
+        // throw开头
+        else if (mock.startsWith(THROW_PREFIX)) {
+            mock = mock.substring(THROW_PREFIX.length()).trim();
+            if (StringUtils.isBlank(mock)) {
+                throw new RpcException("mocked exception for service degradation.");
+            } else { // user customized class
+                Throwable t = getThrowable(mock);
+                throw new RpcException(RpcException.BIZ_EXCEPTION, t);
+            }
+        }
+        // 其他
+        else { //impl mock
+            try {
+                // 获取调用器实例
+                Invoker<T> invoker = getInvoker(mock);
+                return invoker.invoke(invocation);
+            } catch (Throwable t) {
+                throw new RpcException("Failed to create mock implementation class " + mock, t);
+            }
+        }
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private Invoker<T> getInvoker(String mockService) {
+        Invoker<T> invoker = (Invoker<T>) MOCK_MAP.get(mockService);
+        if (invoker != null) {
+            return invoker;
+        }
+
+        Class<T> serviceType = (Class<T>) ReflectUtils.forName(url.getServiceInterface());
+        T mockObject = (T) getMockObject(mockService, serviceType);
+        invoker = PROXY_FACTORY.getInvoker(mockObject, serviceType, url);
+        if (MOCK_MAP.size() < 10000) {
+            MOCK_MAP.put(mockService, invoker);
+        }
+        return invoker;
+    }
+
 
     @Override
     public URL getUrl() {

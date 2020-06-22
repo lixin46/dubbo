@@ -24,8 +24,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 /**
- * AdaptiveExtensionFactory
+ * 组件名称为adaptive
+ * 适配所有工厂
  */
 @Adaptive
 public class AdaptiveExtensionFactory implements ExtensionFactory {
@@ -33,18 +35,24 @@ public class AdaptiveExtensionFactory implements ExtensionFactory {
     private final List<ExtensionFactory> factories;
 
     public AdaptiveExtensionFactory() {
+        // 获取所有的扩展工厂
         ExtensionLoader<ExtensionFactory> loader = ExtensionLoader.getExtensionLoader(ExtensionFactory.class);
         List<ExtensionFactory> list = new ArrayList<ExtensionFactory>();
+        // 遍历支持的扩展工厂实例名称
         for (String name : loader.getSupportedExtensions()) {
-            list.add(loader.getExtension(name));
+            ExtensionFactory extensionFactory = loader.getExtension(name);
+            list.add(extensionFactory);
         }
         factories = Collections.unmodifiableList(list);
     }
 
     @Override
     public <T> T getExtension(Class<T> type, String name) {
+        // 遍历工厂
         for (ExtensionFactory factory : factories) {
+            // 获取扩展实例
             T extension = factory.getExtension(type, name);
+            // 存在,则返回
             if (extension != null) {
                 return extension;
             }

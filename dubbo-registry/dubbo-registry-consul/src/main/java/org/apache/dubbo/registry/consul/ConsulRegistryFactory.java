@@ -22,6 +22,7 @@ import org.apache.dubbo.registry.Registry;
 import org.apache.dubbo.registry.support.AbstractRegistryFactory;
 
 /**
+ * 组件名称为consul
  * registry center factory implementation for consul
  */
 public class ConsulRegistryFactory extends AbstractRegistryFactory {

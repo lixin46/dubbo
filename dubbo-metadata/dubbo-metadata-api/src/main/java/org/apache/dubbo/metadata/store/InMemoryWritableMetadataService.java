@@ -46,12 +46,10 @@ import static org.apache.dubbo.common.constants.CommonConstants.PROTOCOL_KEY;
 import static org.apache.dubbo.common.utils.CollectionUtils.isEmpty;
 import static org.apache.dubbo.rpc.Constants.GENERIC_KEY;
 
+
 /**
- * The {@link WritableMetadataService} implementation stores the metadata of Dubbo services in memory locally when they
- * exported. It is used by server (provider).
+ * 组件名称为local
  *
- * @see MetadataService
- * @see WritableMetadataService
  * @since 2.7.5
  */
 public class InMemoryWritableMetadataService implements WritableMetadataService {
@@ -79,6 +77,9 @@ public class InMemoryWritableMetadataService implements WritableMetadataService 
      */
     ConcurrentNavigableMap<String, SortedSet<URL>> subscribedServiceURLs = new ConcurrentSkipListMap<>();
 
+    /**
+     * key为服务键,value为ServiceDefinition序列化的结果
+     */
     ConcurrentNavigableMap<String, String> serviceDefinitions = new ConcurrentSkipListMap<>();
 
     @Override
@@ -133,14 +134,20 @@ public class InMemoryWritableMetadataService implements WritableMetadataService 
     @Override
     public void publishServiceDefinition(URL providerUrl) {
         try {
+            // 获取interface参数
             String interfaceName = providerUrl.getParameter(INTERFACE_KEY);
-            if (StringUtils.isNotEmpty(interfaceName)
-                    && !ProtocolUtils.isGeneric(providerUrl.getParameter(GENERIC_KEY))) {
+            // 非空,且genetic=false
+            if (StringUtils.isNotEmpty(interfaceName) && !ProtocolUtils.isGeneric(providerUrl.getParameter(GENERIC_KEY))) {
                 Class interfaceClass = Class.forName(interfaceName);
+                // 构建服务定义
                 ServiceDefinition serviceDefinition = ServiceDefinitionBuilder.build(interfaceClass);
+
+                // google的json序列化
                 Gson gson = new Gson();
+                // 序列化
                 String data = gson.toJson(serviceDefinition);
-                serviceDefinitions.put(providerUrl.getServiceKey(), data);
+                String serviceKey = providerUrl.getServiceKey();
+                serviceDefinitions.put(serviceKey, data);
                 return;
             }
             logger.error("publishProvider interfaceName is empty . providerUrl: " + providerUrl.toFullString());

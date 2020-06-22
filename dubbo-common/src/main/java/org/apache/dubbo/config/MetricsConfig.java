@@ -24,6 +24,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.METRICS_PROTOCOL
 
 /**
  * 指标配置
+ *
  * <dubbo:metrics></dubbo:metrics>
  */
 public class MetricsConfig extends AbstractConfig {
@@ -36,22 +37,34 @@ public class MetricsConfig extends AbstractConfig {
     public MetricsConfig() {
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可导出getter
     @Parameter(key = METRICS_PORT)
     public String getPort() {
         return port;
     }
-
-    public void setPort(String port) {
-        this.port = port;
-    }
-
     @Parameter(key = METRICS_PROTOCOL)
     public String getProtocol() {
         return protocol;
     }
-
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可注入setter
+    public void setPort(String port) {
+        this.port = port;
+    }
     public void setProtocol(String protocol) {
         this.protocol = protocol;
     }
+    // -----------------------------------------------------------------------------------------------------------------
+    // 普通
+    // -----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
 
 }

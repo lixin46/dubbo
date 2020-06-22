@@ -56,222 +56,14 @@ import static org.apache.dubbo.common.constants.CommonConstants.PROTOCOL_KEY;
 import static org.apache.dubbo.common.constants.CommonConstants.USERNAME_KEY;
 import static org.apache.dubbo.common.constants.CommonConstants.VERSION_KEY;
 
-/**
- * URL - Uniform Resource Locator (Immutable, ThreadSafe)
- * <p>
- * url example:
- * <ul>
- * <li>http://www.facebook.com/friends?param1=value1&amp;param2=value2
- * <li>http://username:password@10.20.130.230:8080/list?version=1.0.0
- * <li>ftp://username:password@192.168.1.7:21/1/read.txt
- * <li>registry://192.168.1.7:9090/org.apache.dubbo.service1?param1=value1&amp;param2=value2
- * </ul>
- * <p>
- * Some strange example below:
- * <ul>
- * <li>192.168.1.3:20880<br>
- * for this case, url protocol = null, url host = 192.168.1.3, port = 20880, url path = null
- * <li>file:///home/user1/router.js?type=script<br>
- * for this case, url protocol = file, url host = null, url path = home/user1/router.js
- * <li>file://home/user1/router.js?type=script<br>
- * for this case, url protocol = file, url host = home, url path = user1/router.js
- * <li>file:///D:/1/router.js?type=script<br>
- * for this case, url protocol = file, url host = null, url path = D:/1/router.js
- * <li>file:/D:/1/router.js?type=script<br>
- * same as above file:///D:/1/router.js?type=script
- * <li>/home/user1/router.js?type=script <br>
- * for this case, url protocol = null, url host = null, url path = home/user1/router.js
- * <li>home/user1/router.js?type=script <br>
- * for this case, url protocol = null, url host = home, url path = user1/router.js
- * </ul>
- *
- * @see java.net.URL
- * @see java.net.URI
- */
 
 /**
- * 统一资源定位符的实现
+ * 统一资源定位符(不可变对象,线程安全的)
+ * dubbo中非常核心的概念,很多配置都是通过url对象获取.
  */
 public class URL implements Serializable {
 
     private static final long serialVersionUID = -1985165475234910535L;
-
-    /**
-     * 协议
-     */
-    private final String protocol;
-    /**
-     * 用户名
-     */
-    private final String username;
-    /**
-     * 密码
-     */
-    private final String password;
-
-    // by default, host to registry
-    /**
-     * 主机
-     */
-    private final String host;
-
-    // by default, port to registry
-    /**
-     * 端口
-     */
-    private final int port;
-
-    /**
-     * 路径
-     */
-    private final String path;
-
-    /**
-     * 参数
-     */
-    private final Map<String, String> parameters;
-
-    /**
-     * 方法参数???
-     */
-    private final Map<String, Map<String, String>> methodParameters;
-
-    // ==== cache ====
-
-    private volatile transient Map<String, Number> numbers;
-
-    private volatile transient Map<String, Map<String, Number>> methodNumbers;
-
-    private volatile transient Map<String, URL> urls;
-
-    private volatile transient String ip;
-
-    private volatile transient String full;
-
-    private volatile transient String identity;
-
-    private volatile transient String parameter;
-
-    private volatile transient String string;
-
-    private transient String serviceKey;
-
-    private transient String address;
-
-    protected URL() {
-        this.protocol = null;
-        this.username = null;
-        this.password = null;
-        this.host = null;
-        this.port = 0;
-        this.address = null;
-        this.path = null;
-        this.parameters = null;
-        this.methodParameters = null;
-    }
-
-    /**
-     * 重载构造
-     * @param protocol
-     * @param host
-     * @param port
-     */
-    public URL(String protocol, String host, int port) {
-        this(protocol, null, null, host, port, null, (Map<String, String>) null);
-    }
-
-    /**
-     * 重载构造
-     * @param protocol
-     * @param host
-     * @param port
-     * @param pairs
-     */
-    public URL(String protocol, String host, int port, String[] pairs) { // varargs ... conflict with the following path argument, use array instead.
-        this(protocol, null, null, host, port, null, CollectionUtils.toStringMap(pairs));
-    }
-
-    public URL(String protocol, String host, int port, Map<String, String> parameters) {
-        this(protocol, null, null, host, port, null, parameters);
-    }
-
-    public URL(String protocol, String host, int port, String path) {
-        this(protocol, null, null, host, port, path, (Map<String, String>) null);
-    }
-
-    public URL(String protocol, String host, int port, String path, String... pairs) {
-        this(protocol, null, null, host, port, path, CollectionUtils.toStringMap(pairs));
-    }
-
-    public URL(String protocol, String host, int port, String path, Map<String, String> parameters) {
-        this(protocol, null, null, host, port, path, parameters);
-    }
-
-    public URL(String protocol, String username, String password, String host, int port, String path) {
-        this(protocol, username, password, host, port, path, (Map<String, String>) null);
-    }
-
-    public URL(String protocol, String username, String password, String host, int port, String path, String... pairs) {
-        this(protocol, username, password, host, port, path, CollectionUtils.toStringMap(pairs));
-    }
-
-    public URL(String protocol,
-               String username,
-               String password,
-               String host,
-               int port,
-               String path,
-               Map<String, String> parameters) {
-        this(protocol, username, password, host, port, path, parameters, toMethodParameters(parameters));
-    }
-
-    /**
-     * 核心构造方法
-     * @param protocol
-     * @param username
-     * @param password
-     * @param host
-     * @param port
-     * @param path
-     * @param parameters
-     * @param methodParameters
-     */
-    public URL(String protocol,
-               String username,
-               String password,
-               String host,
-               int port,
-               String path,
-               Map<String, String> parameters,
-               Map<String, Map<String, String>> methodParameters) {
-        if (StringUtils.isEmpty(username)
-                && StringUtils.isNotEmpty(password)) {
-            throw new IllegalArgumentException("Invalid url, password without username!");
-        }
-        this.protocol = protocol;
-        this.username = username;
-        this.password = password;
-        this.host = host;
-        this.port = Math.max(port, 0);
-        this.address = getAddress(this.host, this.port);
-
-        // trim the beginning "/"
-        while (path != null && path.startsWith("/")) {
-            path = path.substring(1);
-        }
-        this.path = path;
-        if (parameters == null) {
-            parameters = new HashMap<>();
-        } else {
-            parameters = new HashMap<>(parameters);
-        }
-        this.parameters = Collections.unmodifiableMap(parameters);
-        this.methodParameters = Collections.unmodifiableMap(methodParameters);
-    }
-
-    private static String getAddress(String host, int port) {
-        return port <= 0 ? host : host + ':' + port;
-    }
 
     /**
      * NOTICE: This method allocate too much objects, we can use {@link URLStrParser#parseDecodedStr(String)} instead.
@@ -384,46 +176,6 @@ public class URL implements Serializable {
         return new URL(protocol, username, password, host, port, path, parameters);
     }
 
-    public static Map<String, Map<String, String>> toMethodParameters(Map<String, String> parameters) {
-        Map<String, Map<String, String>> methodParameters = new HashMap<>();
-        if (parameters == null) {
-            return methodParameters;
-        }
-        // methods参数值
-        String methodsString = parameters.get(METHODS_KEY);
-        // 存在
-        if (StringUtils.isNotEmpty(methodsString)) {
-            // ','拆分
-            List<String> methods = StringUtils.splitToList(methodsString, ',');
-            for (Map.Entry<String, String> entry : parameters.entrySet()) {
-                String key = entry.getKey();
-                for (int i = 0; i < methods.size(); i++) {
-                    String method = methods.get(i);
-                    int methodLen = method.length();
-                    if (key.length() > methodLen
-                            && key.startsWith(method)
-                            && key.charAt(methodLen) == '.') {//equals to: key.startsWith(method + '.')
-                        String realKey = key.substring(methodLen + 1);
-                        URL.putMethodParameter(method, realKey, entry.getValue(), methodParameters);
-                    }
-                }
-            }
-        }
-        // 没有methods参数
-        else {
-            for (Map.Entry<String, String> entry : parameters.entrySet()) {
-                String key = entry.getKey();
-                int methodSeparator = key.indexOf('.');
-                if (methodSeparator > 0) {
-                    String method = key.substring(0, methodSeparator);
-                    String realKey = key.substring(methodSeparator + 1);
-                    URL.putMethodParameter(method, realKey, entry.getValue(), methodParameters);
-                }
-            }
-        }
-        return methodParameters;
-    }
-
     public static URL valueOf(String url, String... reserveParams) {
         URL result = valueOf(url);
         if (reserveParams == null || reserveParams.length == 0) {
@@ -465,6 +217,66 @@ public class URL implements Serializable {
                 : new URL(url.getProtocol(), url.getUsername(), url.getPassword(), url.getHost(), url.getPort(), url.getPath(), newMap);
     }
 
+    /**
+     * 把指定的参数转换为方法参数
+     *
+     * @param parameters 指定的参数
+     * @return 方法参数映射
+     */
+    public static Map<String, Map<String, String>> toMethodParameters(Map<String, String> parameters) {
+        Map<String, Map<String, String>> methodParameters = new HashMap<>();
+        if (parameters == null) {
+            return methodParameters;
+        }
+        // methods参数对应的值
+        String methodsString = parameters.get(METHODS_KEY);
+        // 存在
+        if (StringUtils.isNotEmpty(methodsString)) {
+            // ','拆分,作为方法名
+            List<String> methods = StringUtils.splitToList(methodsString, ',');
+            // 遍历参数
+            for (Map.Entry<String, String> entry : parameters.entrySet()) {
+                // 参数名
+                String key = entry.getKey();
+                // 遍历方法名
+                for (int i = 0; i < methods.size(); i++) {
+                    // 方法名
+                    String method = methods.get(i);
+                    // 长度
+                    int methodLen = method.length();
+                    // 参数键长度大于方法键,且以方法键.开头
+                    if (key.length() > methodLen
+                            && key.startsWith(method)
+                            && key.charAt(methodLen) == '.') {//equals to: key.startsWith(method + '.')
+                        // 截取真实键
+                        String realKey = key.substring(methodLen + 1);
+                        // 保存到方法参数中
+                        URL.putMethodParameter(method, realKey, entry.getValue(), methodParameters);
+                    }
+                }
+            }
+        }
+        // 没有methods参数
+        else {
+            for (Map.Entry<String, String> entry : parameters.entrySet()) {
+                String key = entry.getKey();
+                int methodSeparator = key.indexOf('.');
+                // 参数键存在点
+                if (methodSeparator > 0) {
+                    String method = key.substring(0, methodSeparator);
+                    String realKey = key.substring(methodSeparator + 1);
+                    URL.putMethodParameter(method, realKey, entry.getValue(), methodParameters);
+                }
+            }
+        }
+        return methodParameters;
+    }
+
+    private static String getAddress(String host, int port) {
+        return port <= 0 ? host : host + ':' + port;
+    }
+
+
     public static String encode(String value) {
         if (StringUtils.isEmpty(value)) {
             return "";
@@ -497,6 +309,269 @@ public class URL implements Serializable {
             }
         }
         return address;
+    }
+
+    public static void putMethodParameter(String method, String key, String value, Map<String, Map<String, String>> methodParameters) {
+        Map<String, String> subParameter = methodParameters.computeIfAbsent(method, k -> new HashMap<>());
+        subParameter.put(key, value);
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    /**
+     * 协议
+     */
+    private final String protocol;
+    /**
+     * 用户名
+     */
+    private final String username;
+    /**
+     * 密码
+     */
+    private final String password;
+
+    // by default, host to registry
+    /**
+     * 主机
+     */
+    private final String host;
+
+    // by default, port to registry
+    /**
+     * 端口
+     */
+    private final int port;
+
+    /**
+     * 路径
+     */
+    private final String path;
+
+    /**
+     * 参数
+     */
+    private final Map<String, String> parameters;
+
+    /**
+     * 方法参数,是parameters的一个子集,
+     * 提取规则可以通过parameters中的"methods"参数指定,
+     * 如果不指定,则自动按'.'拆分parameters的key,前半部分作为一级索引,后半部分作为二级索引,value为参数值
+     */
+    private final Map<String, Map<String, String>> methodParameters;
+
+    // ==== cache ====
+
+    private transient volatile Map<String, Number> numbers;
+
+    private transient volatile Map<String, Map<String, Number>> methodNumbers;
+
+    private transient volatile Map<String, URL> urls;
+
+    private transient volatile String ip;
+
+    /**
+     * 完整url,包括:
+     * protocol://username:password@host:port/path
+     * 但不包括参数
+     */
+    private transient volatile String full;
+
+    private transient volatile String identity;
+
+    private transient volatile String parameter;
+
+    private transient volatile String string;
+    /**
+     * 从参数中获取interface,group,version三个参数的值,组装服务键
+     * group/interface:version
+     */
+    private transient String serviceKey;
+    /**
+     * host:port
+     */
+    private transient String address;
+
+    /**
+     * 构造方法
+     */
+    protected URL() {
+        this.protocol = null;
+        this.username = null;
+        this.password = null;
+        this.host = null;
+        this.port = 0;
+        this.address = null;
+        this.path = null;
+        this.parameters = null;
+        this.methodParameters = null;
+    }
+
+    /**
+     * 重载构造
+     *
+     * @param protocol
+     * @param host
+     * @param port
+     */
+    public URL(String protocol, String host, int port) {
+        this(protocol, null, null, host, port, null, (Map<String, String>) null);
+    }
+
+    /**
+     * 重载构造
+     *
+     * @param protocol
+     * @param host
+     * @param port
+     * @param pairs
+     */
+    public URL(String protocol, String host, int port, String[] pairs) { // varargs ... conflict with the following path argument, use array instead.
+        this(protocol, null, null, host, port, null, CollectionUtils.toStringMap(pairs));
+    }
+
+    /**
+     * 重载构造
+     *
+     * @param protocol
+     * @param host
+     * @param port
+     * @param parameters
+     */
+    public URL(String protocol, String host, int port, Map<String, String> parameters) {
+        this(protocol, null, null, host, port, null, parameters);
+    }
+
+    /**
+     * 重载构造
+     *
+     * @param protocol
+     * @param host
+     * @param port
+     * @param path
+     */
+    public URL(String protocol, String host, int port, String path) {
+        this(protocol, null, null, host, port, path, (Map<String, String>) null);
+    }
+
+    /**
+     * 重载构造
+     *
+     * @param protocol
+     * @param host
+     * @param port
+     * @param path
+     * @param pairs
+     */
+    public URL(String protocol, String host, int port, String path, String... pairs) {
+        this(protocol, null, null, host, port, path, CollectionUtils.toStringMap(pairs));
+    }
+
+    /**
+     * 重载构造
+     *
+     * @param protocol
+     * @param host
+     * @param port
+     * @param path
+     * @param parameters
+     */
+    public URL(String protocol, String host, int port, String path, Map<String, String> parameters) {
+        this(protocol, null, null, host, port, path, parameters);
+    }
+
+    /**
+     * 重载构造
+     *
+     * @param protocol
+     * @param username
+     * @param password
+     * @param host
+     * @param port
+     * @param path
+     */
+    public URL(String protocol, String username, String password, String host, int port, String path) {
+        this(protocol, username, password, host, port, path, (Map<String, String>) null);
+    }
+
+    /**
+     * 重载构造
+     *
+     * @param protocol
+     * @param username
+     * @param password
+     * @param host
+     * @param port
+     * @param path
+     * @param pairs
+     */
+    public URL(String protocol, String username, String password, String host, int port, String path, String... pairs) {
+        this(protocol, username, password, host, port, path, CollectionUtils.toStringMap(pairs));
+    }
+
+    /**
+     * 重载构造
+     *
+     * @param protocol
+     * @param username
+     * @param password
+     * @param host
+     * @param port
+     * @param path
+     * @param parameters
+     */
+    public URL(String protocol,
+               String username,
+               String password,
+               String host,
+               int port,
+               String path,
+               Map<String, String> parameters) {
+        this(protocol, username, password, host, port, path, parameters, toMethodParameters(parameters));
+    }
+
+    /**
+     * 核心构造方法
+     *
+     * @param protocol
+     * @param username
+     * @param password
+     * @param host
+     * @param port
+     * @param path
+     * @param parameters
+     * @param methodParameters
+     */
+    public URL(String protocol,
+               String username,
+               String password,
+               String host,
+               int port,
+               String path,
+               Map<String, String> parameters,
+               Map<String, Map<String, String>> methodParameters) {
+        if (StringUtils.isEmpty(username)
+                && StringUtils.isNotEmpty(password)) {
+            throw new IllegalArgumentException("Invalid url, password without username!");
+        }
+        this.protocol = protocol;
+        this.username = username;
+        this.password = password;
+        this.host = host;
+        this.port = Math.max(port, 0);
+        this.address = getAddress(this.host, this.port);
+
+        // trim the beginning "/"
+        while (path != null && path.startsWith("/")) {
+            path = path.substring(1);
+        }
+        this.path = path;
+        if (parameters == null) {
+            parameters = new HashMap<>();
+        } else {
+            parameters = new HashMap<>(parameters);
+        }
+        this.parameters = Collections.unmodifiableMap(parameters);
+        this.methodParameters = Collections.unmodifiableMap(methodParameters);
     }
 
     public String getProtocol() {
@@ -578,10 +653,13 @@ public class URL implements Serializable {
         int i = address.lastIndexOf(':');
         String host;
         int port = this.port;
+        // 存在冒号
         if (i >= 0) {
             host = address.substring(0, i);
             port = Integer.parseInt(address.substring(i + 1));
-        } else {
+        }
+        // 不存在
+        else {
             host = address;
         }
         return new URL(protocol, username, password, host, port, path, getParameters());
@@ -606,6 +684,7 @@ public class URL implements Serializable {
     public List<URL> getBackupUrls() {
         List<URL> urls = new ArrayList<>();
         urls.add(this);
+        // backup参数
         String[] backups = getParameter(RemotingConstants.BACKUP_KEY, new String[0]);
         if (backups != null && backups.length > 0) {
             for (String backup : backups) {
@@ -1067,6 +1146,11 @@ public class URL implements Serializable {
         return NetUtils.isLocalHost(host) || getParameter(LOCALHOST_KEY, false);
     }
 
+    /**
+     * 主机为0.0.0.0或配置了anyhost=true参数,则为任意主机
+     *
+     * @return 是否任意主机
+     */
     public boolean isAnyHost() {
         return ANYHOST_VALUE.equals(host) || getParameter(ANYHOST_KEY, false);
     }
@@ -1385,14 +1469,26 @@ public class URL implements Serializable {
         return buf.toString();
     }
 
+    /**
+     * 构建参数字符串
+     * @param buf 用于保存结果
+     * @param concat 是否连接,true则追加'?'
+     * @param parameters 参数数组
+     */
     private void buildParameters(StringBuilder buf, boolean concat, String[] parameters) {
+        // 参数非空
         if (CollectionUtils.isNotEmptyMap(getParameters())) {
+            //
             List<String> includes = (ArrayUtils.isEmpty(parameters) ? null : Arrays.asList(parameters));
             boolean first = true;
-            for (Map.Entry<String, String> entry : new TreeMap<>(getParameters()).entrySet()) {
+            TreeMap<String, String> sortedParameters = new TreeMap<>(getParameters());
+            //
+            for (Map.Entry<String, String> entry : sortedParameters.entrySet()) {
+                // 键非空且已经包含了这个key
                 if (StringUtils.isNotEmpty(entry.getKey())
                         && (includes == null || includes.contains(entry.getKey()))) {
                     if (first) {
+                        // 连接
                         if (concat) {
                             buf.append("?");
                         }
@@ -1414,10 +1510,12 @@ public class URL implements Serializable {
 
     private String buildString(boolean appendUser, boolean appendParameter, boolean useIP, boolean useService, String... parameters) {
         StringBuilder buf = new StringBuilder();
+        // 协议://
         if (StringUtils.isNotEmpty(protocol)) {
             buf.append(protocol);
             buf.append("://");
         }
+        // username:password@
         if (appendUser && StringUtils.isNotEmpty(username)) {
             buf.append(username);
             if (StringUtils.isNotEmpty(password)) {
@@ -1427,11 +1525,15 @@ public class URL implements Serializable {
             buf.append("@");
         }
         String host;
+        // ip
         if (useIP) {
             host = getIp();
-        } else {
+        }
+        // host
+        else {
             host = getHost();
         }
+        // host:port
         if (StringUtils.isNotEmpty(host)) {
             buf.append(host);
             if (port > 0) {
@@ -1442,14 +1544,16 @@ public class URL implements Serializable {
         String path;
         if (useService) {
             path = getServiceKey();
-        } else {
+        }
+        // 使用路径
+        else {
             path = getPath();
         }
         if (StringUtils.isNotEmpty(path)) {
             buf.append("/");
             buf.append(path);
         }
-
+        // 追加参数
         if (appendParameter) {
             buildParameters(buf, true, parameters);
         }
@@ -1502,11 +1606,16 @@ public class URL implements Serializable {
         if (serviceKey != null) {
             return serviceKey;
         }
-        String inf = getServiceInterface();
-        if (inf == null) {
+        // 获取interface参数
+        // 不存在则取url的path
+        String interfaceValue = getServiceInterface();
+        if (interfaceValue == null) {
             return null;
         }
-        serviceKey = buildKey(inf, getParameter(GROUP_KEY), getParameter(VERSION_KEY));
+        String groupValue = getParameter(GROUP_KEY);
+        String versionValue = getParameter(VERSION_KEY);
+        // group/interfaceValue:version
+        serviceKey = buildKey(interfaceValue, groupValue, versionValue);
         return serviceKey;
     }
 
@@ -1535,107 +1644,12 @@ public class URL implements Serializable {
         return buildString(true, false, true, true);
     }
 
-    @Deprecated
-    public String getServiceName() {
-        return getServiceInterface();
-    }
-
     public String getServiceInterface() {
         return getParameter(INTERFACE_KEY, path);
     }
 
     public URL setServiceInterface(String service) {
         return addParameter(INTERFACE_KEY, service);
-    }
-
-    /**
-     * @see #getParameter(String, int)
-     * @deprecated Replace to <code>getParameter(String, int)</code>
-     */
-    @Deprecated
-    public int getIntParameter(String key) {
-        return getParameter(key, 0);
-    }
-
-    /**
-     * @see #getParameter(String, int)
-     * @deprecated Replace to <code>getParameter(String, int)</code>
-     */
-    @Deprecated
-    public int getIntParameter(String key, int defaultValue) {
-        return getParameter(key, defaultValue);
-    }
-
-    /**
-     * @see #getPositiveParameter(String, int)
-     * @deprecated Replace to <code>getPositiveParameter(String, int)</code>
-     */
-    @Deprecated
-    public int getPositiveIntParameter(String key, int defaultValue) {
-        return getPositiveParameter(key, defaultValue);
-    }
-
-    /**
-     * @see #getParameter(String, boolean)
-     * @deprecated Replace to <code>getParameter(String, boolean)</code>
-     */
-    @Deprecated
-    public boolean getBooleanParameter(String key) {
-        return getParameter(key, false);
-    }
-
-    /**
-     * @see #getParameter(String, boolean)
-     * @deprecated Replace to <code>getParameter(String, boolean)</code>
-     */
-    @Deprecated
-    public boolean getBooleanParameter(String key, boolean defaultValue) {
-        return getParameter(key, defaultValue);
-    }
-
-    /**
-     * @see #getMethodParameter(String, String, int)
-     * @deprecated Replace to <code>getMethodParameter(String, String, int)</code>
-     */
-    @Deprecated
-    public int getMethodIntParameter(String method, String key) {
-        return getMethodParameter(method, key, 0);
-    }
-
-    /**
-     * @see #getMethodParameter(String, String, int)
-     * @deprecated Replace to <code>getMethodParameter(String, String, int)</code>
-     */
-    @Deprecated
-    public int getMethodIntParameter(String method, String key, int defaultValue) {
-        return getMethodParameter(method, key, defaultValue);
-    }
-
-    /**
-     * @see #getMethodPositiveParameter(String, String, int)
-     * @deprecated Replace to <code>getMethodPositiveParameter(String, String, int)</code>
-     */
-    @Deprecated
-    public int getMethodPositiveIntParameter(String method, String key, int defaultValue) {
-        return getMethodPositiveParameter(method, key, defaultValue);
-    }
-
-    /**
-     * @see #getMethodParameter(String, String, boolean)
-     * @deprecated Replace to <code>getMethodParameter(String, String, boolean)</code>
-     */
-    @Deprecated
-    public boolean getMethodBooleanParameter(String method, String key) {
-        return getMethodParameter(method, key, false);
-    }
-
-    /**
-     * @see #getMethodParameter(String, String, boolean)
-     * @deprecated Replace to <code>getMethodParameter(String, String, boolean)</code>
-     */
-    @Deprecated
-    public boolean getMethodBooleanParameter(String method, String key, boolean defaultValue) {
-        return getMethodParameter(method, key, defaultValue);
     }
 
     public Configuration toConfiguration() {
@@ -1696,11 +1710,6 @@ public class URL implements Serializable {
             return false;
         }
         return true;
-    }
-
-    public static void putMethodParameter(String method, String key, String value, Map<String, Map<String, String>> methodParameters) {
-        Map<String, String> subParameter = methodParameters.computeIfAbsent(method, k -> new HashMap<>());
-        subParameter.put(key, value);
     }
 
 }

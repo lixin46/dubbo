@@ -27,6 +27,7 @@ import java.lang.annotation.Target;
 
 /**
  * Enables Dubbo {@link Lifecycle} components
+ * 废弃了,无需手动开启,而是自动注册.
  *
  * @since 2.7.5
  * @deprecated as 2.7.6,  Dubbo {@link Lifecycle} components will be registered automatically. Current annotation may be

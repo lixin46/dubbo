@@ -46,19 +46,39 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
 
     protected static final String CLIENT_THREAD_POOL_NAME = "DubboClientHandler";
     private static final Logger logger = LoggerFactory.getLogger(AbstractClient.class);
+    // ----------------------------------------------------------
+    /**
+     * 连接锁
+     */
     private final Lock connectLock = new ReentrantLock();
+    /**
+     * 是否需要重连???
+     */
     private final boolean needReconnect;
+    /**
+     * 执行器服务(线程池)
+     */
     protected volatile ExecutorService executor;
+    /**
+     * 执行器仓库
+     */
     private ExecutorRepository executorRepository = ExtensionLoader.getExtensionLoader(ExecutorRepository.class).getDefaultExtension();
 
+    /**
+     * 构造方法
+     * @param url
+     * @param handler
+     * @throws RemotingException
+     */
     public AbstractClient(URL url, ChannelHandler handler) throws RemotingException {
         super(url, handler);
-
+        // send.reconnect参数
         needReconnect = url.getParameter(Constants.SEND_RECONNECT_KEY, false);
-
+        // 初始化执行器
         initExecutor(url);
 
         try {
+            // 打开???子类实现
             doOpen();
         } catch (Throwable t) {
             close();
@@ -89,8 +109,11 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
     }
 
     private void initExecutor(URL url) {
+        // 重新设置url的线程名,默认为DubboClientHandler-地址
         url = ExecutorUtil.setThreadName(url, CLIENT_THREAD_POOL_NAME);
+        // 追加参数,如果不存在的话threadpool=cached
         url = url.addParameterIfAbsent(THREADPOOL_KEY, DEFAULT_CLIENT_THREADPOOL);
+        //
         executor = executorRepository.createExecutorIfAbsent(url);
     }
 
@@ -99,7 +122,10 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
     }
 
     public InetSocketAddress getConnectAddress() {
-        return new InetSocketAddress(NetUtils.filterLocalHost(getUrl().getHost()), getUrl().getPort());
+        return new InetSocketAddress(
+                NetUtils.filterLocalHost(getUrl().getHost()),
+                getUrl().getPort()
+        );
     }
 
     @Override
@@ -170,11 +196,14 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
         if (needReconnect && !isConnected()) {
             connect();
         }
+        // 获取通道
         Channel channel = getChannel();
         //TODO Can the value returned by getChannel() be null? need improvement.
+        // 不存在或未连接,则报错
         if (channel == null || !channel.isConnected()) {
             throw new RemotingException(this, "message can not send, because channel is closed . url:" + getUrl());
         }
+        // 通道发送
         channel.send(message, sent);
     }
 
@@ -187,15 +216,17 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
             if (isConnected()) {
                 return;
             }
-
+            // 连接,子类实现
             doConnect();
-
+            // 未连接,则报错
             if (!isConnected()) {
                 throw new RemotingException(this, "Failed connect to server " + getRemoteAddress() + " from " + getClass().getSimpleName() + " "
                         + NetUtils.getLocalHost() + " using dubbo version " + Version.getVersion()
                         + ", cause: Connect wait timeout: " + getConnectTimeout() + "ms.");
 
-            } else {
+            }
+            // 已连接,则日志
+            else {
                 if (logger.isInfoEnabled()) {
                     logger.info("Successed connect to server " + getRemoteAddress() + " from " + getClass().getSimpleName() + " "
                             + NetUtils.getLocalHost() + " using dubbo version " + Version.getVersion()

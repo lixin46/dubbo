@@ -40,9 +40,9 @@ public final class ServiceDefinitionBuilder {
      * @return Service description
      */
     public static ServiceDefinition build(final Class<?> interfaceClass) {
-        ServiceDefinition sd = new ServiceDefinition();
-        build(sd, interfaceClass);
-        return sd;
+        ServiceDefinition serviceDefinition = new ServiceDefinition();
+        build(serviceDefinition, interfaceClass);
+        return serviceDefinition;
     }
 
     public static FullServiceDefinition buildFullDefinition(final Class<?> interfaceClass) {
@@ -58,35 +58,43 @@ public final class ServiceDefinitionBuilder {
         return sd;
     }
 
-    public static <T extends ServiceDefinition> void build(T sd, final Class<?> interfaceClass) {
-        sd.setCanonicalName(interfaceClass.getCanonicalName());
-        sd.setCodeSource(ClassUtils.getCodeSource(interfaceClass));
+    public static <T extends ServiceDefinition> void build(T serviceDefinition, final Class<?> interfaceClass) {
+        // 接口全限定类名
+        serviceDefinition.setCanonicalName(interfaceClass.getCanonicalName());
+        // 类的来源位置
+        serviceDefinition.setCodeSource(ClassUtils.getCodeSource(interfaceClass));
 
         TypeDefinitionBuilder builder = new TypeDefinitionBuilder();
+        // 获取所有public非static方法
         List<Method> methods = ClassUtils.getPublicNonStaticMethods(interfaceClass);
+        // 遍历
         for (Method method : methods) {
-            MethodDefinition md = new MethodDefinition();
-            md.setName(method.getName());
+            MethodDefinition methodDefinition = new MethodDefinition();
+            //
+            methodDefinition.setName(method.getName());
 
             // Process parameter types.
+            // 形参声明类
             Class<?>[] paramTypes = method.getParameterTypes();
+            // 参数泛型
             Type[] genericParamTypes = method.getGenericParameterTypes();
 
             String[] parameterTypes = new String[paramTypes.length];
             for (int i = 0; i < paramTypes.length; i++) {
+                // 构建类型定义
                 TypeDefinition td = builder.build(genericParamTypes[i], paramTypes[i]);
                 parameterTypes[i] = td.getType();
             }
-            md.setParameterTypes(parameterTypes);
+            methodDefinition.setParameterTypes(parameterTypes);
 
             // Process return type.
             TypeDefinition td = builder.build(method.getGenericReturnType(), method.getReturnType());
-            md.setReturnType(td.getType());
+            methodDefinition.setReturnType(td.getType());
 
-            sd.getMethods().add(md);
+            serviceDefinition.getMethods().add(methodDefinition);
         }
 
-        sd.setTypes(builder.getTypeDefinitions());
+        serviceDefinition.setTypes(builder.getTypeDefinitions());
     }
 
     /**

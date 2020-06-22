@@ -20,6 +20,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.HEARTBEAT_EVENT;
 
 /**
  * Response
+ * 响应对象
  */
 public class Response {
 
@@ -78,8 +79,15 @@ public class Response {
      */
     public static final byte SERVER_THREADPOOL_EXHAUSTED_ERROR = 100;
 
-    private long mId = 0;
+    // -----------------------------------------------------------------------------------------------------------------
 
+    /**
+     * 标识
+     */
+    private long mId = 0;
+    /**
+     * 版本
+     */
     private String mVersion;
 
     private byte mStatus = OK;
@@ -90,13 +98,25 @@ public class Response {
 
     private Object mResult;
 
+    /**
+     * 构造方法
+     */
     public Response() {
     }
 
+    /**
+     * 构造方法
+     * @param id 标识
+     */
     public Response(long id) {
         mId = id;
     }
 
+    /**
+     * 构造方法
+     * @param id 标识
+     * @param version 版本
+     */
     public Response(long id, String version) {
         mId = id;
         mVersion = version;

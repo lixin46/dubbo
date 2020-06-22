@@ -25,64 +25,58 @@ import java.util.List;
 
 /**
  * Protocol. (API/SPI, Singleton, ThreadSafe)
+ * 如果url对象中存在protocol参数,则使用其参数值对应的扩展实例,否则使用dubbo对应的扩展实例.
+ *
+ * 协议有两种职责:
+ * 1.根据接口类型和url配置,产生调用器
+ * 2.导出调用器,返回导出器
  */
 @SPI("dubbo")
 public interface Protocol {
 
     /**
-     * Get default port when user doesn't config the port.
      *
-     * @return default port
+     * @return 当用户没有配置端口时,获取默认端口
      */
     int getDefaultPort();
 
     /**
-     * Export service for remote invocation: <br>
-     * 1. Protocol should record request source address after receive a request:
-     * RpcContext.getContext().setRemoteAddress();<br>
-     * 2. export() must be idempotent, that is, there's no difference between invoking once and invoking twice when
-     * export the same URL<br>
-     * 3. Invoker instance is passed in by the framework, protocol needs not to care <br>
-     *
-     * @param <T>     Service type
-     * @param invoker Service invoker
-     * @return exporter reference for exported service, useful for unexport the service later
-     * @throws RpcException thrown when error occurs during export the service, for example: port is occupied
+     * 导出调用器,获取导出器
+     * 暴露服务用于远程调用:
+     * 1.协议应该记录请求来源地址,在收到一个请求之后
+     * 2.export()方法必须幂等,也就是说,针对相同的url,多次调用应该返回相同的导出器实例
+     * 3.Invoker实例通过框架传递,协议不需要关心
+     * 服务端使用
+     * @param invoker 指定的调用器
+     * @param <T> 服务接口类型
+     * @return 调用器对应的导出器,导出器为了引用暴露的服务,取消导出时很有用
+     * @throws RpcException 导出过程中异常
      */
     @Adaptive
     <T> Exporter<T> export(Invoker<T> invoker) throws RpcException;
 
     /**
-     * 引用一个远程服务
-     * Refer a remote service: <br>
-     * 1. When user calls `invoke()` method of `Invoker` object which's returned from `refer()` call, the protocol
-     * needs to correspondingly execute `invoke()` method of `Invoker` object <br>
-     * 2. It's protocol's responsibility to implement `Invoker` which's returned from `refer()`. Generally speaking,
-     * protocol sends remote request in the `Invoker` implementation. <br>
-     * 3. When there's check=false set in URL, the implementation must not throw exception but try to recover when
-     * connection fails.
-     *
-     * @param <T>  Service type
-     * @param type Service class
-     * @param url  URL address for the remote service
-     * @return invoker service's local proxy
-     * @throws RpcException when there's any error while connecting to the service provider
+     * 引用
+     * 客户端使用的API
+     * @param type 接口类型
+     * @param url 地址,包含配置信息
+     * @param <T> 接口类型
+     * @return 调用器
+     * @throws RpcException 远程调用
      */
     @Adaptive
     <T> Invoker<T> refer(Class<T> type, URL url) throws RpcException;
 
     /**
-     * Destroy protocol: <br>
-     * 1. Cancel all services this protocol exports and refers <br>
-     * 2. Release all occupied resources, for example: connection, port, etc. <br>
-     * 3. Protocol can continue to export and refer new service even after it's destroyed.
+     * 销毁协议:
+     * 1.取消所有当前协议导出和引用的服务
+     * 2.释放所有占用的资源,比如:连接,端口等等
+     * 3.协议销毁后可以继续导出和引用新的服务
      */
     void destroy();
 
     /**
-     * Get all servers serving this protocol
-     *
-     * @return
+     * @return 当前协议中所有服务端服务
      */
     default List<ProtocolServer> getServers() {
         return Collections.emptyList();

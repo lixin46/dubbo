@@ -169,34 +169,59 @@ public class ConfigValidationUtils {
     public static List<URL> loadRegistries(AbstractInterfaceConfig interfaceConfig, boolean provider) {
         // check && override if necessary
         List<URL> registryList = new ArrayList<URL>();
+        // 应用配置,需要整合到默认参数中
         ApplicationConfig application = interfaceConfig.getApplication();
+        // 注册中心配置,需要整合到默认参数中
         List<RegistryConfig> registries = interfaceConfig.getRegistries();
+        // 非空
         if (CollectionUtils.isNotEmpty(registries)) {
-            for (RegistryConfig config : registries) {
-                String address = config.getAddress();
+            // 遍历注册中心配置
+            for (RegistryConfig registryConfig : registries) {
+                // 地址
+                String address = registryConfig.getAddress();
+                // 为空,则为0.0.0.0
                 if (StringUtils.isEmpty(address)) {
                     address = ANYHOST_VALUE;
                 }
+                // 地址不为N/A
                 if (!RegistryConfig.NO_AVAILABLE.equalsIgnoreCase(address)) {
-                    Map<String, String> map = new HashMap<String, String>();
-                    AbstractConfig.appendParameters(map, application);
-                    AbstractConfig.appendParameters(map, config);
-                    map.put(PATH_KEY, RegistryService.class.getName());
-                    AbstractInterfaceConfig.appendRuntimeParameters(map);
-                    if (!map.containsKey(PROTOCOL_KEY)) {
-                        map.put(PROTOCOL_KEY, DUBBO_PROTOCOL);
+                    //
+                    Map<String, String> mergedParameters = new HashMap<String, String>();
+                    // 应用配置
+                    AbstractConfig.appendParameters(mergedParameters, application);
+                    // 注册中心配置
+                    AbstractConfig.appendParameters(mergedParameters, registryConfig);
+                    // path=org.apache.dubbo.registry.RegistryService
+                    mergedParameters.put(PATH_KEY, RegistryService.class.getName());
+                    // dubbo版本信息
+                    AbstractInterfaceConfig.appendRuntimeParameters(mergedParameters);
+                    // 不包含protocol参数,则追加protocol=dubbo
+                    if (!mergedParameters.containsKey(PROTOCOL_KEY)) {
+                        mergedParameters.put(PROTOCOL_KEY, DUBBO_PROTOCOL);
                     }
-                    List<URL> urls = UrlUtils.parseURLs(address, map);
+                    // 注册中心配置的地址,解析成url
+                    // url以'|'或';'分隔
+                    List<URL> registryUrls = UrlUtils.parseURLs(address, mergedParameters);
 
-                    for (URL url : urls) {
-
-                        url = URLBuilder.from(url)
-                                .addParameter(REGISTRY_KEY, url.getProtocol())
-                                .setProtocol(extractRegistryType(url))
+                    //
+                    for (URL registryUrl : registryUrls) {
+                        // 提取类型service-discovery-registry或registry
+                        String registryType = extractRegistryType(registryUrl);
+                        /*
+                         * 这里之所以要替换协议,是因为ExtensionLoader的组件适配器机制,
+                         * 会根据URL中的protocol选择把方法调用,映射到哪个实例
+                         */
+                        // 这里需要根据注册中心类型,将协议替换为registry或service-discovery-registry
+                        // 原始协议放到registry参数中
+                        registryUrl = URLBuilder.from(registryUrl)
+                                .addParameter(REGISTRY_KEY, registryUrl.getProtocol())// 把注册中心url的协议转换为registry参数
+                                .setProtocol(registryType)// 协议替换为注册中心类型
                                 .build();
-                        if ((provider && url.getParameter(REGISTER_KEY, true))
-                                || (!provider && url.getParameter(SUBSCRIBE_KEY, true))) {
-                            registryList.add(url);
+                        // 提供者,且registry参数值为true
+                        // 或者非提供者,subscribe值为true,则追加url
+                        if ((provider && registryUrl.getParameter(REGISTER_KEY, true))
+                                || (!provider && registryUrl.getParameter(SUBSCRIBE_KEY, true))) {
+                            registryList.add(registryUrl);
                         }
                     }
                 }
@@ -206,43 +231,63 @@ public class ConfigValidationUtils {
     }
 
     public static URL loadMonitor(AbstractInterfaceConfig interfaceConfig, URL registryURL) {
-        Map<String, String> map = new HashMap<String, String>();
-        map.put(INTERFACE_KEY, MonitorService.class.getName());
-        AbstractInterfaceConfig.appendRuntimeParameters(map);
-        //set ip
+        Map<String, String> defaultParameters = new HashMap<String, String>();
+        // interface=org.apache.dubbo.monitor.MonitorService
+        defaultParameters.put(INTERFACE_KEY, MonitorService.class.getName());
+        // 追加dubbo版本信息
+        AbstractInterfaceConfig.appendRuntimeParameters(defaultParameters);
+        // 环境变量和jvm属性,DUBBO_IP_TO_REGISTRY
         String hostToRegistry = ConfigUtils.getSystemProperty(DUBBO_IP_TO_REGISTRY);
+        // 为空,则取本机ip
         if (StringUtils.isEmpty(hostToRegistry)) {
             hostToRegistry = NetUtils.getLocalHost();
-        } else if (NetUtils.isInvalidLocalHost(hostToRegistry)) {
+        }
+        // 本地主机无效,则报错
+        else if (NetUtils.isInvalidLocalHost(hostToRegistry)) {
             throw new IllegalArgumentException("Specified invalid registry ip from property:" +
                     DUBBO_IP_TO_REGISTRY + ", value:" + hostToRegistry);
         }
-        map.put(REGISTER_IP_KEY, hostToRegistry);
+        // register.ip
+        defaultParameters.put(REGISTER_IP_KEY, hostToRegistry);
 
+        // 监视配置
         MonitorConfig monitor = interfaceConfig.getMonitor();
+        // 应用配置
         ApplicationConfig application = interfaceConfig.getApplication();
-        AbstractConfig.appendParameters(map, monitor);
-        AbstractConfig.appendParameters(map, application);
+        AbstractConfig.appendParameters(defaultParameters, monitor);
+        AbstractConfig.appendParameters(defaultParameters, application);
+
+        // 地址
         String address = monitor.getAddress();
         String sysaddress = System.getProperty("dubbo.monitor.address");
         if (sysaddress != null && sysaddress.length() > 0) {
             address = sysaddress;
         }
+        // 非空
         if (ConfigUtils.isNotEmpty(address)) {
-            if (!map.containsKey(PROTOCOL_KEY)) {
+            // 不包含protocol参数
+            if (!defaultParameters.containsKey(PROTOCOL_KEY)) {
+                // 监视器工厂接口存在名称为logstat的扩展实例
                 if (getExtensionLoader(MonitorFactory.class).hasExtension(LOGSTAT_PROTOCOL)) {
-                    map.put(PROTOCOL_KEY, LOGSTAT_PROTOCOL);
-                } else {
-                    map.put(PROTOCOL_KEY, DUBBO_PROTOCOL);
+                    // protocol=logstat
+                    defaultParameters.put(PROTOCOL_KEY, LOGSTAT_PROTOCOL);
+                }
+                // 不存在
+                else {
+                    // protocol=dubbo
+                    defaultParameters.put(PROTOCOL_KEY, DUBBO_PROTOCOL);
                 }
             }
-            return UrlUtils.parseURL(address, map);
-        } else if ((REGISTRY_PROTOCOL.equals(monitor.getProtocol()) || SERVICE_REGISTRY_PROTOCOL.equals(monitor.getProtocol()))
+            // 解析地址
+            return UrlUtils.parseURL(address, defaultParameters);
+        }
+        // 地址为空
+        else if ((REGISTRY_PROTOCOL.equals(monitor.getProtocol()) || SERVICE_REGISTRY_PROTOCOL.equals(monitor.getProtocol()))
                 && registryURL != null) {
             return URLBuilder.from(registryURL)
                     .setProtocol(DUBBO_PROTOCOL)
                     .addParameter(PROTOCOL_KEY, monitor.getProtocol())
-                    .addParameterAndEncoded(REFER_KEY, StringUtils.toQueryString(map))
+                    .addParameterAndEncoded(REFER_KEY, StringUtils.toQueryString(defaultParameters))
                     .build();
         }
         return null;
@@ -402,6 +447,9 @@ public class ConfigValidationUtils {
             }
         }
 
+        /*
+         * 都只有非空时才检查
+         */
         checkName(NAME, config.getName());
         checkMultiName(OWNER, config.getOwner());
         checkName(ORGANIZATION, config.getOrganization());
@@ -467,7 +515,7 @@ public class ConfigValidationUtils {
             checkExtension(Transporter.class, TRANSPORTER_KEY, config.getTransporter());
             checkExtension(Exchanger.class, EXCHANGER_KEY, config.getExchanger());
             checkExtension(Dispatcher.class, DISPATCHER_KEY, config.getDispatcher());
-            checkExtension(Dispatcher.class, "dispather", config.getDispather());
+            checkExtension(Dispatcher.class, "dispather", config.getDispatcher());
             checkExtension(ThreadPool.class, THREADPOOL_KEY, config.getThreadpool());
         }
     }
@@ -516,6 +564,7 @@ public class ConfigValidationUtils {
     }
 
     private static String extractRegistryType(URL url) {
+        // 通过registry-type参数判断,值为service则返回service-discovery-registry,否则返回registry
         return isServiceDiscoveryRegistryType(url) ? SERVICE_REGISTRY_PROTOCOL : REGISTRY_PROTOCOL;
     }
 

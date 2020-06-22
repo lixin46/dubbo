@@ -46,15 +46,6 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
 
     protected static final Logger logger = LoggerFactory.getLogger(HeaderExchangeHandler.class);
 
-    private final ExchangeHandler handler;
-
-    public HeaderExchangeHandler(ExchangeHandler handler) {
-        if (handler == null) {
-            throw new IllegalArgumentException("handler == null");
-        }
-        this.handler = handler;
-    }
-
     static void handleResponse(Channel channel, Response response) throws RemotingException {
         if (response != null && !response.isHeartbeat()) {
             DefaultFuture.received(channel, response);
@@ -69,14 +60,33 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
                         .equals(NetUtils.filterLocalHost(address.getAddress().getHostAddress()));
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+
+    private final ExchangeHandler handler;
+
+    public HeaderExchangeHandler(ExchangeHandler handler) {
+        if (handler == null) {
+            throw new IllegalArgumentException("handler == null");
+        }
+        this.handler = handler;
+    }
+
     void handlerEvent(Channel channel, Request req) throws RemotingException {
         if (req.getData() != null && req.getData().equals(READONLY_EVENT)) {
             channel.setAttribute(Constants.CHANNEL_ATTRIBUTE_READONLY_KEY, Boolean.TRUE);
         }
     }
 
+    /**
+     * 处理请求
+     * @param channel 交换通道
+     * @param req 请求
+     * @throws RemotingException
+     */
     void handleRequest(final ExchangeChannel channel, Request req) throws RemotingException {
+        // 创建响应
         Response res = new Response(req.getId(), req.getVersion());
+        // 请求已中断
         if (req.isBroken()) {
             Object data = req.getData();
 
@@ -90,23 +100,32 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
             }
             res.setErrorMessage("Fail to decode request due to: " + msg);
             res.setStatus(Response.BAD_REQUEST);
-
+            // 回发响应
             channel.send(res);
             return;
         }
         // find handler by message class.
         Object msg = req.getData();
         try {
+            // 响应
             CompletionStage<Object> future = handler.reply(channel, msg);
+            // 当future执行完毕时,执行回调,传入正常结果和异常
             future.whenComplete((appResult, t) -> {
                 try {
+                    // 不存在异常
                     if (t == null) {
+                        // 设置响应状态OK
                         res.setStatus(Response.OK);
+                        // 设置结果
                         res.setResult(appResult);
-                    } else {
+                    }
+                    // 存在结果
+                    else {
+                        // 设置状态为服务错误
                         res.setStatus(Response.SERVICE_ERROR);
                         res.setErrorMessage(StringUtils.toString(t));
                     }
+                    // 回发响应
                     channel.send(res);
                 } catch (RemotingException e) {
                     logger.warn("Send result to consumer failed, channel is " + channel + ", msg is " + e);

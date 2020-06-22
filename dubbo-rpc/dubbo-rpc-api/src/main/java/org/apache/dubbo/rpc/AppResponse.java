@@ -49,26 +49,44 @@ public class AppResponse implements Result {
 
     private static final long serialVersionUID = -6925924956850004727L;
 
+    /**
+     * 正常的结果
+     */
     private Object result;
-
+    /**
+     * 异常
+     */
     private Throwable exception;
-
+    /**
+     * 附件???
+     */
     private Map<String, Object> attachments = new HashMap<>();
 
+    /**
+     * 构造方法
+     */
     public AppResponse() {
     }
 
+    /**
+     * 构造方法
+     * @param result 正常结果
+     */
     public AppResponse(Object result) {
         this.result = result;
     }
 
+    /**
+     * 构造方法
+     * @param exception 异常结果
+     */
     public AppResponse(Throwable exception) {
         this.exception = exception;
     }
 
     @Override
     public Object recreate() throws Throwable {
-        // 异常
+        // 存在异常,则需要抛
         if (exception != null) {
             // fix issue#619
             try {

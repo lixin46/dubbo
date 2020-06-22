@@ -29,6 +29,7 @@ import org.apache.dubbo.rpc.cluster.RouterChain;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.apache.dubbo.common.constants.CommonConstants.MONITOR_KEY;
 import static org.apache.dubbo.rpc.cluster.Constants.REFER_KEY;
@@ -42,13 +43,18 @@ public abstract class AbstractDirectory<T> implements Directory<T> {
     // logger
     private static final Logger logger = LoggerFactory.getLogger(AbstractDirectory.class);
 
+    /**
+     * ???
+     */
     private final URL url;
-
-    private volatile boolean destroyed = false;
-
+    /**
+     * ???
+     */
     private volatile URL consumerUrl;
 
     protected RouterChain<T> routerChain;
+
+    private volatile boolean destroyed = false;
 
     public AbstractDirectory(URL url) {
         this(url, null);
@@ -58,11 +64,12 @@ public abstract class AbstractDirectory<T> implements Directory<T> {
         if (url == null) {
             throw new IllegalArgumentException("url == null");
         }
-
+        // 删除refer参数,删除monitor参数
         this.url = url.removeParameter(REFER_KEY).removeParameter(MONITOR_KEY);
-        this.consumerUrl = url.addParameters(StringUtils.parseQueryString(url.getParameterAndDecoded(REFER_KEY)))
+        Map<String, String> queryString = StringUtils.parseQueryString(url.getParameterAndDecoded(REFER_KEY));
+        // 获取refer参数并解析查询字符串,添加到url中,删除monitor参数
+        this.consumerUrl = url.addParameters(queryString)
                 .removeParameter(MONITOR_KEY);
-
         setRouterChain(routerChain);
     }
 

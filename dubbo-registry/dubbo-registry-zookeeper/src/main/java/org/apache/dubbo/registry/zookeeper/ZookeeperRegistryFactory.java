@@ -22,11 +22,15 @@ import org.apache.dubbo.registry.support.AbstractRegistryFactory;
 import org.apache.dubbo.remoting.zookeeper.ZookeeperTransporter;
 
 /**
- * ZookeeperRegistryFactory.
+ * 组件名称为zookeeper
+ * RegistryFactory接口的实现,用于获取Registry(RegistryService)注册中心实例
  *
  */
 public class ZookeeperRegistryFactory extends AbstractRegistryFactory {
 
+    /**
+     * 传输器,用于创建客户端
+     */
     private ZookeeperTransporter zookeeperTransporter;
 
     /**

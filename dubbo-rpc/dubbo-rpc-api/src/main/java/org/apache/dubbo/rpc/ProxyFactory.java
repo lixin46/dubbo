@@ -30,6 +30,7 @@ public interface ProxyFactory {
 
     /**
      * create proxy.
+     * 创建代理,客户端使用
      *
      * @param invoker
      * @return proxy
@@ -39,6 +40,7 @@ public interface ProxyFactory {
 
     /**
      * create proxy.
+     * 创建代理,客户端使用
      *
      * @param invoker 调用器
      * @param generic 是否通用接口
@@ -49,6 +51,8 @@ public interface ProxyFactory {
 
     /**
      * create invoker.
+     * 创建调用器,服务端使用
+     *
      *
      * @param <T>
      * @param proxy

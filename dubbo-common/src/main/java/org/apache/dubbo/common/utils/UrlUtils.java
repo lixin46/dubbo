@@ -64,16 +64,28 @@ public class UrlUtils {
      */
     private final static String URL_PARAM_STARTING_SYMBOL = "?";
 
+    /**
+     * 解析单个url
+     * @param address 地址
+     * @param defaults 参数
+     * @return
+     */
     public static URL parseURL(String address, Map<String, String> defaults) {
         if (address == null || address.length() == 0) {
             return null;
         }
         String url;
+        // 包含"://" 或 '?',则直接作为地址
         if (address.contains("://") || address.contains(URL_PARAM_STARTING_SYMBOL)) {
             url = address;
-        } else {
+        }
+        // 不包含
+        else {
+            // 逗号拆分
             String[] addresses = COMMA_SPLIT_PATTERN.split(address);
+            // 取第一个
             url = addresses[0];
+            // 存在多个,则剩余地址作为backup参数
             if (addresses.length > 1) {
                 StringBuilder backup = new StringBuilder();
                 for (int i = 1; i < addresses.length; i++) {
@@ -82,18 +94,26 @@ public class UrlUtils {
                     }
                     backup.append(addresses[i]);
                 }
+                // 追加 ?backup=
                 url += URL_PARAM_STARTING_SYMBOL + RemotingConstants.BACKUP_KEY + "=" + backup.toString();
             }
         }
+        // 获取protocol参数,作为默认协议
         String defaultProtocol = defaults == null ? null : defaults.get(PROTOCOL_KEY);
         if (defaultProtocol == null || defaultProtocol.length() == 0) {
             defaultProtocol = DUBBO_PROTOCOL;
         }
+        // 获取username参数
         String defaultUsername = defaults == null ? null : defaults.get(USERNAME_KEY);
+        // 获取password参数
         String defaultPassword = defaults == null ? null : defaults.get(PASSWORD_KEY);
+        // 获取port参数
         int defaultPort = StringUtils.parseInteger(defaults == null ? null : defaults.get(PORT_KEY));
+        // 获取path参数
         String defaultPath = defaults == null ? null : defaults.get(PATH_KEY);
+        // 默认参数
         Map<String, String> defaultParameters = defaults == null ? null : new HashMap<>(defaults);
+        // 删除已经提取的默认参数
         if (defaultParameters != null) {
             defaultParameters.remove(PROTOCOL_KEY);
             defaultParameters.remove(USERNAME_KEY);
@@ -102,6 +122,9 @@ public class UrlUtils {
             defaultParameters.remove(PORT_KEY);
             defaultParameters.remove(PATH_KEY);
         }
+
+
+        // 解析url
         URL u = URL.valueOf(url);
         boolean changed = false;
         String protocol = u.getProtocol();
@@ -111,22 +134,22 @@ public class UrlUtils {
         int port = u.getPort();
         String path = u.getPath();
         Map<String, String> parameters = new HashMap<>(u.getParameters());
+        // 取默认
         if (protocol == null || protocol.length() == 0) {
             changed = true;
             protocol = defaultProtocol;
         }
+        // 取默认
         if ((username == null || username.length() == 0) && defaultUsername != null && defaultUsername.length() > 0) {
             changed = true;
             username = defaultUsername;
         }
+        // 取默认
         if ((password == null || password.length() == 0) && defaultPassword != null && defaultPassword.length() > 0) {
             changed = true;
             password = defaultPassword;
         }
-        /*if (u.isAnyHost() || u.isLocalHost()) {
-            changed = true;
-            host = NetUtils.getLocalHost();
-        }*/
+        // 取默认
         if (port <= 0) {
             if (defaultPort > 0) {
                 changed = true;
@@ -136,13 +159,16 @@ public class UrlUtils {
                 port = 9090;
             }
         }
+        // 取默认
         if (path == null || path.length() == 0) {
             if (defaultPath != null && defaultPath.length() > 0) {
                 changed = true;
                 path = defaultPath;
             }
         }
+        // 默认参数全部追加到已解析的参数中,如果key不存在的话
         if (defaultParameters != null && defaultParameters.size() > 0) {
+            // 遍历默认参数
             for (Map.Entry<String, String> entry : defaultParameters.entrySet()) {
                 String key = entry.getKey();
                 String defaultValue = entry.getValue();
@@ -155,23 +181,36 @@ public class UrlUtils {
                 }
             }
         }
+        // 发生了变更,则重组url
         if (changed) {
             u = new URL(protocol, username, password, host, port, path, parameters);
         }
         return u;
     }
 
+    /**
+     * 根据地址和参数,解析成url列表
+     * 地址只包含ip和端口,多个用'|'或';'分隔,
+     * @param address 地址
+     * @param defaults 默认参数
+     * @return
+     */
     public static List<URL> parseURLs(String address, Map<String, String> defaults) {
         if (address == null || address.length() == 0) {
             return null;
         }
+        // '|'或';'拆分
         String[] addresses = REGISTRY_SPLIT_PATTERN.split(address);
         if (addresses == null || addresses.length == 0) {
             return null; //here won't be empty
         }
         List<URL> registries = new ArrayList<URL>();
+        // 遍历地址
         for (String addr : addresses) {
-            registries.add(parseURL(addr, defaults));
+            // 解析url,整合默认参数
+            URL parsedURL = parseURL(addr, defaults);
+            // 添加
+            registries.add(parsedURL);
         }
         return registries;
     }
@@ -515,6 +554,7 @@ public class UrlUtils {
         if (parameters == null || parameters.isEmpty()) {
             return false;
         }
+        // registry-type参数值为service
         return SERVICE_REGISTRY_TYPE.equals(parameters.get(REGISTRY_TYPE_KEY));
     }
 

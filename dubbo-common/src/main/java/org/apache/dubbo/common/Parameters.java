@@ -38,6 +38,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.HIDE_KEY_PREFIX;
  */
 @Deprecated
 public class Parameters {
+
     protected static final Logger logger = LoggerFactory.getLogger(Parameters.class);
     private final Map<String, String> parameters;
 

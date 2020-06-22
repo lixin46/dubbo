@@ -22,18 +22,38 @@ import org.apache.dubbo.remoting.buffer.ChannelBuffer;
 
 import java.io.IOException;
 
+/**
+ * 编解码器,用于序列化
+ */
 @SPI
 public interface Codec2 {
 
+    /**
+     * 编码
+     * @param channel 通道
+     * @param buffer 缓冲区
+     * @param message 消息
+     * @throws IOException
+     */
     @Adaptive({Constants.CODEC_KEY})
     void encode(Channel channel, ChannelBuffer buffer, Object message) throws IOException;
 
+    /**
+     * 解码
+     * @param channel 通道
+     * @param buffer 缓冲区
+     * @return 解码后的对象
+     * @throws IOException
+     */
     @Adaptive({Constants.CODEC_KEY})
     Object decode(Channel channel, ChannelBuffer buffer) throws IOException;
 
 
     enum DecodeResult {
-        NEED_MORE_INPUT, SKIP_SOME_INPUT
+        // 需要更多输入
+        NEED_MORE_INPUT,
+        // 跳过一些输入
+        SKIP_SOME_INPUT
     }
 
 }

@@ -37,6 +37,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.INVOKER_LISTENER
 
 /**
  * ListenerProtocol
+ * 协议监听器,包装器
  */
 public class ProtocolListenerWrapper implements Protocol {
 

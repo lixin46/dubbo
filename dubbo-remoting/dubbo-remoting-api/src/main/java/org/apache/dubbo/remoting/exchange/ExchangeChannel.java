@@ -33,6 +33,7 @@ public interface ExchangeChannel extends Channel {
      * @param request
      * @return response future
      * @throws RemotingException
+     * @deprecated 新API需要指定线程池
      */
     @Deprecated
     CompletableFuture<Object> request(Object request) throws RemotingException;
@@ -44,25 +45,27 @@ public interface ExchangeChannel extends Channel {
      * @param timeout
      * @return response future
      * @throws RemotingException
+     * @deprecated 新API需要指定线程池
      */
     @Deprecated
     CompletableFuture<Object> request(Object request, int timeout) throws RemotingException;
 
     /**
-     * send request.
-     *
-     * @param request
-     * @return response future
+     * 发送请求
+     * 使用默认的超时时间
+     * @param request 请求对象
+     * @param executor 线程池执行器
+     * @return 异步future
      * @throws RemotingException
      */
     CompletableFuture<Object> request(Object request, ExecutorService executor) throws RemotingException;
 
     /**
-     * send request.
-     *
-     * @param request
-     * @param timeout
-     * @return response future
+     * 发song请求,并获取异步future
+     * @param request 请求对象,通常为Invocation
+     * @param timeout 超时时间
+     * @param executor 线程池执行器
+     * @return 异步future
      * @throws RemotingException
      */
     CompletableFuture<Object> request(Object request, int timeout, ExecutorService executor) throws RemotingException;

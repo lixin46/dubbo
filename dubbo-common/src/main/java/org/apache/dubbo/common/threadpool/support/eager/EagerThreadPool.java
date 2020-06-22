@@ -40,25 +40,36 @@ import static org.apache.dubbo.common.constants.CommonConstants.THREAD_NAME_KEY;
  * When the core threads are all in busy,
  * create new thread instead of putting task into blocking queue.
  */
+
+/**
+ * 当任务进入队列时立即引发创建新线程,而不是等待
+ */
 public class EagerThreadPool implements ThreadPool {
 
     @Override
     public Executor getExecutor(URL url) {
+        // threadname=Dubbo
         String name = url.getParameter(THREAD_NAME_KEY, DEFAULT_THREAD_NAME);
+        // corethreads=0
         int cores = url.getParameter(CORE_THREADS_KEY, DEFAULT_CORE_THREADS);
+        // threads=最大值
         int threads = url.getParameter(THREADS_KEY, Integer.MAX_VALUE);
+        // queues=0
         int queues = url.getParameter(QUEUES_KEY, DEFAULT_QUEUES);
+        // alive=60000
         int alive = url.getParameter(ALIVE_KEY, DEFAULT_ALIVE);
 
         // init queue and executor
         TaskQueue<Runnable> taskQueue = new TaskQueue<Runnable>(queues <= 0 ? 1 : queues);
-        EagerThreadPoolExecutor executor = new EagerThreadPoolExecutor(cores,
+        EagerThreadPoolExecutor executor = new EagerThreadPoolExecutor(
+                cores,
                 threads,
                 alive,
                 TimeUnit.MILLISECONDS,
                 taskQueue,
                 new NamedInternalThreadFactory(name, true),
-                new AbortPolicyWithReport(name, url));
+                new AbortPolicyWithReport(name, url)
+        );
         taskQueue.setExecutor(executor);
         return executor;
     }

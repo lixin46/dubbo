@@ -97,54 +97,6 @@ public abstract class AbstractRegistryFactory implements RegistryFactory {
         }
     }
 
-    @Override
-    public Registry getRegistry(URL url) {
-        if (destroyed.get()) {
-            LOGGER.warn("All registry instances have been destroyed, failed to fetch any instance. " +
-                    "Usually, this means no need to try to do unnecessary redundant resource clearance, all registries has been taken care of.");
-            return DEFAULT_NOP_REGISTRY;
-        }
-
-        url = URLBuilder.from(url)
-                .setPath(RegistryService.class.getName())
-                .addParameter(INTERFACE_KEY, RegistryService.class.getName())
-                .removeParameters(EXPORT_KEY, REFER_KEY)
-                .build();
-        String key = createRegistryCacheKey(url);
-        // Lock the registry access process to ensure a single instance of the registry
-        LOCK.lock();
-        try {
-            Registry registry = REGISTRIES.get(key);
-            if (registry != null) {
-                return registry;
-            }
-            //create registry by spi/ioc
-            registry = createRegistry(url);
-            if (registry == null) {
-                throw new IllegalStateException("Can not create registry " + url);
-            }
-            REGISTRIES.put(key, registry);
-            return registry;
-        } finally {
-            // Release the lock
-            LOCK.unlock();
-        }
-    }
-
-    /**
-     * Create the key for the registries cache.
-     * This method may be override by the sub-class.
-     *
-     * @param url the registration {@link URL url}
-     * @return non-null
-     */
-    protected String createRegistryCacheKey(URL url) {
-        return url.toServiceStringWithoutResolving();
-    }
-
-    protected abstract Registry createRegistry(URL url);
-
-
     private static Registry DEFAULT_NOP_REGISTRY = new Registry() {
         @Override
         public URL getUrl() {
@@ -200,5 +152,70 @@ public abstract class AbstractRegistryFactory implements RegistryFactory {
     public static void clearRegistryNotDestroy() {
         REGISTRIES.clear();
     }
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+    @Override
+    public Registry getRegistry(URL url) {
+        // 已销毁,则返回空操作实现
+        if (destroyed.get()) {
+            LOGGER.warn("All registry instances have been destroyed, failed to fetch any instance. " +
+                    "Usually, this means no need to try to do unnecessary redundant resource clearance, all registries has been taken care of.");
+            return DEFAULT_NOP_REGISTRY;
+        }
+
+        // 构建新的url
+        url = URLBuilder.from(url)
+                .setPath(RegistryService.class.getName())// 接口
+                .addParameter(INTERFACE_KEY, RegistryService.class.getName())// interface
+                .removeParameters(EXPORT_KEY, REFER_KEY)// 删除export参数
+                .build();
+        // 创建缓存键
+        String key = createRegistryCacheKey(url);
+        // Lock the registry access process to ensure a single instance of the registry
+        LOCK.lock();
+        try {
+            // 查找缓存
+            Registry registry = REGISTRIES.get(key);
+            // 存在则返回
+            if (registry != null) {
+                return registry;
+            }
+            //create registry by spi/ioc
+            // 不存在则根据url创建
+            registry = createRegistry(url);
+            // 返回null 则创建失败异常
+            if (registry == null) {
+                throw new IllegalStateException("Can not create registry " + url);
+            }
+            // 加入缓存
+            REGISTRIES.put(key, registry);
+            return registry;
+        } finally {
+            // Release the lock
+            LOCK.unlock();
+        }
+    }
+
+    /**
+     * Create the key for the registries cache.
+     * This method may be override by the sub-class.
+     *
+     * @param url the registration {@link URL url}
+     * @return non-null
+     */
+    protected String createRegistryCacheKey(URL url) {
+        return url.toServiceStringWithoutResolving();
+    }
+
+    /**
+     * 根据url创建注册表对象
+     * @param url 指定的url
+     * @return
+     */
+    protected abstract Registry createRegistry(URL url);
+
+
+
 
 }

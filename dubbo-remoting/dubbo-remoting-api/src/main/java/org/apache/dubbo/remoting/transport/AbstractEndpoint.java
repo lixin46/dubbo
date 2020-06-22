@@ -36,29 +36,51 @@ import static org.apache.dubbo.common.constants.CommonConstants.TIMEOUT_KEY;
 public abstract class AbstractEndpoint extends AbstractPeer implements Resetable {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractEndpoint.class);
-
+    protected static Codec2 getChannelCodec(URL url) {
+        // codec参数,默认为telnet
+        String codecName = url.getParameter(Constants.CODEC_KEY, "telnet");
+        // 存在对应的Codec2编解码器
+        if (ExtensionLoader.getExtensionLoader(Codec2.class).hasExtension(codecName)) {
+            return ExtensionLoader.getExtensionLoader(Codec2.class).getExtension(codecName);
+        }
+        // 不存在,则获取老的接口
+        else {
+            Codec extension = ExtensionLoader.getExtensionLoader(Codec.class).getExtension(codecName);
+            // 创建适配器
+            return new CodecAdapter(extension);
+        }
+    }
+    // -------------
+    /**
+     * 编解码器
+     */
     private Codec2 codec;
 
+    /**
+     * 读写超时
+     */
     private int timeout;
-
+    /**
+     * 握手超时
+     */
     private int connectTimeout;
 
+    /**
+     * 构造方法
+     * @param url 配置
+     * @param handler 通道处理器
+     */
     public AbstractEndpoint(URL url, ChannelHandler handler) {
         super(url, handler);
+        // 根据url中的codec参数,获取编解码器实例,默认使用telnet
         this.codec = getChannelCodec(url);
+        // 获取timeout参数,默认为1000
         this.timeout = url.getPositiveParameter(TIMEOUT_KEY, DEFAULT_TIMEOUT);
+        // 获取connect.timeout参数,默认为3000
         this.connectTimeout = url.getPositiveParameter(Constants.CONNECT_TIMEOUT_KEY, Constants.DEFAULT_CONNECT_TIMEOUT);
     }
 
-    protected static Codec2 getChannelCodec(URL url) {
-        String codecName = url.getParameter(Constants.CODEC_KEY, "telnet");
-        if (ExtensionLoader.getExtensionLoader(Codec2.class).hasExtension(codecName)) {
-            return ExtensionLoader.getExtensionLoader(Codec2.class).getExtension(codecName);
-        } else {
-            return new CodecAdapter(ExtensionLoader.getExtensionLoader(Codec.class)
-                    .getExtension(codecName));
-        }
-    }
+
 
     @Override
     public void reset(URL url) {

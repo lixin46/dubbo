@@ -36,13 +36,23 @@ public class TypeDefinition implements Serializable {
     private List<TypeDefinition> items;
     @SerializedName("enum")
     private List<String> enums;
+    /**
+     *
+     */
     private String $ref;
     private Map<String, TypeDefinition> properties;
     private String typeBuilderName;
 
+    /**
+     * 构造方法
+     */
     public TypeDefinition() {
     }
 
+    /**
+     * 构造方法
+     * @param type 类型
+     */
     public TypeDefinition(String type) {
         this.type = type;
     }

@@ -54,6 +54,8 @@ public abstract class AbstractCodec implements Codec2 {
         }
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+
     protected Serialization getSerialization(Channel channel) {
         return CodecSupport.getSerialization(channel.getUrl());
     }

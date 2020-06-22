@@ -25,6 +25,10 @@ import static org.apache.dubbo.common.constants.RegistryConstants.SERVICE_REGIST
 /**
  * TODO, replace RegistryProtocol completely in the future.
  */
+
+/**
+ * 组件名为service-discovery-registry
+ */
 public class ServiceDiscoveryRegistryProtocol extends RegistryProtocol {
 
     @Override

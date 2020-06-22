@@ -21,12 +21,13 @@ import org.apache.dubbo.config.support.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+
+
 /**
- * The service provider default configuration
- * 服务端单独配置
- * @export
- * @see org.apache.dubbo.config.ProtocolConfig
- * @see ServiceConfigBase
+ * 服务提供者的默认配置
+ *
+ * 配置信息都在这里,
+ * ServiceConfig没有这些配置,但是有发布服务的逻辑.
  */
 public class ProviderConfig extends AbstractServiceConfig {
 
@@ -168,33 +169,98 @@ public class ProviderConfig extends AbstractServiceConfig {
      */
     private Boolean isDefault;
 
-    @Deprecated
-    public void setProtocol(String protocol) {
-        this.protocols = new ArrayList<>(Arrays.asList(new ProtocolConfig(protocol)));
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可导出getter
+    public String getThreadpool() {
+        return threadpool;
     }
 
-    @Parameter(excluded = true)
-    public Boolean isDefault() {
-        return isDefault;
+    public String getThreadname() {
+        return threadname;
     }
 
+    public Integer getThreads() {
+        return threads;
+    }
+
+    public Integer getIothreads() {
+        return iothreads;
+    }
+
+    public Integer getQueues() {
+        return queues;
+    }
+
+    public Integer getAccepts() {
+        return accepts;
+    }
+
+    public String getCodec() {
+        return codec;
+    }
+
+    public String getCharset() {
+        return charset;
+    }
+
+    public Integer getPayload() {
+        return payload;
+    }
+
+    public Integer getBuffer() {
+        return buffer;
+    }
+
+    public String getServer() {
+        return server;
+    }
+
+    public String getClient() {
+        return client;
+    }
+
+    public String getTelnet() {
+        return telnet;
+    }
+
+    @Parameter(escaped = true)
+    public String getPrompt() {
+        return prompt;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getTransporter() {
+        return transporter;
+    }
+
+    public String getExchanger() {
+        return exchanger;
+    }
+
+    public String getDispatcher() {
+        return dispatcher;
+    }
+
+    public String getNetworker() {
+        return networker;
+    }
+
+    public Integer getWait() {
+        return wait;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可注入setter
     @Deprecated
     public void setDefault(Boolean isDefault) {
         this.isDefault = isDefault;
     }
 
-    @Parameter(excluded = true)
-    public String getHost() {
-        return host;
-    }
-
     public void setHost(String host) {
         this.host = host;
-    }
-
-    @Parameter(excluded = true)
-    public Integer getPort() {
-        return port;
     }
 
     @Deprecated
@@ -203,144 +269,124 @@ public class ProviderConfig extends AbstractServiceConfig {
     }
 
     @Deprecated
-    @Parameter(excluded = true)
-    public String getPath() {
-        return getContextpath();
-    }
-
-    @Deprecated
     public void setPath(String path) {
         setContextpath(path);
-    }
-
-    @Parameter(excluded = true)
-    public String getContextpath() {
-        return contextpath;
     }
 
     public void setContextpath(String contextpath) {
         this.contextpath = contextpath;
     }
 
-    public String getThreadpool() {
-        return threadpool;
-    }
-
     public void setThreadpool(String threadpool) {
         this.threadpool = threadpool;
-    }
-
-    public String getThreadname() {
-        return threadname;
     }
 
     public void setThreadname(String threadname) {
         this.threadname = threadname;
     }
 
-    public Integer getThreads() {
-        return threads;
-    }
-
     public void setThreads(Integer threads) {
         this.threads = threads;
-    }
-
-    public Integer getIothreads() {
-        return iothreads;
     }
 
     public void setIothreads(Integer iothreads) {
         this.iothreads = iothreads;
     }
 
-    public Integer getQueues() {
-        return queues;
-    }
-
     public void setQueues(Integer queues) {
         this.queues = queues;
-    }
-
-    public Integer getAccepts() {
-        return accepts;
     }
 
     public void setAccepts(Integer accepts) {
         this.accepts = accepts;
     }
 
-    public String getCodec() {
-        return codec;
-    }
-
     public void setCodec(String codec) {
         this.codec = codec;
-    }
-
-    public String getCharset() {
-        return charset;
     }
 
     public void setCharset(String charset) {
         this.charset = charset;
     }
 
-    public Integer getPayload() {
-        return payload;
-    }
-
     public void setPayload(Integer payload) {
         this.payload = payload;
-    }
-
-    public Integer getBuffer() {
-        return buffer;
     }
 
     public void setBuffer(Integer buffer) {
         this.buffer = buffer;
     }
 
-    public String getServer() {
-        return server;
-    }
-
     public void setServer(String server) {
         this.server = server;
-    }
-
-    public String getClient() {
-        return client;
     }
 
     public void setClient(String client) {
         this.client = client;
     }
 
-    public String getTelnet() {
-        return telnet;
-    }
-
     public void setTelnet(String telnet) {
         this.telnet = telnet;
-    }
-
-    @Parameter(escaped = true)
-    public String getPrompt() {
-        return prompt;
     }
 
     public void setPrompt(String prompt) {
         this.prompt = prompt;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public void setTransporter(String transporter) {
+        this.transporter = transporter;
+    }
+
+    public void setExchanger(String exchanger) {
+        this.exchanger = exchanger;
+    }
+
+    public void setDispatcher(String dispatcher) {
+        this.dispatcher = dispatcher;
+    }
+
+    public void setNetworker(String networker) {
+        this.networker = networker;
+    }
+
+    public void setWait(Integer wait) {
+        this.wait = wait;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 普通方法
+//    @Deprecated
+//    public void setProtocol(String protocol) {
+//        this.protocols = new ArrayList<>(Arrays.asList(new ProtocolConfig(protocol)));
+//    }
+    @Parameter(excluded = true)
+    public Boolean isDefault() {
+        return isDefault;
+    }
+
+    @Parameter(excluded = true)
+    public String getHost() {
+        return host;
+    }
+
+    @Parameter(excluded = true)
+    public Integer getPort() {
+        return port;
+    }
+
+    @Deprecated
+    @Parameter(excluded = true)
+    public String getPath() {
+        return getContextpath();
+    }
+
+    @Parameter(excluded = true)
+    public String getContextpath() {
+        return contextpath;
     }
 
     @Override
@@ -377,45 +423,6 @@ public class ProviderConfig extends AbstractServiceConfig {
     public Integer getActives() {
         return super.getActives();
     }
-
-    public String getTransporter() {
-        return transporter;
-    }
-
-    public void setTransporter(String transporter) {
-        this.transporter = transporter;
-    }
-
-    public String getExchanger() {
-        return exchanger;
-    }
-
-    public void setExchanger(String exchanger) {
-        this.exchanger = exchanger;
-    }
-
-    public String getDispatcher() {
-        return dispatcher;
-    }
-
-    public void setDispatcher(String dispatcher) {
-        this.dispatcher = dispatcher;
-    }
-
-    public String getNetworker() {
-        return networker;
-    }
-
-    public void setNetworker(String networker) {
-        this.networker = networker;
-    }
-
-    public Integer getWait() {
-        return wait;
-    }
-
-    public void setWait(Integer wait) {
-        this.wait = wait;
-    }
+    // -----------------------------------------------------------------------------------------------------------------
 
 }

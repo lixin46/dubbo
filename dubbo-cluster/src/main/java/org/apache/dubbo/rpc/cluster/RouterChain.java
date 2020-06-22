@@ -95,7 +95,9 @@ public class RouterChain<T> {
      */
     public List<Invoker<T>> route(URL url, Invocation invocation) {
         List<Invoker<T>> finalInvokers = invokers;
+        // 遍历路由器
         for (Router router : routers) {
+            // 路由
             finalInvokers = router.route(finalInvokers, url, invocation);
         }
         return finalInvokers;

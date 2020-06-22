@@ -45,41 +45,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * AbstractInvoker.
+ * 抽象的调用器
  */
 public abstract class AbstractInvoker<T> implements Invoker<T> {
-
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
-
-    private final Class<T> type;
-
-    private final URL url;
-
-    private final Map<String, Object> attachment;
-
-    private volatile boolean available = true;
-
-    private AtomicBoolean destroyed = new AtomicBoolean(false);
-
-    public AbstractInvoker(Class<T> type, URL url) {
-        this(type, url, (Map<String, Object>) null);
-    }
-
-    public AbstractInvoker(Class<T> type, URL url, String[] keys) {
-        this(type, url, convertAttachment(url, keys));
-    }
-
-    public AbstractInvoker(Class<T> type, URL url, Map<String, Object> attachment) {
-        if (type == null) {
-            throw new IllegalArgumentException("service type == null");
-        }
-        if (url == null) {
-            throw new IllegalArgumentException("service url == null");
-        }
-        this.type = type;
-        this.url = url;
-        this.attachment = attachment == null ? null : Collections.unmodifiableMap(attachment);
-    }
 
     private static Map<String, Object> convertAttachment(URL url, String[] keys) {
         if (ArrayUtils.isEmpty(keys)) {
@@ -94,6 +62,58 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
         }
         return attachment;
     }
+    // -----------------------------------------------------------
+
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
+
+    private final Class<T> type;
+
+    private final URL url;
+
+    private final Map<String, Object> attachment;
+
+    private volatile boolean available = true;
+
+    private AtomicBoolean destroyed = new AtomicBoolean(false);
+
+    /**
+     * 构造方法
+     * @param type
+     * @param url
+     */
+    public AbstractInvoker(Class<T> type, URL url) {
+        this(type, url, (Map<String, Object>) null);
+    }
+
+    /**
+     * 构造方法
+     * @param type
+     * @param url
+     * @param keys
+     */
+    public AbstractInvoker(Class<T> type, URL url, String[] keys) {
+        this(type, url, convertAttachment(url, keys));
+    }
+
+    /**
+     * 构造方法
+     * @param type
+     * @param url
+     * @param attachment
+     */
+    public AbstractInvoker(Class<T> type, URL url, Map<String, Object> attachment) {
+        if (type == null) {
+            throw new IllegalArgumentException("service type == null");
+        }
+        if (url == null) {
+            throw new IllegalArgumentException("service url == null");
+        }
+        this.type = type;
+        this.url = url;
+        this.attachment = attachment == null ? null : Collections.unmodifiableMap(attachment);
+    }
+
+
 
     @Override
     public Class<T> getInterface() {
@@ -147,6 +167,7 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
         }
 
         Map<String, Object> contextAttachments = RpcContext.getContext().getObjectAttachments();
+        // 非空
         if (CollectionUtils.isNotEmptyMap(contextAttachments)) {
             /**
              * invocation.addAttachmentsIfAbsent(context){@link RpcInvocation#addAttachmentsIfAbsent(Map)}should not be used here,
@@ -157,8 +178,9 @@ public abstract class AbstractInvoker<T> implements Invoker<T> {
             invocation.addObjectAttachments(contextAttachments);
         }
 
-        // 调用模式
+        // 调用模式,future|async|sync
         invocation.setInvokeMode(RpcUtils.getInvokeMode(url, invocation));
+        //
         RpcUtils.attachInvocationIdIfAsync(getUrl(), invocation);
 
         AsyncRpcResult asyncResult;

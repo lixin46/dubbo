@@ -22,11 +22,18 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * 服务定义
  * 2015/1/27.
  */
 public class ServiceDefinition implements Serializable {
 
+    /**
+     * 接口全限定类名
+     */
     private String canonicalName;
+    /**
+     * 接口类来源位置
+     */
     private String codeSource;
     private List<MethodDefinition> methods;
     private List<TypeDefinition> types;

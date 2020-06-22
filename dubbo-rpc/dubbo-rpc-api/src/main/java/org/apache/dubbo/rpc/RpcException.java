@@ -28,52 +28,119 @@ import javax.naming.LimitExceededException;
  */
 public /**final**/ class RpcException extends RuntimeException {
 
-    public static final int UNKNOWN_EXCEPTION = 0;
-    public static final int NETWORK_EXCEPTION = 1;
-    public static final int TIMEOUT_EXCEPTION = 2;
-    public static final int BIZ_EXCEPTION = 3;
-    public static final int FORBIDDEN_EXCEPTION = 4;
-    public static final int SERIALIZATION_EXCEPTION = 5;
-    public static final int NO_INVOKER_AVAILABLE_AFTER_FILTER = 6;
-    public static final int LIMIT_EXCEEDED_EXCEPTION = 7;
-    public static final int TIMEOUT_TERMINATE = 8;
     private static final long serialVersionUID = 7815426752583648734L;
+
+    /**
+     * 未知异常,兜底的
+     */
+    public static final int UNKNOWN_EXCEPTION = 0;
+    /**
+     * 网络异常???
+     */
+    public static final int NETWORK_EXCEPTION = 1;
+    /**
+     * 传输超时
+     */
+    public static final int TIMEOUT_EXCEPTION = 2;
+    /**
+     * 业务异常,是不会发起重试的
+     */
+    public static final int BIZ_EXCEPTION = 3;
+    /**
+     * 拒绝???
+     */
+    public static final int FORBIDDEN_EXCEPTION = 4;
+    /**
+     * 序列化异常
+     */
+    public static final int SERIALIZATION_EXCEPTION = 5;
+    /**
+     * 无可用的调用器异常
+     */
+    public static final int NO_INVOKER_AVAILABLE_AFTER_FILTER = 6;
+    /**
+     * 限流异常
+     */
+    public static final int LIMIT_EXCEEDED_EXCEPTION = 7;
+    /**
+     * ???
+     */
+    public static final int TIMEOUT_TERMINATE = 8;
+
     /**
      * RpcException cannot be extended, use error code for exception type to keep compatibility
+     *
+     * 为异常类型使用错误码以此来保持兼容性
      */
     private int code;
 
+    /**
+     * 构造方法
+     */
     public RpcException() {
         super();
     }
 
+    /**
+     * 构造方法
+     * @param message 消息
+     * @param cause 原因
+     */
     public RpcException(String message, Throwable cause) {
         super(message, cause);
     }
 
+    /**
+     * 构造方法
+     * @param message 消息
+     */
     public RpcException(String message) {
         super(message);
     }
 
+    /**
+     * 构造方法
+     * @param cause 原因
+     */
     public RpcException(Throwable cause) {
         super(cause);
     }
 
+    /**
+     * 构造方法
+     * @param code 错误码
+     */
     public RpcException(int code) {
         super();
         this.code = code;
     }
 
+    /**
+     * 构造方法
+     * @param code 错误码
+     * @param message 消息
+     * @param cause 原因
+     */
     public RpcException(int code, String message, Throwable cause) {
         super(message, cause);
         this.code = code;
     }
 
+    /**
+     * 构造方法
+     * @param code 错误码
+     * @param message 消息
+     */
     public RpcException(int code, String message) {
         super(message);
         this.code = code;
     }
 
+    /**
+     * 构造方法
+     * @param code 错误码
+     * @param cause 原因
+     */
     public RpcException(int code, Throwable cause) {
         super(cause);
         this.code = code;

@@ -43,6 +43,9 @@ final class NettyChannel extends AbstractChannel {
 
     private static final ConcurrentMap<org.jboss.netty.channel.Channel, NettyChannel> CHANNEL_MAP = new ConcurrentHashMap<org.jboss.netty.channel.Channel, NettyChannel>();
 
+    /**
+     * netty的通道
+     */
     private final org.jboss.netty.channel.Channel channel;
 
     private final Map<String, Object> attributes = new ConcurrentHashMap<String, Object>();
@@ -100,12 +103,19 @@ final class NettyChannel extends AbstractChannel {
         boolean success = true;
         int timeout = 0;
         try {
+            // 调用netty的通道,写入对象
+            // 获取netty的future
             ChannelFuture future = channel.write(message);
+            // 等待发送
             if (sent) {
+                // timeout参数,默认1000
                 timeout = getUrl().getPositiveParameter(TIMEOUT_KEY, DEFAULT_TIMEOUT);
+                // 等待future执行完成
                 success = future.await(timeout);
             }
+            // 错误
             Throwable cause = future.getCause();
+            // 存在异常则抛
             if (cause != null) {
                 throw cause;
             }
@@ -113,6 +123,7 @@ final class NettyChannel extends AbstractChannel {
             throw new RemotingException(this, "Failed to send message " + PayloadDropper.getRequestWithoutData(message) + " to " + getRemoteAddress() + ", cause: " + e.getMessage(), e);
         }
 
+        // 不成功,则抛
         if (!success) {
             throw new RemotingException(this, "Failed to send message " + PayloadDropper.getRequestWithoutData(message) + " to " + getRemoteAddress()
                     + "in timeout(" + timeout + "ms) limit");

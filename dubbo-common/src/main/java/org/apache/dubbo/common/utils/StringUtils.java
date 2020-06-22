@@ -854,9 +854,11 @@ public final class StringUtils {
         StringBuilder buf = null;
         for (int i = 0; i < camelName.length(); i++) {
             char ch = camelName.charAt(i);
+            // 字母
             if (ch >= 'A' && ch <= 'Z') {
                 if (buf == null) {
                     buf = new StringBuilder();
+                    // 非首字母
                     if (i > 0) {
                         buf.append(camelName, 0, i);
                     }
@@ -865,7 +867,9 @@ public final class StringUtils {
                     buf.append(split);
                 }
                 buf.append(Character.toLowerCase(ch));
-            } else if (buf != null) {
+            }
+            // 非字母
+            else if (buf != null) {
                 buf.append(ch);
             }
         }

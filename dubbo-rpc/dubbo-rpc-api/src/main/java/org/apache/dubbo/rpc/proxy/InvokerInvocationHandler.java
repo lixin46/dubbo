@@ -23,6 +23,7 @@ import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.Result;
 import org.apache.dubbo.rpc.RpcInvocation;
 import org.apache.dubbo.rpc.model.ApplicationModel;
+import org.apache.dubbo.rpc.model.ConsumerMethodModel;
 import org.apache.dubbo.rpc.model.ConsumerModel;
 
 import java.lang.reflect.InvocationHandler;
@@ -57,7 +58,7 @@ public class InvokerInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        // Object方法调用放行
+        // Object方法调用,则使用invoker实例
         if (method.getDeclaringClass() == Object.class) {
             return method.invoke(invoker, args);
         }
@@ -75,22 +76,25 @@ public class InvokerInvocationHandler implements InvocationHandler {
         } else if (parameterTypes.length == 1 && "equals".equals(methodName)) {
             return invoker.equals(args[0]);
         }
+
         // 封装rpc调用
         RpcInvocation rpcInvocation = new RpcInvocation(
                 method, // 方法对象
                 invoker.getInterface().getName(),// 接口名
                 args// 实参
         );
+        //
         String serviceKey = invoker.getUrl().getServiceKey();
         // 目标服务唯一名称
         rpcInvocation.setTargetServiceUniqueName(serviceKey);
 
-        //
+        // 添加看到attribute中
         if (consumerModel != null) {
             // consumerModel
             rpcInvocation.put(Constants.CONSUMER_MODEL, consumerModel);
             // methodModel
-            rpcInvocation.put(Constants.METHOD_MODEL, consumerModel.getMethodModel(method));
+            ConsumerMethodModel methodModel = consumerModel.getMethodModel(method);
+            rpcInvocation.put(Constants.METHOD_MODEL, methodModel);
         }
         // 发起调用
         Result result = invoker.invoke(rpcInvocation);

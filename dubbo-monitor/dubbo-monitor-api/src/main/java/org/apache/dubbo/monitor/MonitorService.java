@@ -24,7 +24,8 @@ import java.util.List;
 import static org.apache.dubbo.rpc.Constants.INPUT_KEY;
 import static org.apache.dubbo.rpc.Constants.OUTPUT_KEY;
 /**
- * MonitorService. (SPI, Prototype, ThreadSafe)
+ * 监视器服务. (SPI, Prototype, ThreadSafe)
+ * 提供收集和查找两个能力
  */
 public interface MonitorService {
 
@@ -73,6 +74,10 @@ public interface MonitorService {
      *
      * @param statistics
      */
+    /**
+     * 收集
+     * @param statistics 统计信息
+     */
     void collect(URL statistics);
 
     /**
@@ -85,6 +90,11 @@ public interface MonitorService {
      *
      * @param query
      * @return statistics
+     */
+    /**
+     * 查找
+     * @param query 查询
+     * @return 查找结果
      */
     List<URL> lookup(URL query);
 

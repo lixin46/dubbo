@@ -24,16 +24,34 @@ import java.util.concurrent.atomic.LongAdder;
  */
 class StatItem {
 
-    private String name;
+    /**
+     * 统计项名称
+     */
+    private final String name;
+    /**
+     * 令牌刷新间隔,也就是允许突发的时间窗口
+     */
+    private final long interval;
 
+    /**
+     * 每次刷新的令牌数量
+     */
+    private final int rate;
+    /**
+     * 最近一次刷新令牌的时间
+     */
     private long lastResetTime;
-
-    private long interval;
-
+    /**
+     * 保存令牌数量
+     */
     private LongAdder token;
 
-    private int rate;
-
+    /**
+     * 唯一构造方法
+     * @param name 统计项名称
+     * @param rate 每次刷新的数量
+     * @param interval 令牌刷新间隔
+     */
     StatItem(String name, int rate, long interval) {
         this.name = name;
         this.rate = rate;
@@ -49,9 +67,11 @@ class StatItem {
             lastResetTime = now;
         }
 
+        // 没有令牌则拒绝
         if (token.sum() < 0) {
             return false;
         }
+        // 令牌数-1
         token.decrement();
         return true;
     }

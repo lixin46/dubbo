@@ -20,9 +20,9 @@ import org.apache.dubbo.common.URL;
 import org.apache.dubbo.registry.Registry;
 import org.apache.dubbo.registry.support.AbstractRegistryFactory;
 
+
 /**
- * RedisRegistryFactory
- *
+ * 组件名称为redis
  */
 public class RedisRegistryFactory extends AbstractRegistryFactory {
 

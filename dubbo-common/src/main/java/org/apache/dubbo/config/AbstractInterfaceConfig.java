@@ -47,37 +47,56 @@ import static org.apache.dubbo.common.constants.CommonConstants.TIMESTAMP_KEY;
  * AbstractDefaultConfig
  * 抽象的接口配置,子类包含客户端配置和服务端配置
  *
+ * 接口配置之所以从方法配置继承,是为了给所有方法提供默认配置,
+ * 内部可以依赖单独的方法配置,来进行个性化定制
+ *
  * @export
  */
 public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
 
     private static final long serialVersionUID = -1559314110797223229L;
 
-    // -----------------------
-    // 除ssl和protocol外,依赖了所有配置
-    /**
-     * Service monitor
-     * 监听器配置
-     */
-    protected MonitorConfig monitor;
+    // -----------------------------------------------------------------------------------------------------------------
+    public static void appendRuntimeParameters(Map<String, String> map) {
+        // dubbo=2.0.2
+        map.put(DUBBO_VERSION_KEY, Version.getProtocolVersion());
+        // release=dubbo的版本
+        map.put(RELEASE_KEY, Version.getVersion());
+        // timestamp=当前时间
+        map.put(TIMESTAMP_KEY, String.valueOf(System.currentTimeMillis()));
+        // pid=进程id
+        if (ConfigUtils.getPid() > 0) {
+            map.put(PID_KEY, String.valueOf(ConfigUtils.getPid()));
+        }
+    }
+    // -----------------------------------------------------------------------------------------------------------------
     /**
      * The application info
      * 应用配置,可以不配,从模型中获取
      */
     protected ApplicationConfig application;
-
-    /**
-     * The module info
-     * 模块配置
-     */
-    protected ModuleConfig module;
-
     /**
      * The registry list the service will register to
      * Also see {@link #registryIds}, only one of them will work.
      * 注册表配置列表
      */
     protected List<RegistryConfig> registries;
+    /**
+     * 配置中心配置
+     * 由注册中心独立出来的
+     * 可选
+     */
+    protected ConfigCenterConfig configCenter;
+    /**
+     * Service monitor
+     * 监视器配置
+     */
+    protected MonitorConfig monitor;
+    /**
+     * The module info
+     * 模块配置
+     */
+    protected ModuleConfig module;
     /**
      * The method configuration
      * 方法配置列表
@@ -92,17 +111,24 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
      */
     protected MetadataReportConfig metadataReportConfig;
     /**
-     * 配置中心配置
+     * The id list of registries the service will register to
+     * Also see {@link #registries}, only one of them will work.
      */
-    protected ConfigCenterConfig configCenter;
-    // ----------------------
+    protected String registryIds;
+    /**
+     * The url of the reference service
+     * 引用服务的url
+     */
+    protected final List<URL> urls = new ArrayList<URL>();
     /**
      * Local impl class name for the service interface
+     * 用于mock
      */
     protected String local;
 
     /**
      * Local stub class name for the service interface
+     * 本地桩
      */
     protected String stub;
     /**
@@ -142,15 +168,8 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
      */
     protected String layer;
 
-    /**
-     * The id list of registries the service will register to
-     * Also see {@link #registries}, only one of them will work.
-     */
-    protected String registryIds;
-
     // connection events
     protected String onconnect;
-
     /**
      * Disconnection events
      */
@@ -164,11 +183,6 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     protected String tag;
 
     private  Boolean auth;
-
-    /**
-     * The url of the reference service
-     */
-    protected final List<URL> urls = new ArrayList<URL>();
 
 
 
@@ -188,10 +202,12 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
      * Check whether the registry config is exists, and then conversion it to {@link RegistryConfig}
      */
     public void checkRegistry() {
+        // id转对象
         convertRegistryIdsToRegistries();
-
+        // 遍历注册中心配置
         for (RegistryConfig registryConfig : registries) {
             // 有效的定义是:存在有效的address
+            // 无效则报错
             if (!registryConfig.isValid()) {
                 throw new IllegalStateException("No registry config found or it's not a valid config! " +
                         "The registry config is: " + registryConfig);
@@ -199,18 +215,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         }
     }
 
-    public static void appendRuntimeParameters(Map<String, String> map) {
-        // dubbo=2.0.2
-        map.put(DUBBO_VERSION_KEY, Version.getProtocolVersion());
-        // release=dubbo的版本
-        map.put(RELEASE_KEY, Version.getVersion());
-        // timestamp=当前时间
-        map.put(TIMESTAMP_KEY, String.valueOf(System.currentTimeMillis()));
-        // pid=进程id
-        if (ConfigUtils.getPid() > 0) {
-            map.put(PID_KEY, String.valueOf(ConfigUtils.getPid()));
-        }
-    }
+
 
     /**
      * Check whether the remote service interface and the methods meet with Dubbo's requirements.it mainly check, if the
@@ -229,11 +234,13 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         }
         // check if methods exist in the remote service interface
         if (CollectionUtils.isNotEmpty(methods)) {
-            for (MethodConfig methodBean : methods) {
-                methodBean.setService(interfaceClass.getName());
-                methodBean.setServiceId(this.getId());
-                methodBean.refresh();
-                String methodName = methodBean.getName();
+            // 遍历方法配置
+            for (MethodConfig methodConfig : methods) {
+                methodConfig.setService(interfaceClass.getName());
+                methodConfig.setServiceId(this.getId());
+                // 刷新配置
+                methodConfig.refresh();
+                String methodName = methodConfig.getName();
                 if (StringUtils.isEmpty(methodName)) {
                     throw new IllegalStateException("<dubbo:method> name attribute is required! Please check: " +
                             "<dubbo:service interface=\"" + interfaceClass.getName() + "\" ... >" +
@@ -286,9 +293,13 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     }
 
     private void convertRegistryIdsToRegistries() {
+        // 当前registryIds为空,则使用applicationConfig的配置
         computeValidRegistryIds();
+        // 还为空,则使用配置管理器中默认的配置
         if (StringUtils.isEmpty(registryIds)) {
+            // 且当前注册中心配置为空
             if (CollectionUtils.isEmpty(registries)) {
+                // 获取默认的注册中心配置
                 List<RegistryConfig> registryConfigs = ApplicationModel.getConfigManager().getDefaultRegistries();
                 if (registryConfigs.isEmpty()) {
                     registryConfigs = new ArrayList<>();
@@ -298,15 +309,21 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
                 }
                 setRegistries(registryConfigs);
             }
-        } else {
+        }
+        // 存在ids,则查找对应的RegistryConfig
+        else {
+            // 逗号拆分
             String[] ids = COMMA_SPLIT_PATTERN.split(registryIds);
             List<RegistryConfig> tmpRegistries = new ArrayList<>();
             Arrays.stream(ids).forEach(id -> {
                 if (tmpRegistries.stream().noneMatch(reg -> reg.getId().equals(id))) {
                     Optional<RegistryConfig> globalRegistry = ApplicationModel.getConfigManager().getRegistry(id);
+                    // 存在
                     if (globalRegistry.isPresent()) {
                         tmpRegistries.add(globalRegistry.get());
-                    } else {
+                    }
+                    // 不存在
+                    else {
                         RegistryConfig registryConfig = new RegistryConfig();
                         registryConfig.setId(id);
                         registryConfig.refresh();
@@ -364,6 +381,8 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     }
     
     protected void computeValidRegistryIds() {
+        // registryIds,通过元素的registry配置
+        // 如果为空,则取应用配置
         if (StringUtils.isEmpty(getRegistryIds())) {
             if (getApplication() != null && StringUtils.isNotEmpty(getApplication().getRegistryIds())) {
                 setRegistryIds(getApplication().getRegistryIds());
@@ -431,7 +450,6 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     }
 
     public void setProxy(String proxy) {
-
         this.proxy = proxy;
     }
 
@@ -576,7 +594,6 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     public String getOwner() {
         return owner;
     }
-
     public void setOwner(String owner) {
         this.owner = owner;
     }

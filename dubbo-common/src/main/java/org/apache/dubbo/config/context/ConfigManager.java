@@ -70,13 +70,17 @@ public class ConfigManager extends LifecycleAdapter implements FrameworkExt {
 
     public static final String NAME = "config";
 
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+
     /**
      * 配置对象缓存,一级key为类型,二级key为id
      */
     private final Map<String, Map<String, AbstractConfig>> configsCache = newMap();
 
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
+    /**
+     * 构造方法
+     */
     public ConfigManager() {
     }
 
@@ -87,7 +91,9 @@ public class ConfigManager extends LifecycleAdapter implements FrameworkExt {
     }
 
     public Optional<ApplicationConfig> getApplication() {
-        return ofNullable(getConfig(getTagName(ApplicationConfig.class)));
+        String tagName = getTagName(ApplicationConfig.class);
+        ApplicationConfig applicationConfig = getConfig(tagName);
+        return ofNullable(applicationConfig);
     }
 
     public ApplicationConfig getApplicationOrElseThrow() {
@@ -152,7 +158,13 @@ public class ConfigManager extends LifecycleAdapter implements FrameworkExt {
         return getConfig(getTagName(ConfigCenterConfig.class), id);
     }
 
+    /**
+     * 获取所有配置中心配置对象,并返回
+     * 一个<dubbo:config-center>元素对应一个对象
+     * @return 配置中心配置
+     */
     public Collection<ConfigCenterConfig> getConfigCenters() {
+        // connfig-center
         String tagName = getTagName(ConfigCenterConfig.class);
         return getConfigs(tagName);
     }
@@ -281,7 +293,10 @@ public class ConfigManager extends LifecycleAdapter implements FrameworkExt {
     }
 
     public List<RegistryConfig> getDefaultRegistries() {
-        return getDefaultConfigs(getConfigsMap(getTagName(RegistryConfig.class)));
+        String tagName = getTagName(RegistryConfig.class);
+        // 获取注册中心的配置对象
+        Map<String, RegistryConfig> configsMap = getConfigsMap(tagName);
+        return getDefaultConfigs(configsMap);
     }
 
     public Collection<RegistryConfig> getRegistries() {
@@ -391,13 +406,18 @@ public class ConfigManager extends LifecycleAdapter implements FrameworkExt {
         if (config == null) {
             return;
         }
-        write(() -> {
+        Runnable runnable = () -> {
+            String key = getTagName(config.getClass());
+            // key不存在则创建新map保存,存在则返回
             Map<String, AbstractConfig> configsMap = configsCache.computeIfAbsent(
-                    getTagName(config.getClass()),// key
-                    type -> newMap()// value(Map)
+                    key,// key
+                    type -> newMap()//
             );
+            //
             addIfAbsent(config, configsMap, unique);
-        });
+        };
+        // 加锁执行
+        write(runnable);
     }
 
     protected <C extends AbstractConfig> Map<String, C> getConfigsMap(String configType) {
@@ -478,8 +498,15 @@ public class ConfigManager extends LifecycleAdapter implements FrameworkExt {
         return new HashMap<>();
     }
 
-    static <C extends AbstractConfig> void addIfAbsent(C config, Map<String, C> configsMap, boolean unique)
-            throws IllegalStateException {
+    /**
+     *
+     * @param config 配置对象
+     * @param configsMap 二级映射
+     * @param unique
+     * @param <C>
+     * @throws IllegalStateException
+     */
+    static <C extends AbstractConfig> void addIfAbsent(C config, Map<String, C> configsMap, boolean unique) throws IllegalStateException {
 
         if (config == null || configsMap == null) {
             return;
@@ -491,30 +518,38 @@ public class ConfigManager extends LifecycleAdapter implements FrameworkExt {
             });
         }
 
-        //
+        // id
         String key = getId(config);
-
+        // 已经存在的配置
         C existedConfig = configsMap.get(key);
-
+        // key对应的配置已存在且不一致,则告警
         if (existedConfig != null && !config.equals(existedConfig)) {
             if (logger.isWarnEnabled()) {
                 String type = config.getClass().getSimpleName();
                 logger.warn(String.format("Duplicate %s found, there already has one default %s or more than two %ss have the same id, " +
                         "you can try to give each %s a different id : %s", type, type, type, type, config));
             }
-        } else {
+        }
+        // 不存在,则保存配置
+        else {
             configsMap.put(key, config);
         }
     }
 
     static <C extends AbstractConfig> String getId(C config) {
         String id = config.getId();
-        return isNotEmpty(id) ? id : isDefaultConfig(config) ?
-                config.getClass().getSimpleName() + "#" + DEFAULT_KEY : null;
+        if (isNotEmpty(id)) {
+            return id;
+        } else if (isDefaultConfig(config)) {
+            return config.getClass().getSimpleName() + "#" + DEFAULT_KEY;
+        } else {
+            return null;
+        }
     }
 
     static <C extends AbstractConfig> boolean isDefaultConfig(C config) {
         Boolean isDefault = getProperty(config, "isDefault");
+        // 不配置或配置为true,都是默认的
         return isDefault == null || TRUE.equals(isDefault);
     }
 

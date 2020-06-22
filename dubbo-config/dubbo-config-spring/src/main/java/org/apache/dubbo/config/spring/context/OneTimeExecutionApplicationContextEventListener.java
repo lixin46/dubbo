@@ -43,13 +43,6 @@ abstract class OneTimeExecutionApplicationContextEventListener implements Applic
     }
 
     /**
-     * The subclass overrides this method to handle {@link ApplicationContextEvent}
-     *
-     * @param event {@link ApplicationContextEvent}
-     */
-    protected abstract void onApplicationContextEvent(ApplicationContextEvent event);
-
-    /**
      * Is original {@link ApplicationContext} as the event source
      *
      * @param event {@link ApplicationEvent}
@@ -60,6 +53,15 @@ abstract class OneTimeExecutionApplicationContextEventListener implements Applic
                 // into Spring's ConfigurableApplicationContext
                 || Objects.equals(applicationContext, event.getSource());
     }
+
+    /**
+     * The subclass overrides this method to handle {@link ApplicationContextEvent}
+     *
+     * @param event {@link ApplicationContextEvent}
+     */
+    protected abstract void onApplicationContextEvent(ApplicationContextEvent event);
+
+
 
     @Override
     public final void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

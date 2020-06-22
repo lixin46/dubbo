@@ -57,7 +57,9 @@ public class ClusterUtils {
             map.putAll(remoteMap);
 
             // Remove configurations from provider, some items should be affected by provider.
+            // threadname
             map.remove(THREAD_NAME_KEY);
+            // default.threadname
             map.remove(DEFAULT_KEY_PREFIX + THREAD_NAME_KEY);
 
             map.remove(THREADPOOL_KEY);

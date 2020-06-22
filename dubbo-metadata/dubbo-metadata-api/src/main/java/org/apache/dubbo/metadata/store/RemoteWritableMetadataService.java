@@ -60,8 +60,15 @@ public class RemoteWritableMetadataService implements WritableMetadataService {
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     private volatile String exportedRevision;
     private volatile String subscribedRevision;
+    /**
+     * 内存服务
+     */
     private InMemoryWritableMetadataService writableMetadataService;
 
+    /**
+     * 构造方法
+     * @param writableMetadataService 内存服务
+     */
     public RemoteWritableMetadataService(InMemoryWritableMetadataService writableMetadataService) {
         this.writableMetadataService = writableMetadataService;
     }
@@ -72,31 +79,57 @@ public class RemoteWritableMetadataService implements WritableMetadataService {
 
     @Override
     public void publishServiceDefinition(URL url) {
+        // 或side参数
         String side = url.getParameter(SIDE_KEY);
+        // provider服务端,则发布服务段
         if (PROVIDER_SIDE.equalsIgnoreCase(side)) {
-            //TODO, the params part is duplicate with that stored by exportURL(url), can be further optimized in the future.
             publishProvider(url);
-        } else {
-            //TODO, only useful for ops showing the url parameters, this is duplicate with subscribeURL(url), can be removed in the future.
+        }
+        // consumer客户端,则发布客户端
+        else {
             publishConsumer(url);
         }
     }
 
+    /**
+     * 发布服务端信息
+     * @param providerUrl 服务端信息
+     * @throws RpcException
+     */
     private void publishProvider(URL providerUrl) throws RpcException {
         //first add into the list
         // remove the individual param
-        providerUrl = providerUrl.removeParameters(PID_KEY, TIMESTAMP_KEY, Constants.BIND_IP_KEY,
-                Constants.BIND_PORT_KEY, TIMESTAMP_KEY);
+        providerUrl = providerUrl.removeParameters(
+                PID_KEY,// pid
+                TIMESTAMP_KEY,// timestamp
+                Constants.BIND_IP_KEY,// bind.ip
+                Constants.BIND_PORT_KEY// bind.port
+        );
 
         try {
+            // interface参数
             String interfaceName = providerUrl.getParameter(INTERFACE_KEY);
+            // 非空
             if (StringUtils.isNotEmpty(interfaceName)) {
+                // 加载类
                 Class interfaceClass = Class.forName(interfaceName);
-                FullServiceDefinition fullServiceDefinition = ServiceDefinitionBuilder.buildFullDefinition(interfaceClass,
-                        providerUrl.getParameters());
-                getMetadataReport().storeProviderMetadata(new MetadataIdentifier(providerUrl.getServiceInterface(),
-                        providerUrl.getParameter(VERSION_KEY), providerUrl.getParameter(GROUP_KEY),
-                        PROVIDER_SIDE, providerUrl.getParameter(APPLICATION_KEY)), fullServiceDefinition);
+                // 构建完整定义
+                FullServiceDefinition fullServiceDefinition = ServiceDefinitionBuilder.buildFullDefinition(
+                        interfaceClass,
+                        providerUrl.getParameters()
+                );
+                // 元数据报告
+                MetadataReport metadataReport = getMetadataReport();
+                // 创建元数据标识符
+                MetadataIdentifier metadataIdentifier = new MetadataIdentifier(
+                        providerUrl.getServiceInterface(),
+                        providerUrl.getParameter(VERSION_KEY),
+                        providerUrl.getParameter(GROUP_KEY),
+                        PROVIDER_SIDE,// provider
+                        providerUrl.getParameter(APPLICATION_KEY)// application
+                );
+                // 存储提供者元数据
+                metadataReport.storeProviderMetadata(metadataIdentifier, fullServiceDefinition);
                 return;
             }
             logger.error("publishProvider interfaceName is empty . providerUrl: " + providerUrl.toFullString());
@@ -107,6 +140,7 @@ public class RemoteWritableMetadataService implements WritableMetadataService {
     }
 
     private void publishConsumer(URL consumerURL) throws RpcException {
+        //
         consumerURL = consumerURL.removeParameters(PID_KEY, TIMESTAMP_KEY, Constants.BIND_IP_KEY,
                 Constants.BIND_PORT_KEY, TIMESTAMP_KEY);
         getMetadataReport().storeConsumerMetadata(new MetadataIdentifier(consumerURL.getServiceInterface(),

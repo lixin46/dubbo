@@ -39,6 +39,12 @@ import static org.apache.dubbo.common.constants.CommonConstants.THREADS_KEY;
 /**
  * Consider implementing {@code Licycle} to enable executors shutdown when the process stops.
  */
+
+/**
+ * 线程池仓库的默认实现
+ * 仓库负责调用ThreadPool创建ExecutorService,
+ * 同时保存创建的线程池
+ */
 public class DefaultExecutorRepository implements ExecutorRepository {
     private static final Logger logger = LoggerFactory.getLogger(DefaultExecutorRepository.class);
 
@@ -50,17 +56,18 @@ public class DefaultExecutorRepository implements ExecutorRepository {
 
     private ScheduledExecutorService serviceExporterExecutor;
 
-    private ScheduledExecutorService reconnectScheduledExecutor;
+//    private ScheduledExecutorService reconnectScheduledExecutor;
 
+    /**
+     * 一级key为键,二级key为端口,
+     * value为执行器服务,也就是线程池
+     */
     private ConcurrentMap<String, ConcurrentMap<Integer, ExecutorService>> data = new ConcurrentHashMap<>();
 
+    /**
+     * 构造方法
+     */
     public DefaultExecutorRepository() {
-//        for (int i = 0; i < DEFAULT_SCHEDULER_SIZE; i++) {
-//            ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("Dubbo-framework-scheduler"));
-//            scheduledExecutors.addItem(scheduler);
-//        }
-//
-//        reconnectScheduledExecutor = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("Dubbo-reconnect-scheduler"));
         serviceExporterExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory("Dubbo-exporter-scheduler"));
     }
 
@@ -71,12 +78,16 @@ public class DefaultExecutorRepository implements ExecutorRepository {
      * @return
      */
     public synchronized ExecutorService createExecutorIfAbsent(URL url) {
+        // ExecutorService
         String componentKey = EXECUTOR_SERVICE_COMPONENT_KEY;
+        // 客户端 side=consumer
         if (CONSUMER_SIDE.equalsIgnoreCase(url.getParameter(SIDE_KEY))) {
+            // consumer
             componentKey = CONSUMER_SIDE;
         }
         Map<Integer, ExecutorService> executors = data.computeIfAbsent(componentKey, k -> new ConcurrentHashMap<>());
         Integer portKey = url.getPort();
+        // 获取端口对应的执行器服务,不存在则创建
         ExecutorService executor = executors.computeIfAbsent(portKey, k -> createExecutor(url));
         // If executor has been shut down, create a new one
         if (executor.isShutdown() || executor.isTerminated()) {
@@ -88,7 +99,9 @@ public class DefaultExecutorRepository implements ExecutorRepository {
     }
 
     public ExecutorService getExecutor(URL url) {
+        // 组件键
         String componentKey = EXECUTOR_SERVICE_COMPONENT_KEY;
+        // 如果side==consumer
         if (CONSUMER_SIDE.equalsIgnoreCase(url.getParameter(SIDE_KEY))) {
             componentKey = CONSUMER_SIDE;
         }
@@ -103,10 +116,12 @@ public class DefaultExecutorRepository implements ExecutorRepository {
                     "before coming to here.");
             return null;
         }
-
+        // 端口
         Integer portKey = url.getPort();
         ExecutorService executor = executors.get(portKey);
+        // 存在
         if (executor != null) {
+            // 删除重建
             if (executor.isShutdown() || executor.isTerminated()) {
                 executors.remove(portKey);
                 executor = createExecutor(url);
@@ -160,7 +175,11 @@ public class DefaultExecutorRepository implements ExecutorRepository {
     }
 
     private ExecutorService createExecutor(URL url) {
-        return (ExecutorService) ExtensionLoader.getExtensionLoader(ThreadPool.class).getAdaptiveExtension().getExecutor(url);
+        ExtensionLoader<ThreadPool> extensionLoader = ExtensionLoader.getExtensionLoader(ThreadPool.class);
+        // 线程池适配器
+        ThreadPool adaptiveThreadPool = extensionLoader.getAdaptiveExtension();
+        // 根据url,创建执行器实例
+        return (ExecutorService) adaptiveThreadPool.getExecutor(url);
     }
 
 }

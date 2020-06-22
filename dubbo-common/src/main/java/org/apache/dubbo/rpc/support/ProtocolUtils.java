@@ -53,6 +53,7 @@ public class ProtocolUtils {
     }
 
     public static boolean isGeneric(String generic) {
+        //
         return StringUtils.isNotEmpty(generic)
                 && (GENERIC_SERIALIZATION_DEFAULT.equalsIgnoreCase(generic)  /* Normal generalization cal */
                 || GENERIC_SERIALIZATION_NATIVE_JAVA.equalsIgnoreCase(generic) /* Streaming generalization call supporting jdk serialization */

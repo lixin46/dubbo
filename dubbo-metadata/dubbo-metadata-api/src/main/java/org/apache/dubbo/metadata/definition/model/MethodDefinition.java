@@ -27,9 +27,21 @@ import java.util.Objects;
  */
 public class MethodDefinition implements Serializable {
 
+    /**
+     * 方法名称
+     */
     private String name;
+    /**
+     * 形参类型定义
+     */
     private String[] parameterTypes;
+    /**
+     * 返回值类型
+     */
     private String returnType;
+    /**
+     *
+     */
     private List<TypeDefinition> parameters;
 
     public String getName() {

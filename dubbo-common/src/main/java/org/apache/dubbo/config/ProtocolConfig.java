@@ -26,9 +26,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.SSL_ENABLED_KEY;
 import static org.apache.dubbo.config.Constants.PROTOCOLS_SUFFIX;
 
 /**
- * ProtocolConfig
- * 协议配置
- * @export
+ * 协议配置,只与服务端配置相关,与客户端无关
  */
 public class ProtocolConfig extends AbstractConfig {
 
@@ -211,26 +209,297 @@ public class ProtocolConfig extends AbstractConfig {
 
     private Boolean sslEnabled;
 
+    /**
+     * 构造方法
+     */
     public ProtocolConfig() {
     }
 
+    /**
+     * 构造方法
+     *
+     * @param name 扩展实现名称
+     */
     public ProtocolConfig(String name) {
         setName(name);
     }
 
+    /**
+     * 构造方法
+     *
+     * @param name 扩展实现名称
+     * @param port 端口
+     */
     public ProtocolConfig(String name, int port) {
         setName(name);
         setPort(port);
     }
 
-    @Parameter(excluded = true)
-    public String getName() {
-        return name;
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可导出getter
+    public String getThreadpool() {
+        return threadpool;
     }
 
+    public String getThreadname() {
+        return threadname;
+    }
+
+    public Integer getCorethreads() {
+        return corethreads;
+    }
+
+    public Integer getThreads() {
+        return threads;
+    }
+
+    public Integer getIothreads() {
+        return iothreads;
+    }
+
+    public Integer getQueues() {
+        return queues;
+    }
+
+    public Integer getAccepts() {
+        return accepts;
+    }
+
+    public String getCodec() {
+        return codec;
+    }
+
+    public String getSerialization() {
+        return serialization;
+    }
+
+    public String getCharset() {
+        return charset;
+    }
+
+    public Integer getPayload() {
+        return payload;
+    }
+
+    public Integer getBuffer() {
+        return buffer;
+    }
+
+    public Integer getHeartbeat() {
+        return heartbeat;
+    }
+
+    public String getServer() {
+        return server;
+    }
+
+    public String getClient() {
+        return client;
+    }
+
+    public String getAccesslog() {
+        return accesslog;
+    }
+
+    public String getTelnet() {
+        return telnet;
+    }
+
+    @Parameter(escaped = true)
+    public String getPrompt() {
+        return prompt;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public Boolean isRegister() {
+        return register;
+    }
+
+    public String getTransporter() {
+        return transporter;
+    }
+
+    public String getExchanger() {
+        return exchanger;
+    }
+
+    public String getDispatcher() {
+        return dispatcher;
+    }
+
+    public String getNetworker() {
+        return networker;
+    }
+
+    public Boolean isDefault() {
+        return isDefault;
+    }
+
+    @Parameter(key = SSL_ENABLED_KEY)
+    public Boolean getSslEnabled() {
+        return sslEnabled;
+    }
+
+    public Boolean getKeepAlive() {
+        return keepAlive;
+    }
+
+    public String getOptimizer() {
+        return optimizer;
+    }
+
+    public String getExtension() {
+        return extension;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可注入setter
     public final void setName(String name) {
         this.name = name;
         this.updateIdIfAbsent(name);
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public final void setPort(Integer port) {
+        this.port = port;
+    }
+
+    @Deprecated
+    public void setPath(String path) {
+        setContextpath(path);
+    }
+
+    public void setContextpath(String contextpath) {
+        this.contextpath = contextpath;
+    }
+
+    public void setThreadpool(String threadpool) {
+        this.threadpool = threadpool;
+    }
+
+    public void setThreadname(String threadname) {
+        this.threadname = threadname;
+    }
+
+    public void setCorethreads(Integer corethreads) {
+        this.corethreads = corethreads;
+    }
+
+    public void setThreads(Integer threads) {
+        this.threads = threads;
+    }
+
+    public void setIothreads(Integer iothreads) {
+        this.iothreads = iothreads;
+    }
+
+    public void setQueues(Integer queues) {
+        this.queues = queues;
+    }
+
+    public void setAccepts(Integer accepts) {
+        this.accepts = accepts;
+    }
+
+    public void setCodec(String codec) {
+        this.codec = codec;
+    }
+
+    public void setSerialization(String serialization) {
+        this.serialization = serialization;
+    }
+
+    public void setCharset(String charset) {
+        this.charset = charset;
+    }
+
+    public void setPayload(Integer payload) {
+        this.payload = payload;
+    }
+
+    public void setBuffer(Integer buffer) {
+        this.buffer = buffer;
+    }
+
+    public void setHeartbeat(Integer heartbeat) {
+        this.heartbeat = heartbeat;
+    }
+
+    public void setServer(String server) {
+        this.server = server;
+    }
+
+    public void setClient(String client) {
+        this.client = client;
+    }
+
+    public void setAccesslog(String accesslog) {
+        this.accesslog = accesslog;
+    }
+
+    public void setTelnet(String telnet) {
+        this.telnet = telnet;
+    }
+
+    public void setPrompt(String prompt) {
+        this.prompt = prompt;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setRegister(Boolean register) {
+        this.register = register;
+    }
+
+    public void setTransporter(String transporter) {
+        this.transporter = transporter;
+    }
+
+    public void setExchanger(String exchanger) {
+        this.exchanger = exchanger;
+    }
+
+    public void setDispatcher(String dispatcher) {
+        this.dispatcher = dispatcher;
+    }
+
+    public void setNetworker(String networker) {
+        this.networker = networker;
+    }
+
+    public void setDefault(Boolean isDefault) {
+        this.isDefault = isDefault;
+    }
+
+    public void setSslEnabled(Boolean sslEnabled) {
+        this.sslEnabled = sslEnabled;
+    }
+
+    public void setKeepAlive(Boolean keepAlive) {
+        this.keepAlive = keepAlive;
+    }
+
+    public void setOptimizer(String optimizer) {
+        this.optimizer = optimizer;
+    }
+
+    public void setExtension(String extension) {
+        this.extension = extension;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 普通
+    @Parameter(excluded = true)
+    public String getName() {
+        return name;
     }
 
     @Parameter(excluded = true)
@@ -238,17 +507,9 @@ public class ProtocolConfig extends AbstractConfig {
         return host;
     }
 
-    public void setHost(String host) {
-        this.host = host;
-    }
-
     @Parameter(excluded = true)
     public Integer getPort() {
         return port;
-    }
-
-    public final void setPort(Integer port) {
-        this.port = port;
     }
 
     @Deprecated
@@ -257,232 +518,9 @@ public class ProtocolConfig extends AbstractConfig {
         return getContextpath();
     }
 
-    @Deprecated
-    public void setPath(String path) {
-        setContextpath(path);
-    }
-
     @Parameter(excluded = true)
     public String getContextpath() {
         return contextpath;
-    }
-
-    public void setContextpath(String contextpath) {
-        this.contextpath = contextpath;
-    }
-
-    public String getThreadpool() {
-        return threadpool;
-    }
-
-    public void setThreadpool(String threadpool) {
-        this.threadpool = threadpool;
-    }
-
-    public String getThreadname() {
-        return threadname;
-    }
-
-    public void setThreadname(String threadname) {
-        this.threadname = threadname;
-    }
-
-    public Integer getCorethreads() {
-        return corethreads;
-    }
-
-    public void setCorethreads(Integer corethreads) {
-        this.corethreads = corethreads;
-    }
-
-    public Integer getThreads() {
-        return threads;
-    }
-
-    public void setThreads(Integer threads) {
-        this.threads = threads;
-    }
-
-    public Integer getIothreads() {
-        return iothreads;
-    }
-
-    public void setIothreads(Integer iothreads) {
-        this.iothreads = iothreads;
-    }
-
-    public Integer getQueues() {
-        return queues;
-    }
-
-    public void setQueues(Integer queues) {
-        this.queues = queues;
-    }
-
-    public Integer getAccepts() {
-        return accepts;
-    }
-
-    public void setAccepts(Integer accepts) {
-        this.accepts = accepts;
-    }
-
-    public String getCodec() {
-        return codec;
-    }
-
-    public void setCodec(String codec) {
-        this.codec = codec;
-    }
-
-    public String getSerialization() {
-        return serialization;
-    }
-
-    public void setSerialization(String serialization) {
-        this.serialization = serialization;
-    }
-
-    public String getCharset() {
-        return charset;
-    }
-
-    public void setCharset(String charset) {
-        this.charset = charset;
-    }
-
-    public Integer getPayload() {
-        return payload;
-    }
-
-    public void setPayload(Integer payload) {
-        this.payload = payload;
-    }
-
-    public Integer getBuffer() {
-        return buffer;
-    }
-
-    public void setBuffer(Integer buffer) {
-        this.buffer = buffer;
-    }
-
-    public Integer getHeartbeat() {
-        return heartbeat;
-    }
-
-    public void setHeartbeat(Integer heartbeat) {
-        this.heartbeat = heartbeat;
-    }
-
-    public String getServer() {
-        return server;
-    }
-
-    public void setServer(String server) {
-        this.server = server;
-    }
-
-    public String getClient() {
-        return client;
-    }
-
-    public void setClient(String client) {
-        this.client = client;
-    }
-
-    public String getAccesslog() {
-        return accesslog;
-    }
-
-    public void setAccesslog(String accesslog) {
-        this.accesslog = accesslog;
-    }
-
-    public String getTelnet() {
-        return telnet;
-    }
-
-    public void setTelnet(String telnet) {
-        this.telnet = telnet;
-    }
-
-    @Parameter(escaped = true)
-    public String getPrompt() {
-        return prompt;
-    }
-
-    public void setPrompt(String prompt) {
-        this.prompt = prompt;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Boolean isRegister() {
-        return register;
-    }
-
-    public void setRegister(Boolean register) {
-        this.register = register;
-    }
-
-    public String getTransporter() {
-        return transporter;
-    }
-
-    public void setTransporter(String transporter) {
-        this.transporter = transporter;
-    }
-
-    public String getExchanger() {
-        return exchanger;
-    }
-
-    public void setExchanger(String exchanger) {
-        this.exchanger = exchanger;
-    }
-
-    /**
-     * typo, switch to use {@link #getDispatcher()}
-     *
-     * @deprecated {@link #getDispatcher()}
-     */
-    @Deprecated
-    @Parameter(excluded = true)
-    public String getDispather() {
-        return getDispatcher();
-    }
-
-    /**
-     * typo, switch to use {@link #getDispatcher()}
-     *
-     * @deprecated {@link #setDispatcher(String)}
-     */
-    @Deprecated
-    public void setDispather(String dispather) {
-        setDispatcher(dispather);
-    }
-
-    public String getDispatcher() {
-        return dispatcher;
-    }
-
-    public void setDispatcher(String dispatcher) {
-        this.dispatcher = dispatcher;
-    }
-
-    public String getNetworker() {
-        return networker;
-    }
-
-    public void setNetworker(String networker) {
-        this.networker = networker;
     }
 
     public Map<String, String> getParameters() {
@@ -491,47 +529,6 @@ public class ProtocolConfig extends AbstractConfig {
 
     public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
-    }
-
-    public Boolean isDefault() {
-        return isDefault;
-    }
-
-    public void setDefault(Boolean isDefault) {
-        this.isDefault = isDefault;
-    }
-
-    @Parameter(key = SSL_ENABLED_KEY)
-    public Boolean getSslEnabled() {
-        return sslEnabled;
-    }
-
-    public void setSslEnabled(Boolean sslEnabled) {
-        this.sslEnabled = sslEnabled;
-    }
-
-    public Boolean getKeepAlive() {
-        return keepAlive;
-    }
-
-    public void setKeepAlive(Boolean keepAlive) {
-        this.keepAlive = keepAlive;
-    }
-
-    public String getOptimizer() {
-        return optimizer;
-    }
-
-    public void setOptimizer(String optimizer) {
-        this.optimizer = optimizer;
-    }
-
-    public String getExtension() {
-        return extension;
-    }
-
-    public void setExtension(String extension) {
-        this.extension = extension;
     }
 
     @Override
@@ -551,4 +548,6 @@ public class ProtocolConfig extends AbstractConfig {
     public boolean isValid() {
         return StringUtils.isNotEmpty(name);
     }
+    // -----------------------------------------------------------------------------------------------------------------
+
 }

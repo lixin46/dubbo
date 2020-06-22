@@ -61,6 +61,11 @@ public class AsyncRpcResult implements Result {
 
     private CompletableFuture<AppResponse> responseFuture;
 
+    /**
+     * 构造方法
+     * @param future 未来的结果
+     * @param invocation 调用封装
+     */
     public AsyncRpcResult(CompletableFuture<AppResponse> future, Invocation invocation) {
         this.responseFuture = future;
         this.invocation = invocation;

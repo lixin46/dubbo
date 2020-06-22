@@ -34,8 +34,15 @@ import java.util.List;
 public class StaticDirectory<T> extends AbstractDirectory<T> {
     private static final Logger logger = LoggerFactory.getLogger(StaticDirectory.class);
 
+    /**
+     * 调用器列表
+     */
     private final List<Invoker<T>> invokers;
 
+    /**
+     * 构造方法
+     * @param invokers 调用器列表
+     */
     public StaticDirectory(List<Invoker<T>> invokers) {
         this(null, invokers, null);
     }
@@ -44,10 +51,21 @@ public class StaticDirectory<T> extends AbstractDirectory<T> {
         this(null, invokers, routerChain);
     }
 
+    /**
+     * 构造方法
+     * @param url
+     * @param invokers
+     */
     public StaticDirectory(URL url, List<Invoker<T>> invokers) {
         this(url, invokers, null);
     }
 
+    /**
+     * 构造方法
+     * @param url
+     * @param invokers
+     * @param routerChain
+     */
     public StaticDirectory(URL url, List<Invoker<T>> invokers, RouterChain<T> routerChain) {
         super(url == null && CollectionUtils.isNotEmpty(invokers) ? invokers.get(0).getUrl() : url, routerChain);
         if (CollectionUtils.isEmpty(invokers)) {
@@ -100,9 +118,12 @@ public class StaticDirectory<T> extends AbstractDirectory<T> {
     @Override
     protected List<Invoker<T>> doList(Invocation invocation) throws RpcException {
         List<Invoker<T>> finalInvokers = invokers;
+        // 存在路由链
         if (routerChain != null) {
             try {
-                finalInvokers = routerChain.route(getConsumerUrl(), invocation);
+                URL consumerUrl = getConsumerUrl();
+                // 路由
+                finalInvokers = routerChain.route(consumerUrl, invocation);
             } catch (Throwable t) {
                 logger.error("Failed to execute router: " + getUrl() + ", cause: " + t.getMessage(), t);
             }

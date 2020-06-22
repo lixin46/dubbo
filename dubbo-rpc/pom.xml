@@ -27,6 +27,8 @@
     <name>${project.artifactId}</name>
     <description>
         The rpc module of dubbo project
+        rpc模块解决调用的逻辑层处理,
+        比如:Invoker调用器,Invocation调用描述,Filter调用过滤器等
     </description>
     <properties>
         <skip_maven_deploy>false</skip_maven_deploy>
@@ -40,7 +42,6 @@
         <module>dubbo-rpc-hessian</module>
         <module>dubbo-rpc-webservice</module>
         <module>dubbo-rpc-native-thrift</module>
-        <module>dubbo-rpc-thrift</module>
         <module>dubbo-rpc-memcached</module>
         <module>dubbo-rpc-redis</module>
         <module>dubbo-rpc-rest</module>

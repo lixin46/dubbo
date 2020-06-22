@@ -21,6 +21,8 @@ import org.apache.dubbo.metadata.report.MetadataReport;
 import org.apache.dubbo.metadata.report.support.AbstractMetadataReportFactory;
 
 /**
+ * 组件名称为redis
+ * 默认使用的扩展实例
  * RedisMetadataReportFactory.
  */
 public class RedisMetadataReportFactory extends AbstractMetadataReportFactory {

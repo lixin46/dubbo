@@ -23,10 +23,14 @@
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
+
     <artifactId>dubbo</artifactId>
     <packaging>jar</packaging>
     <name>dubbo-all</name>
-    <description>The all in one project of dubbo</description>
+    <description>
+        The all in one project of dubbo
+        dubbo的一体化项目
+    </description>
     <properties>
         <skip_maven_deploy>false</skip_maven_deploy>
     </properties>

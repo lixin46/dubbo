@@ -52,7 +52,6 @@ import static org.apache.dubbo.config.Constants.TEST_ENVIRONMENT;
  * 应用的配置信息,偏静态的数据
  * 对应<dubbo:application>的配置
  *
- *
  * @export
  */
 public class ApplicationConfig extends AbstractConfig {
@@ -60,7 +59,33 @@ public class ApplicationConfig extends AbstractConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfig.class);
 
     private static final long serialVersionUID = 5508512956753757169L;
-
+    // -----------------------------------------------------------------------------------------------------------------
+    // 不会被导出为参数
+    /**
+     * Registry centers
+     * 注册中心配置列表???
+     */
+    private List<RegistryConfig> registries;
+    /**
+     * 注册表id???
+     */
+    private String registryIds;
+    /**
+     * Monitor center
+     * 监控中心配置???
+     */
+    private MonitorConfig monitor;
+    /**
+     * Customized parameters
+     * 定制化的参数
+     */
+    private Map<String, String> parameters;
+    /**
+     * 主机名称???
+     */
+    private String hostname;
+    // -----------------------------------------------------------------------------------------------------------------
+    // 会被导出为参数
     /**
      * Application name
      * 应用名称
@@ -109,21 +134,7 @@ public class ApplicationConfig extends AbstractConfig {
      */
     private String logger;
 
-    /**
-     * Registry centers
-     * 注册中心配置列表???
-     */
-    private List<RegistryConfig> registries;
-    /**
-     * 注册表id???
-     */
-    private String registryIds;
 
-    /**
-     * Monitor center
-     * 监控中心配置???
-     */
-    private MonitorConfig monitor;
 
     /**
      * Is default or not
@@ -161,11 +172,7 @@ public class ApplicationConfig extends AbstractConfig {
      */
     private Boolean qosAcceptForeignIp;
 
-    /**
-     * Customized parameters
-     * 定制化的参数
-     */
-    private Map<String, String> parameters;
+
 
     /**
      * Config the shutdown.wait
@@ -173,10 +180,7 @@ public class ApplicationConfig extends AbstractConfig {
      */
     private String shutwait;
 
-    /**
-     * 主机名称???
-     */
-    private String hostname;
+
 
     /**
      * Metadata type, local or remote, if choose remote, you need to further specify metadata center.
@@ -192,6 +196,9 @@ public class ApplicationConfig extends AbstractConfig {
      */
     private String repository;
 
+    /**
+     * 构造方法
+     */
     public ApplicationConfig() {
     }
 
@@ -220,7 +227,6 @@ public class ApplicationConfig extends AbstractConfig {
     public String getVersion() {
         return version;
     }
-
     public void setVersion(String version) {
         this.version = version;
     }

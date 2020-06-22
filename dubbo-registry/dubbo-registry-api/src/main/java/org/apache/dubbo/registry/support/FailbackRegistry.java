@@ -44,6 +44,7 @@ import static org.apache.dubbo.registry.Constants.REGISTRY_RETRY_PERIOD_KEY;
 
 /**
  * FailbackRegistry. (SPI, Prototype, ThreadSafe)
+ * 降级注册中心
  */
 public abstract class FailbackRegistry extends AbstractRegistry {
 
@@ -61,15 +62,25 @@ public abstract class FailbackRegistry extends AbstractRegistry {
 
     /**
      * The time in milliseconds the retryExecutor will wait
+     * 重试间隔
      */
     private final int retryPeriod;
 
     // Timer for failure retry, regular check if there is a request for failure, and if there is, an unlimited retry
+    /**
+     * 定时器
+     */
     private final HashedWheelTimer retryTimer;
 
-    public FailbackRegistry(URL url) {
-        super(url);
-        this.retryPeriod = url.getParameter(REGISTRY_RETRY_PERIOD_KEY, DEFAULT_REGISTRY_RETRY_PERIOD);
+    /**
+     * 唯一构造方法
+     * @param registryUrl
+     */
+    public FailbackRegistry(URL registryUrl) {
+        super(registryUrl);
+        // retry.period参数,默认为5000
+        // 重试间隔
+        this.retryPeriod = registryUrl.getParameter(REGISTRY_RETRY_PERIOD_KEY, DEFAULT_REGISTRY_RETRY_PERIOD);
 
         // since the retry task will not be very much. 128 ticks is enough.
         retryTimer = new HashedWheelTimer(new NamedThreadFactory("DubboRegistryRetryTimer", true), retryPeriod, TimeUnit.MILLISECONDS, 128);
@@ -226,66 +237,65 @@ public abstract class FailbackRegistry extends AbstractRegistry {
         return failedNotified;
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // RegistryService接口实现
+
     @Override
     public void register(URL url) {
+        // 指定的url的协议不可接受,则拒绝注册
         if (!acceptable(url)) {
             logger.info("URL " + url + " will not be registered to Registry. Registry " + url + " does not accept service of this protocol type.");
             return;
         }
+        // 父类注册,写入内存
         super.register(url);
+        // 删除失败的注册任务
         removeFailedRegistered(url);
+        // 删除失败的注销任务
         removeFailedUnregistered(url);
         try {
             // Sending a registration request to the server side
+            // 向服务端发送注册请求
             doRegister(url);
         } catch (Exception e) {
             Throwable t = e;
 
             // If the startup detection is opened, the Exception is thrown directly.
+            // 注册中心url中check为true,且要注册的url中check也为true,且协议不为consumer
+            // 则进行检查
             boolean check = getUrl().getParameter(Constants.CHECK_KEY, true)
                     && url.getParameter(Constants.CHECK_KEY, true)
                     && !CONSUMER_PROTOCOL.equals(url.getProtocol());
+            //
             boolean skipFailback = t instanceof SkipFailbackWrapperException;
+            // 检查或跳过失败,则需要抛异常
             if (check || skipFailback) {
                 if (skipFailback) {
                     t = t.getCause();
                 }
                 throw new IllegalStateException("Failed to register " + url + " to registry " + getUrl().getAddress() + ", cause: " + t.getMessage(), t);
-            } else {
+            }
+            // 否则仅打印错误日志
+            else {
                 logger.error("Failed to register " + url + ", waiting for retry, cause: " + t.getMessage(), t);
             }
 
             // Record a failed registration request to a failed list, retry regularly
+            // 添加失败的注册
             addFailedRegistered(url);
         }
     }
-
-    @Override
-    public void reExportRegister(URL url) {
-        if (!acceptable(url)) {
-            logger.info("URL " + url + " will not be registered to Registry. Registry " + url + " does not accept service of this protocol type.");
-            return;
-        }
-        super.register(url);
-        removeFailedRegistered(url);
-        removeFailedUnregistered(url);
-        try {
-            // Sending a registration request to the server side
-            doRegister(url);
-        } catch (Exception e) {
-            if (!(e instanceof SkipFailbackWrapperException)) {
-                throw new IllegalStateException("Failed to register (re-export) " + url + " to registry " + getUrl().getAddress() + ", cause: " + e.getMessage(), e);
-            }
-        }
-    }
-
     @Override
     public void unregister(URL url) {
+        // 父类内存注销
         super.unregister(url);
+        // 删除失败的注册
         removeFailedRegistered(url);
+        // 删除失败的注销
         removeFailedUnregistered(url);
         try {
             // Sending a cancellation request to the server side
+            // 发送注销请求给服务端
             doUnregister(url);
         } catch (Exception e) {
             Throwable t = e;
@@ -305,22 +315,8 @@ public abstract class FailbackRegistry extends AbstractRegistry {
             }
 
             // Record a failed registration request to a failed list, retry regularly
+            // 添加失败的注销
             addFailedUnregistered(url);
-        }
-    }
-
-    @Override
-    public void reExportUnregister(URL url) {
-        super.unregister(url);
-        removeFailedRegistered(url);
-        removeFailedUnregistered(url);
-        try {
-            // Sending a cancellation request to the server side
-            doUnregister(url);
-        } catch (Exception e) {
-            if (!(e instanceof SkipFailbackWrapperException)) {
-                throw new IllegalStateException("Failed to unregister(re-export) " + url + " to registry " + getUrl().getAddress() + ", cause: " + e.getMessage(), e);
-            }
         }
     }
 
@@ -386,6 +382,45 @@ public abstract class FailbackRegistry extends AbstractRegistry {
         }
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Registry接口实现
+    @Override
+    public void reExportRegister(URL url) {
+        if (!acceptable(url)) {
+            logger.info("URL " + url + " will not be registered to Registry. Registry " + url + " does not accept service of this protocol type.");
+            return;
+        }
+        super.register(url);
+        removeFailedRegistered(url);
+        removeFailedUnregistered(url);
+        try {
+            // Sending a registration request to the server side
+            doRegister(url);
+        } catch (Exception e) {
+            if (!(e instanceof SkipFailbackWrapperException)) {
+                throw new IllegalStateException("Failed to register (re-export) " + url + " to registry " + getUrl().getAddress() + ", cause: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    @Override
+    public void reExportUnregister(URL url) {
+        super.unregister(url);
+        removeFailedRegistered(url);
+        removeFailedUnregistered(url);
+        try {
+            // Sending a cancellation request to the server side
+            doUnregister(url);
+        } catch (Exception e) {
+            if (!(e instanceof SkipFailbackWrapperException)) {
+                throw new IllegalStateException("Failed to unregister(re-export) " + url + " to registry " + getUrl().getAddress() + ", cause: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 重写AbstractRegistryService方法
+
     @Override
     protected void notify(URL url, NotifyListener listener, List<URL> urls) {
         if (url == null) {
@@ -401,10 +436,6 @@ public abstract class FailbackRegistry extends AbstractRegistry {
             addFailedNotified(url, listener, urls);
             logger.error("Failed to notify for subscribe " + url + ", waiting for retry, cause: " + t.getMessage(), t);
         }
-    }
-
-    protected void doNotify(URL url, NotifyListener listener, List<URL> urls) {
-        super.notify(url, listener, urls);
     }
 
     @Override
@@ -439,8 +470,14 @@ public abstract class FailbackRegistry extends AbstractRegistry {
         super.destroy();
         retryTimer.stop();
     }
+    // -----------------------------------------------------------------------------------------------------------------
+
+    protected void doNotify(URL url, NotifyListener listener, List<URL> urls) {
+        super.notify(url, listener, urls);
+    }
 
     // ==== Template method ====
+
 
     public abstract void doRegister(URL url);
 

@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Consumer;
 
 import static org.apache.dubbo.common.constants.CommonConstants.ANY_VALUE;
 import static org.apache.dubbo.common.constants.CommonConstants.GROUP_KEY;
@@ -57,7 +58,7 @@ import static org.apache.dubbo.common.constants.RegistryConstants.ROUTERS_CATEGO
 
 /**
  * ZookeeperRegistry
- *
+ * 基于zk实现的注册中心服务
  */
 public class ZookeeperRegistry extends FailbackRegistry {
 
@@ -65,6 +66,10 @@ public class ZookeeperRegistry extends FailbackRegistry {
 
     private final static String DEFAULT_ROOT = "dubbo";
 
+    /**
+     * 根路径,也就是分组
+     * 默认为/dubbo
+     */
     private final String root;
 
     private final Set<String> anyServices = new ConcurrentHashSet<>();
@@ -73,40 +78,68 @@ public class ZookeeperRegistry extends FailbackRegistry {
 
     private final ZookeeperClient zkClient;
 
-    public ZookeeperRegistry(URL url, ZookeeperTransporter zookeeperTransporter) {
-        super(url);
-        if (url.isAnyHost()) {
+    /**
+     * 构造方法
+     * 创建zk客户端并持有
+     *
+     * @param registryUrl          指定的注册中心url
+     * @param zookeeperTransporter 传输器
+     */
+    public ZookeeperRegistry(URL registryUrl, ZookeeperTransporter zookeeperTransporter) {
+        super(registryUrl);
+        // 任意主机
+        if (registryUrl.isAnyHost()) {
             throw new IllegalStateException("registry address == null");
         }
-        String group = url.getParameter(GROUP_KEY, DEFAULT_ROOT);
+        // 获取group参数,默认为dubbo
+        String group = registryUrl.getParameter(GROUP_KEY, DEFAULT_ROOT);
+        // 分组不以/开头,则追加
         if (!group.startsWith(PATH_SEPARATOR)) {
             group = PATH_SEPARATOR + group;
         }
         this.root = group;
-        zkClient = zookeeperTransporter.connect(url);
-        zkClient.addStateListener((state) -> {
+        // 连接zk,获取客户端
+        zkClient = zookeeperTransporter.connect(registryUrl);
+        // 追加状态监听器
+        // 状态发生变化时,调用监听器的stateChanged()方法通知变更后的状态
+        StateListener stateListener = (state) -> {
+            // 重新连接完成
             if (state == StateListener.RECONNECTED) {
                 logger.warn("Trying to fetch the latest urls, in case there're provider changes during connection loss.\n" +
                         " Since ephemeral ZNode will not get deleted for a connection lose, " +
                         "there's no need to re-register url of this instance.");
+
+                // 抓取最新地址
                 ZookeeperRegistry.this.fetchLatestAddresses();
-            } else if (state == StateListener.NEW_SESSION_CREATED) {
+            }
+            // 新会话创建
+            else if (state == StateListener.NEW_SESSION_CREATED) {
                 logger.warn("Trying to re-register urls and re-subscribe listeners of this instance to registry...");
                 try {
+                    // 发现???
                     ZookeeperRegistry.this.recover();
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }
-            } else if (state == StateListener.SESSION_LOST) {
+            }
+            // 会话丢失,则警告日志
+            else if (state == StateListener.SESSION_LOST) {
                 logger.warn("Url of this instance will be deleted from registry soon. " +
                         "Dubbo client will try to re-register once a new session is created.");
-            } else if (state == StateListener.SUSPENDED) {
-
-            } else if (state == StateListener.CONNECTED) {
+            }
+            // 挂起???
+            else if (state == StateListener.SUSPENDED) {
 
             }
-        });
+            // 首次连接完成???
+            else if (state == StateListener.CONNECTED) {
+
+            }
+        };
+        zkClient.addStateListener(stateListener);
     }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Node接口实现
 
     @Override
     public boolean isAvailable() {
@@ -122,11 +155,19 @@ public class ZookeeperRegistry extends FailbackRegistry {
             logger.warn("Failed to close zookeeper client " + getUrl() + ", cause: " + e.getMessage(), e);
         }
     }
+    // -----------------------------------------------------------------------------------------------------------------
+    // FailbackRegistry抽象类实现
 
     @Override
     public void doRegister(URL url) {
         try {
-            zkClient.create(toUrlPath(url), url.getParameter(DYNAMIC_KEY, true));
+            // /group/interface/side/url
+            String urlPath = toUrlPath(url);
+            // 获取dynamic,默认为true
+            // 代表zk节点是否为临时
+            boolean dynamic = url.getParameter(DYNAMIC_KEY, true);
+            // 创建zk节点
+            zkClient.create(urlPath, dynamic);
         } catch (Throwable e) {
             throw new RpcException("Failed to register " + url + " to zookeeper " + getUrl() + ", cause: " + e.getMessage(), e);
         }
@@ -135,7 +176,8 @@ public class ZookeeperRegistry extends FailbackRegistry {
     @Override
     public void doUnregister(URL url) {
         try {
-            zkClient.delete(toUrlPath(url));
+            String urlPath = toUrlPath(url);
+            zkClient.delete(urlPath);
         } catch (Throwable e) {
             throw new RpcException("Failed to unregister " + url + " to zookeeper " + getUrl() + ", cause: " + e.getMessage(), e);
         }
@@ -203,6 +245,11 @@ public class ZookeeperRegistry extends FailbackRegistry {
         }
     }
 
+    /**
+     * 重写父类方法
+     * @param url 指定的url
+     * @return
+     */
     @Override
     public List<URL> lookup(URL url) {
         if (url == null) {
@@ -210,8 +257,13 @@ public class ZookeeperRegistry extends FailbackRegistry {
         }
         try {
             List<String> providers = new ArrayList<>();
-            for (String path : toCategoriesPath(url)) {
+            // 分类路径
+            String[] categoriesPath = toCategoriesPath(url);
+            // 遍历
+            for (String path : categoriesPath) {
+                // 获取子节点名称
                 List<String> children = zkClient.getChildren(path);
+                // 存在,则追加
                 if (children != null) {
                     providers.addAll(children);
                 }
@@ -221,8 +273,10 @@ public class ZookeeperRegistry extends FailbackRegistry {
             throw new RpcException("Failed to lookup " + url + " from zookeeper " + getUrl() + ", cause: " + e.getMessage(), e);
         }
     }
+    // -----------------------------------------------------------------------------------------------------------------
 
     private String toRootDir() {
+        //
         if (root.equals(PATH_SEPARATOR)) {
             return root;
         }
@@ -234,10 +288,13 @@ public class ZookeeperRegistry extends FailbackRegistry {
     }
 
     private String toServicePath(URL url) {
+        // 接口名
         String name = url.getServiceInterface();
+        // 接口名为*,则返回根路径,就是分组名称
         if (ANY_VALUE.equals(name)) {
             return toRootPath();
         }
+        // 分组/接口名
         return toRootDir() + URL.encode(name);
     }
 
@@ -256,11 +313,21 @@ public class ZookeeperRegistry extends FailbackRegistry {
     }
 
     private String toCategoryPath(URL url) {
-        return toServicePath(url) + PATH_SEPARATOR + url.getParameter(CATEGORY_KEY, DEFAULT_CATEGORY);
+        // /分组(可选)/接口名(可选)/providers
+        String servicePath = toServicePath(url);
+        // {servicePath}/providers
+        return servicePath + PATH_SEPARATOR + url.getParameter(CATEGORY_KEY, DEFAULT_CATEGORY);
     }
 
     private String toUrlPath(URL url) {
-        return toCategoryPath(url) + PATH_SEPARATOR + URL.encode(url.toFullString());
+        // /分组(可选)/接口名(可选)/providers
+        String categoryPath = toCategoryPath(url);
+        // protocol://username:password@host:port/path
+        String fullUrl = url.toFullString();
+        // group/interface/side/url
+        // /分组(可选)/接口名(可选)/providers/encode(protocol://username:password@host:port/path)
+        // categoryPath/fullUrl
+        return  categoryPath + PATH_SEPARATOR + URL.encode(fullUrl);
     }
 
     private List<URL> toUrlsWithoutEmpty(URL consumer, List<String> providers) {

@@ -16,6 +16,7 @@
  */
 package org.apache.dubbo.remoting.transport.netty4;
 
+import io.netty.channel.*;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.Version;
 import org.apache.dubbo.common.logger.Logger;
@@ -30,11 +31,6 @@ import org.apache.dubbo.remoting.utils.UrlUtils;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.proxy.Socks5ProxyHandler;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -62,6 +58,8 @@ public class NettyClient extends AbstractClient {
     private static final String SOCKS_PROXY_PORT = "socksProxyPort";
 
     private static final String DEFAULT_SOCKS_PROXY_PORT = "1080";
+    // -----------------------------------------------------------------------------------------------------------------
+
 
     private Bootstrap bootstrap;
 
@@ -73,8 +71,10 @@ public class NettyClient extends AbstractClient {
     private volatile Channel channel;
 
     /**
-     * The constructor of NettyClient.
-     * It wil init and start netty.
+     * 构造方法
+     * @param url 配置
+     * @param handler 处理器
+     * @throws RemotingException
      */
     public NettyClient(final URL url, final ChannelHandler handler) throws RemotingException {
     	// you can customize name and type of client thread pool by THREAD_NAME_KEY and THREADPOOL_KEY in CommonConstants.
@@ -91,22 +91,25 @@ public class NettyClient extends AbstractClient {
     protected void doOpen() throws Throwable {
         final NettyClientHandler nettyClientHandler = new NettyClientHandler(getUrl(), this);
         bootstrap = new Bootstrap();
+        // 事件轮询组
         bootstrap.group(NIO_EVENT_LOOP_GROUP)
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .option(ChannelOption.TCP_NODELAY, true)
-                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                //.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, getTimeout())
-                .channel(socketChannelClass());
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)// 内存分配器
+                .channel(socketChannelClass());// 通道
 
+        // 至少3秒
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, Math.max(3000, getConnectTimeout()));
+        // 初始化
         bootstrap.handler(new ChannelInitializer<SocketChannel>() {
 
             @Override
             protected void initChannel(SocketChannel ch) throws Exception {
                 int heartbeatInterval = UrlUtils.getHeartbeat(getUrl());
-
+                // ssl-enabled=false
                 if (getUrl().getParameter(SSL_ENABLED_KEY, false)) {
-                    ch.pipeline().addLast("negotiation", SslHandlerInitializer.sslClientHandler(getUrl(), nettyClientHandler));
+                    ChannelInboundHandler sslClientHandler = SslHandlerInitializer.sslClientHandler(getUrl(), nettyClientHandler);
+                    ch.pipeline().addLast("negotiation", sslClientHandler);
                 }
 
                 NettyCodecAdapter adapter = new NettyCodecAdapter(getCodec(), getUrl(), NettyClient.this);

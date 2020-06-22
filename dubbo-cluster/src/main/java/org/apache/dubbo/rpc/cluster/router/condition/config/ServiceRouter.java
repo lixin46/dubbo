@@ -20,6 +20,7 @@ import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.config.configcenter.DynamicConfiguration;
 
 /**
+ * 服务路由器
  * Service level router, "server-unique-name.condition-router"
  */
 public class ServiceRouter extends ListenableRouter {
@@ -29,6 +30,10 @@ public class ServiceRouter extends ListenableRouter {
      */
     private static final int SERVICE_ROUTER_DEFAULT_PRIORITY = 140;
 
+    /**
+     * 构造方法
+     * @param url 信息
+     */
     public ServiceRouter(URL url) {
         super(url, DynamicConfiguration.getRuleKey(url));
         this.priority = SERVICE_ROUTER_DEFAULT_PRIORITY;

@@ -21,6 +21,7 @@ import org.apache.dubbo.common.extension.Adaptive;
 import org.apache.dubbo.common.extension.SPI;
 
 /**
+ * 默认组件使用redis
  */
 @SPI("redis")
 public interface MetadataReportFactory {

@@ -23,39 +23,63 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Parameter
+ * 用于辅助配置对象的注入以及参数Map的整合行为,标记在getter方法上.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface Parameter {
 
+    /**
+     * 显示指定的参数名,
+     * 不指定默认为方法名单词切分点分隔
+     *
+     * @return 参数名
+     */
     String key() default "";
 
+    /**
+     * 如果配置为true,则getter方法返回了null或空串,则会抛异常
+     *
+     * @return 是否必须
+     */
     boolean required() default false;
 
+    /**
+     * 是否排除当前参数,不追加到map中
+     *
+     * @return 是否
+     */
     boolean excluded() default false;
 
+    /**
+     * 是否对value进行url编码
+     *
+     * @return 是否
+     */
     boolean escaped() default false;
 
+    /**
+     * 已废弃
+     *
+     * @return 废弃
+     */
     boolean attribute() default false;
 
+    /**
+     * 如果为true,则当key重复时,被追加到value尾部,逗号分隔
+     * 如果为false,则采用替换侧乱
+     *
+     * @return 是否追加
+     */
     boolean append() default false;
 
     /**
-     * if {@link #key()} is specified, it will be used as the key for the annotated property when generating url.
-     * by default, this key will also be used to retrieve the config value:
-     * <pre>
-     * {@code
-     *  class ExampleConfig {
-     *      // Dubbo will try to get "dubbo.example.alias_for_item=xxx" from .properties, if you want to use the original property
-     *      // "dubbo.example.item=xxx", you need to set useKeyAsProperty=false.
-     *      @Parameter(key = "alias_for_item")
-     *      public getItem();
-     *  }
-     * }
+     * 当从Configuration对象中查询属性值时,是否把key当做属性名,
+     * 如果为true则使用key获取;
+     * 如果为false则使用setter方法对应的属性名.
      *
-     * </pre>
+     * @return 是否
      */
     boolean useKeyAsProperty() default true;
 

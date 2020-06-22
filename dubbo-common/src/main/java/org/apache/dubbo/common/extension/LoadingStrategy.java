@@ -20,12 +20,24 @@ import org.apache.dubbo.common.lang.Prioritized;
 
 public interface LoadingStrategy extends Prioritized {
 
+    /**
+     *
+     * @return 目录???
+     */
     String directory();
 
+    /**
+     *
+     * @return 是否首选扩展类加载器???
+     */
     default boolean preferExtensionClassLoader() {
         return false;
     }
 
+    /**
+     *
+     * @return 排除的包
+     */
     default String[] excludedPackages() {
         return null;
     }

@@ -24,6 +24,7 @@ import org.apache.dubbo.rpc.RpcException;
 import java.util.List;
 
 /**
+ * 路由器
  * Router. (SPI, Prototype, ThreadSafe)
  * <p>
  * <a href="http://en.wikipedia.org/wiki/Routing">Routing</a>

@@ -51,68 +51,103 @@ import static org.apache.dubbo.rpc.cluster.Constants.EXPORT_KEY;
 import static org.apache.dubbo.rpc.cluster.Constants.REFER_KEY;
 
 /**
- * DubboRegistryFactory
- *
+ * 组件名称为dubbo
+ * 注册中心工厂的默认实现
  */
 public class DubboRegistryFactory extends AbstractRegistryFactory {
 
-    private Protocol protocol;
-    private ProxyFactory proxyFactory;
-    private Cluster cluster;
-
     private static URL getRegistryURL(URL url) {
         return URLBuilder.from(url)
-                .setPath(RegistryService.class.getName())
-                .removeParameter(EXPORT_KEY).removeParameter(REFER_KEY)
-                .addParameter(INTERFACE_KEY, RegistryService.class.getName())
-                .addParameter(CLUSTER_STICKY_KEY, "true")
-                .addParameter(LAZY_CONNECT_KEY, "true")
-                .addParameter(RECONNECT_KEY, "false")
-                .addParameterIfAbsent(TIMEOUT_KEY, "10000")
-                .addParameterIfAbsent(CALLBACK_INSTANCES_LIMIT_KEY, "10000")
-                .addParameterIfAbsent(CONNECT_TIMEOUT_KEY, "10000")
+                .setPath(RegistryService.class.getName())// 路径为注册中心服务类名
+                .removeParameter(EXPORT_KEY)// 删除export
+                .removeParameter(REFER_KEY)// 删除refer
+                .addParameter(INTERFACE_KEY, RegistryService.class.getName())// 添加interface
+                .addParameter(CLUSTER_STICKY_KEY, "true")// 添加sticky=true
+                .addParameter(LAZY_CONNECT_KEY, "true")// 添加lazy=true
+                .addParameter(RECONNECT_KEY, "false")// 添加reconnect=false
+                .addParameterIfAbsent(TIMEOUT_KEY, "10000")// 不存在则添加timeout=10000
+                .addParameterIfAbsent(CALLBACK_INSTANCES_LIMIT_KEY, "10000")// 不存在则添加callbacks=10000
+                .addParameterIfAbsent(CONNECT_TIMEOUT_KEY, "10000")// 不存在则添加connect.timeout=10000
                 .addParameter(METHODS_KEY, StringUtils.join(new HashSet<>(Arrays.asList(Wrapper.getWrapper(RegistryService.class).getDeclaredMethodNames())), ","))
-                //.addParameter(Constants.STUB_KEY, RegistryServiceStub.class.getName())
-                //.addParameter(Constants.STUB_EVENT_KEY, Boolean.TRUE.toString()) //for event dispatch
-                //.addParameter(Constants.ON_DISCONNECT_KEY, "disconnect")
                 .addParameter("subscribe.1.callback", "true")
                 .addParameter("unsubscribe.1.callback", "false")
                 .build();
     }
+    // -----------------------------------------------------------------------------------------------------------------
 
+    /**
+     * 协议
+     */
+    private Protocol protocol;
+    /**
+     * 代理工厂
+     */
+    private ProxyFactory proxyFactory;
+    /**
+     * 集群
+     */
+    private Cluster cluster;
+
+    /**
+     * ExtensionLoader注入
+     *
+     * @param protocol 协议
+     */
     public void setProtocol(Protocol protocol) {
         this.protocol = protocol;
     }
 
+    /**
+     * ExtensionLoader注入
+     *
+     * @param proxyFactory 代理工厂
+     */
     public void setProxyFactory(ProxyFactory proxyFactory) {
         this.proxyFactory = proxyFactory;
     }
 
+    /**
+     * ExtensionLoader注入
+     *
+     * @param cluster 集群
+     */
     public void setCluster(Cluster cluster) {
         this.cluster = cluster;
     }
 
     @Override
-    public Registry createRegistry(URL url) {
-        url = getRegistryURL(url);
+    public Registry createRegistry(URL registryUrl) {
+        // 构建注册中心url
+        registryUrl = getRegistryURL(registryUrl);
         List<URL> urls = new ArrayList<>();
-        urls.add(url.removeParameter(BACKUP_KEY));
-        String backup = url.getParameter(BACKUP_KEY);
+        // url不带backup参数
+        urls.add(registryUrl.removeParameter(BACKUP_KEY));
+        // 获取backup参数值
+        String backup = registryUrl.getParameter(BACKUP_KEY);
+        // 存在
         if (backup != null && backup.length() > 0) {
+            // 逗号拆分
             String[] addresses = COMMA_SPLIT_PATTERN.split(backup);
             for (String address : addresses) {
-                urls.add(url.setAddress(address));
+                // 变更地址后追加
+                urls.add(registryUrl.setAddress(address));
             }
         }
-        RegistryDirectory<RegistryService> directory = new RegistryDirectory<>(RegistryService.class, url.addParameter(INTERFACE_KEY, RegistryService.class.getName()).addParameterAndEncoded(REFER_KEY, url.toParameterString()));
+        // 添加interface参数和refer参数,refer引用当前url的参数
+        URL directoryUrl = registryUrl.addParameter(INTERFACE_KEY, RegistryService.class.getName())
+                .addParameterAndEncoded(REFER_KEY, registryUrl.toParameterString());
+        // 注册中心目录
+        RegistryDirectory<RegistryService> directory = new RegistryDirectory<>(RegistryService.class, directoryUrl);
+        // 集群加入???
         Invoker<RegistryService> registryInvoker = cluster.join(directory);
+        // 获取代理对象
         RegistryService registryService = proxyFactory.getProxy(registryInvoker);
         DubboRegistry registry = new DubboRegistry(registryInvoker, registryService);
         directory.setRegistry(registry);
         directory.setProtocol(protocol);
-        directory.setRouterChain(RouterChain.buildChain(url));
+        directory.setRouterChain(RouterChain.buildChain(registryUrl));
         directory.notify(urls);
-        directory.subscribe(new URL(CONSUMER_PROTOCOL, NetUtils.getLocalHost(), 0, RegistryService.class.getName(), url.getParameters()));
+        directory.subscribe(new URL(CONSUMER_PROTOCOL, NetUtils.getLocalHost(), 0, RegistryService.class.getName(), registryUrl.getParameters()));
         return registry;
     }
 }

@@ -1,0 +1,1341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="dubbo-admin:war" />
+    </artifacts-to-build>
+  </component>
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2b27b710-be4b-4309-b83b-bbd1ca57a5ab" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/package-info.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-all/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-all/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/Cluster.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/Cluster.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/Configurator.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/Configurator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/ConfiguratorFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/ConfiguratorFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/Directory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/Directory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/LoadBalance.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/LoadBalance.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/Merger.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/Merger.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/Router.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/Router.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/RouterChain.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/RouterChain.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/RouterFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/RouterFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/RuleConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/RuleConverter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/directory/AbstractDirectory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/directory/AbstractDirectory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/directory/StaticDirectory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/directory/StaticDirectory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/loadbalance/AbstractLoadBalance.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/loadbalance/AbstractLoadBalance.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/loadbalance/ConsistentHashLoadBalance.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/loadbalance/ConsistentHashLoadBalance.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/loadbalance/LeastActiveLoadBalance.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/loadbalance/LeastActiveLoadBalance.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/loadbalance/RandomLoadBalance.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/loadbalance/RandomLoadBalance.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/loadbalance/RoundRobinLoadBalance.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/loadbalance/RoundRobinLoadBalance.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/loadbalance/ShortestResponseLoadBalance.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/loadbalance/ShortestResponseLoadBalance.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/router/AbstractRouter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/router/AbstractRouter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/router/condition/ConditionRouter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/router/condition/ConditionRouter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/router/condition/config/AppRouter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/router/condition/config/AppRouter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/router/condition/config/ListenableRouter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/router/condition/config/ListenableRouter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/router/condition/config/ServiceRouter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/router/condition/config/ServiceRouter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/router/tag/TagRouter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/router/tag/TagRouter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/support/AbstractClusterInvoker.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/support/AbstractClusterInvoker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/support/ClusterUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/support/ClusterUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/support/FailoverCluster.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/support/FailoverCluster.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/support/FailoverClusterInvoker.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/support/FailoverClusterInvoker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/support/wrapper/AbstractCluster.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-cluster/src/main/java/org/apache/dubbo/rpc/cluster/support/wrapper/AbstractCluster.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/test/resources/AppAnyServices.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/test/resources/AppMultiServices.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/test/resources/AppNoService.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/test/resources/ConditionRule.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/test/resources/ConsumerSpecificProviders.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/test/resources/ServiceGroupVersion.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/test/resources/ServiceMultiApps.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/test/resources/ServiceNoApp.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/test/resources/ServiceNoRule.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/test/resources/TagRule.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/test/resources/log4j.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/test/resources/org/apache/dubbo/rpc/cluster/router/file/availablerule.javascript" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/test/resources/org/apache/dubbo/rpc/cluster/router/file/methodrule.javascript" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-cluster/src/test/resources/org/apache/dubbo/rpc/cluster/router/file/notAvailablerule.javascript" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/BaseServiceMetadata.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/BaseServiceMetadata.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/Node.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/Node.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/Parameters.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/Parameters.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/URL.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/URL.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/URLBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/URLBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/bytecode/Proxy.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/bytecode/Proxy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/bytecode/Wrapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/bytecode/Wrapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/compiler/Compiler.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/compiler/Compiler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/config/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/config/Configuration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/config/Environment.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/config/Environment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/config/configcenter/AbstractDynamicConfigurationFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/config/configcenter/AbstractDynamicConfigurationFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/config/configcenter/DynamicConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/config/configcenter/DynamicConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/config/configcenter/DynamicConfigurationFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/config/configcenter/DynamicConfigurationFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/constants/CommonConstants.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/constants/CommonConstants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/Adaptive.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/Adaptive.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/AdaptiveClassCodeGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/AdaptiveClassCodeGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/ExtensionFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/ExtensionFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/ExtensionLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/ExtensionLoader.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/LoadingStrategy.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/LoadingStrategy.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/SPI.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/SPI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/factory/AdaptiveExtensionFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/factory/AdaptiveExtensionFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/factory/SpiExtensionFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/extension/factory/SpiExtensionFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/threadpool/ThreadlessExecutor.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/threadpool/ThreadlessExecutor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/threadpool/manager/DefaultExecutorRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/threadpool/manager/DefaultExecutorRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/threadpool/support/cached/CachedThreadPool.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/threadpool/support/cached/CachedThreadPool.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/threadpool/support/eager/EagerThreadPool.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/threadpool/support/eager/EagerThreadPool.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/threadpool/support/fixed/FixedThreadPool.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/threadpool/support/fixed/FixedThreadPool.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/threadpool/support/limited/LimitedThreadPool.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/threadpool/support/limited/LimitedThreadPool.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/utils/ExecutorUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/utils/ExecutorUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/utils/NamedThreadFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/utils/NamedThreadFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/utils/StringUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/utils/StringUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/utils/UrlUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/common/utils/UrlUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/AbstractConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/AbstractConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/AbstractInterfaceConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/AbstractInterfaceConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/AbstractMethodConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/AbstractMethodConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/AbstractReferenceConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/AbstractReferenceConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/AbstractServiceConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/AbstractServiceConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ApplicationConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ApplicationConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ArgumentConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ArgumentConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ConfigCenterConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ConfigCenterConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/Constants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ConsumerConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ConsumerConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/MetadataReportConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/MetadataReportConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/MethodConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/MethodConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/MetricsConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/MetricsConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ModuleConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ModuleConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/MonitorConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/MonitorConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ProtocolConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ProtocolConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ProviderConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ProviderConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ReferenceConfigBase.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ReferenceConfigBase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/RegistryConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/RegistryConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ServiceConfigBase.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ServiceConfigBase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/SslConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/SslConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/context/ConfigManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/context/ConfigManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/support/Parameter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/support/Parameter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/rpc/model/ApplicationModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/rpc/model/ApplicationModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/rpc/support/ProtocolUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/rpc/support/ProtocolUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/main/resources/META-INF/dubbo/internal/org.apache.dubbo.common.context.FrameworkExt" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-common/src/main/resources/META-INF/dubbo/internal/org.apache.dubbo.common.context.FrameworkExt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/external/org.apache.dubbo.common.convert.Converter" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.config.OrderedPropertiesProvider" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.activate.ActivateExt1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.adaptive.HasAdaptiveExt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.compatible.CompatibleExt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.ext1.SimpleExt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.ext10_multi_names.Ext10MultiNames" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.ext2.Ext2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.ext3.UseProtocolKeyExt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.ext4.NoUrlParamExt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.ext5.NoAdaptiveMethodExt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.ext6_inject.Ext6" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.ext6_wrap.WrappedExt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.ext7.InitErrorExt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.ext8_add.AddExt1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.ext9_empty.Ext9Empty" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.injection.InjectExt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.extension.support.Filter0" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.lang.ShutdownHookCallback" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.logger.LoggerAdapter" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.common.status.StatusChecker" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.event.EventListener" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/dubbo/org.apache.dubbo.common.convert.Converter" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/services/java.lang.CharSequence" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/services/org.apache.dubbo.common.extension.LoadingStrategy" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/META-INF/services/org.apache.dubbo.common.extension.activate.ActivateExt1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/StreamUtilsTest.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/dubbo.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/json.flex" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/log4j.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/md5.testfile.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/org/apache/dubbo/common/extension/adaptive/HasAdaptiveExt$Adaptive" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/org/apache/dubbo/common/serialize/dubbo/SimpleDO.fc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/parameters.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-common/src/test/resources/properties.load" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/ReferenceConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/ReferenceConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/ServiceConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/ServiceConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/bootstrap/DubboBootstrap.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/bootstrap/DubboBootstrap.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/bootstrap/builders/AbstractReferenceBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/bootstrap/builders/AbstractReferenceBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/bootstrap/builders/RegistryBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/bootstrap/builders/RegistryBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/metadata/ConfigurableMetadataServiceExporter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/metadata/ConfigurableMetadataServiceExporter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/utils/ConfigValidationUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/utils/ConfigValidationUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/ConfigCenterBean.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/ConfigCenterBean.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/ReferenceBean.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/ReferenceBean.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/ServiceBean.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/ServiceBean.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/beans/factory/annotation/DubboConfigAliasPostProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/beans/factory/annotation/DubboConfigAliasPostProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/beans/factory/annotation/ReferenceAnnotationBeanPostProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/beans/factory/annotation/ReferenceAnnotationBeanPostProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/beans/factory/annotation/ServiceAnnotationBeanPostProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/beans/factory/annotation/ServiceAnnotationBeanPostProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/beans/factory/annotation/ServiceClassPostProcessor.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/beans/factory/annotation/ServiceClassPostProcessor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/context/DubboBootstrapApplicationListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/context/DubboBootstrapApplicationListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/context/DubboLifecycleComponentApplicationListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/context/DubboLifecycleComponentApplicationListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/context/OneTimeExecutionApplicationContextEventListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/context/OneTimeExecutionApplicationContextEventListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/context/annotation/DubboComponentScanRegistrar.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/context/annotation/DubboComponentScanRegistrar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/context/annotation/DubboConfigConfigurationRegistrar.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/context/annotation/DubboConfigConfigurationRegistrar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/context/annotation/EnableDubbo.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/context/annotation/EnableDubbo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/context/annotation/EnableDubboLifecycle.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/context/annotation/EnableDubboLifecycle.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/extension/SpringExtensionFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/extension/SpringExtensionFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/schema/AnnotationBeanDefinitionParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/schema/AnnotationBeanDefinitionParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/schema/DubboBeanDefinitionParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/schema/DubboBeanDefinitionParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/schema/DubboNamespaceHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/schema/DubboNamespaceHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/util/DubboBeanUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/util/DubboBeanUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-configcenter/dubbo-configcenter-zookeeper/src/main/java/org/apache/dubbo/configcenter/support/zookeeper/ZookeeperDynamicConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-configcenter/dubbo-configcenter-zookeeper/src/main/java/org/apache/dubbo/configcenter/support/zookeeper/ZookeeperDynamicConfiguration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-container/dubbo-container-spring/src/test/resources/META-INF/spring/test.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-container/dubbo-container-spring/src/test/resources/log4j.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-filter/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-filter/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/MetadataService.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/MetadataService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/WritableMetadataService.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/WritableMetadataService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/ServiceDefinitionBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/ServiceDefinitionBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/TypeDefinitionBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/TypeDefinitionBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/builder/ArrayTypeBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/builder/ArrayTypeBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/builder/CollectionTypeBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/builder/CollectionTypeBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/builder/DefaultTypeBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/builder/DefaultTypeBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/builder/EnumTypeBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/builder/EnumTypeBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/builder/MapTypeBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/builder/MapTypeBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/model/FullServiceDefinition.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/model/FullServiceDefinition.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/model/MethodDefinition.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/model/MethodDefinition.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/model/ServiceDefinition.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/model/ServiceDefinition.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/model/TypeDefinition.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/model/TypeDefinition.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/util/ClassUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/util/ClassUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/util/JaketConfigurationUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/definition/util/JaketConfigurationUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/report/MetadataReport.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/report/MetadataReport.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/report/MetadataReportFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/report/MetadataReportFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/report/MetadataReportInstance.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/report/MetadataReportInstance.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/report/identifier/KeyTypeEnum.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/report/identifier/KeyTypeEnum.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/report/identifier/MetadataIdentifier.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/report/identifier/MetadataIdentifier.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/report/support/AbstractMetadataReport.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/report/support/AbstractMetadataReport.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/store/InMemoryWritableMetadataService.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/store/InMemoryWritableMetadataService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/store/RemoteWritableMetadataService.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/store/RemoteWritableMetadataService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/store/RemoteWritableMetadataServiceDelegate.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/store/RemoteWritableMetadataServiceDelegate.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/test/resources/META-INF/dubbo/internal/org.apache.dubbo.metadata.report.MetadataReportFactory" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-api/src/test/resources/META-INF/dubbo/jax-rs-service-rest-metadata.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-definition-protobuf/src/main/java/org/apache/dubbo/metadata/definition/protobuf/ProtobufTypeBuilder.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-definition-protobuf/src/main/java/org/apache/dubbo/metadata/definition/protobuf/ProtobufTypeBuilder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-report-consul/src/main/java/org/apache/dubbo/metadata/store/consul/ConsulMetadataReportFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-report-consul/src/main/java/org/apache/dubbo/metadata/store/consul/ConsulMetadataReportFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-report-etcd/src/main/java/org/apache/dubbo/metadata/store/etcd/EtcdMetadataReportFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-report-etcd/src/main/java/org/apache/dubbo/metadata/store/etcd/EtcdMetadataReportFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-report-nacos/src/main/java/org/apache/dubbo/metadata/store/nacos/NacosMetadataReportFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-report-nacos/src/main/java/org/apache/dubbo/metadata/store/nacos/NacosMetadataReportFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-report-redis/src/main/java/org/apache/dubbo/metadata/store/redis/RedisMetadataReport.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-report-redis/src/main/java/org/apache/dubbo/metadata/store/redis/RedisMetadataReport.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-report-redis/src/main/java/org/apache/dubbo/metadata/store/redis/RedisMetadataReportFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-report-redis/src/main/java/org/apache/dubbo/metadata/store/redis/RedisMetadataReportFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-report-zookeeper/src/main/java/org/apache/dubbo/metadata/store/zookeeper/ZookeeperMetadataReportFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-metadata/dubbo-metadata-report-zookeeper/src/main/java/org/apache/dubbo/metadata/store/zookeeper/ZookeeperMetadataReportFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-monitor/dubbo-monitor-api/src/main/java/org/apache/dubbo/monitor/Monitor.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-monitor/dubbo-monitor-api/src/main/java/org/apache/dubbo/monitor/Monitor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-monitor/dubbo-monitor-api/src/main/java/org/apache/dubbo/monitor/MonitorService.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-monitor/dubbo-monitor-api/src/main/java/org/apache/dubbo/monitor/MonitorService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-monitor/dubbo-monitor-default/src/main/java/org/apache/dubbo/monitor/dubbo/DubboMonitor.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-monitor/dubbo-monitor-default/src/main/java/org/apache/dubbo/monitor/dubbo/DubboMonitor.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-monitor/dubbo-monitor-default/src/main/java/org/apache/dubbo/monitor/dubbo/Statistics.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-monitor/dubbo-monitor-default/src/main/java/org/apache/dubbo/monitor/dubbo/Statistics.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-plugin/dubbo-qos/src/main/java/org/apache/dubbo/qos/protocol/QosProtocolWrapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-plugin/dubbo-qos/src/main/java/org/apache/dubbo/qos/protocol/QosProtocolWrapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-plugin/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-plugin/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/Constants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/Registry.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/Registry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/RegistryFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/RegistryFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/RegistryFactoryWrapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/RegistryFactoryWrapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/RegistryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/RegistryService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/ServiceDiscoveryRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/ServiceDiscoveryRegistry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/ServiceDiscoveryRegistryFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/ServiceDiscoveryRegistryFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/ServiceDiscoveryRegistryProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/ServiceDiscoveryRegistryProtocol.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/integration/RegistryDirectory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/integration/RegistryDirectory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/integration/RegistryProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/integration/RegistryProtocol.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/support/AbstractRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/support/AbstractRegistry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/support/AbstractRegistryFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/support/AbstractRegistryFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/support/FailbackRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/support/FailbackRegistry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/test/resources/META-INF/dubbo/org.apache.dubbo.registry.RegistryFactory" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/test/resources/META-INF/dubbo/org.apache.dubbo.registry.RegistryServiceListener" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/test/resources/META-INF/services/org.apache.dubbo.registry.client.ServiceDiscovery" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-api/src/test/resources/log4j.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-consul/src/main/java/org/apache/dubbo/registry/consul/ConsulRegistryFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-consul/src/main/java/org/apache/dubbo/registry/consul/ConsulRegistryFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-default/src/main/java/org/apache/dubbo/registry/dubbo/DubboRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-default/src/main/java/org/apache/dubbo/registry/dubbo/DubboRegistry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-default/src/main/java/org/apache/dubbo/registry/dubbo/DubboRegistryFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-default/src/main/java/org/apache/dubbo/registry/dubbo/DubboRegistryFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-etcd3/src/main/java/org/apache/dubbo/registry/etcd/EtcdRegistryFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-etcd3/src/main/java/org/apache/dubbo/registry/etcd/EtcdRegistryFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-multicast/src/main/java/org/apache/dubbo/registry/multicast/MulticastRegistryFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-multicast/src/main/java/org/apache/dubbo/registry/multicast/MulticastRegistryFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-multiple/src/main/java/org/apache/dubbo/registry/multiple/MultipleRegistryFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-multiple/src/main/java/org/apache/dubbo/registry/multiple/MultipleRegistryFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-nacos/src/main/java/org/apache/dubbo/registry/nacos/NacosRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-nacos/src/main/java/org/apache/dubbo/registry/nacos/NacosRegistry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-nacos/src/main/java/org/apache/dubbo/registry/nacos/NacosRegistryFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-nacos/src/main/java/org/apache/dubbo/registry/nacos/NacosRegistryFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-redis/src/main/java/org/apache/dubbo/registry/redis/RedisRegistryFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-redis/src/main/java/org/apache/dubbo/registry/redis/RedisRegistryFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-sofa/src/main/java/org/apache/dubbo/registry/sofa/SofaRegistryFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-sofa/src/main/java/org/apache/dubbo/registry/sofa/SofaRegistryFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-zookeeper/src/main/java/org/apache/dubbo/registry/zookeeper/ZookeeperInstance.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-zookeeper/src/main/java/org/apache/dubbo/registry/zookeeper/ZookeeperInstance.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-zookeeper/src/main/java/org/apache/dubbo/registry/zookeeper/ZookeeperRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-zookeeper/src/main/java/org/apache/dubbo/registry/zookeeper/ZookeeperRegistry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-zookeeper/src/main/java/org/apache/dubbo/registry/zookeeper/ZookeeperRegistryFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/dubbo-registry-zookeeper/src/main/java/org/apache/dubbo/registry/zookeeper/ZookeeperRegistryFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-registry/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-registry/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/Codec2.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/Codec2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/ExchangeChannel.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/ExchangeChannel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/ExchangeClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/ExchangeClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/ExchangeHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/ExchangeHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/Exchangers.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/Exchangers.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/Request.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/Request.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/Response.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/Response.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/codec/ExchangeCodec.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/codec/ExchangeCodec.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/support/DefaultFuture.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/support/DefaultFuture.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/support/header/HeaderExchangeChannel.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/support/header/HeaderExchangeChannel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/support/header/HeaderExchangeClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/support/header/HeaderExchangeClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/support/header/HeaderExchangeHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/support/header/HeaderExchangeHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/support/header/HeaderExchanger.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/exchange/support/header/HeaderExchanger.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/telnet/codec/TelnetCodec.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/telnet/codec/TelnetCodec.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/transport/AbstractChannel.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/transport/AbstractChannel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/transport/AbstractClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/transport/AbstractClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/transport/AbstractCodec.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/transport/AbstractCodec.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/transport/AbstractEndpoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/transport/AbstractEndpoint.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/transport/AbstractPeer.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/transport/AbstractPeer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/transport/codec/TransportCodec.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/transport/codec/TransportCodec.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/transport/dispatcher/ChannelHandlers.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/transport/dispatcher/ChannelHandlers.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-api/src/test/resources/log4j.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-netty/src/main/java/org/apache/dubbo/remoting/transport/netty/NettyChannel.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-netty/src/main/java/org/apache/dubbo/remoting/transport/netty/NettyChannel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-netty/src/main/java/org/apache/dubbo/remoting/transport/netty/NettyClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-netty/src/main/java/org/apache/dubbo/remoting/transport/netty/NettyClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-netty/src/main/java/org/apache/dubbo/remoting/transport/netty/NettyCodecAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-netty/src/main/java/org/apache/dubbo/remoting/transport/netty/NettyCodecAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-netty4/src/main/java/org/apache/dubbo/remoting/transport/netty4/NettyClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-netty4/src/main/java/org/apache/dubbo/remoting/transport/netty4/NettyClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/ChildListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/ChildListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/DataListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/DataListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/EventType.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/EventType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/StateListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/StateListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/ZookeeperClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/ZookeeperClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/ZookeeperTransporter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/ZookeeperTransporter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/curator/CuratorZookeeperClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/curator/CuratorZookeeperClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/curator/CuratorZookeeperTransporter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/curator/CuratorZookeeperTransporter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/support/AbstractZookeeperClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/support/AbstractZookeeperClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/support/AbstractZookeeperTransporter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/dubbo-remoting-zookeeper/src/main/java/org/apache/dubbo/remoting/zookeeper/support/AbstractZookeeperTransporter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-remoting/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-remoting/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/com/alibaba/dubbo/rpc/service/EchoService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/AppResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/AppResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/AsyncRpcResult.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/AsyncRpcResult.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/Constants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/Filter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/Filter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/Invocation.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/Invocation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/InvokeMode.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/InvokeMode.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/Invoker.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/Invoker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/Protocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/Protocol.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/ProxyFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/ProxyFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/RpcContext.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/RpcContext.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/RpcException.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/RpcException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/RpcInvocation.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/RpcInvocation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/RpcStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/RpcStatus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/filter/ConsumerContextFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/filter/ConsumerContextFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/filter/ContextFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/filter/ContextFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/filter/ExecuteLimitFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/filter/ExecuteLimitFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/filter/tps/DefaultTPSLimiter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/filter/tps/DefaultTPSLimiter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/filter/tps/StatItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/filter/tps/StatItem.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/filter/tps/TPSLimiter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/filter/tps/TPSLimiter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/protocol/AbstractInvoker.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/protocol/AbstractInvoker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/protocol/AbstractProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/protocol/AbstractProtocol.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/protocol/AbstractProxyProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/protocol/AbstractProxyProtocol.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/protocol/ProtocolFilterWrapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/protocol/ProtocolFilterWrapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/protocol/ProtocolListenerWrapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/protocol/ProtocolListenerWrapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/proxy/AbstractProxyFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/proxy/AbstractProxyFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/proxy/AbstractProxyInvoker.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/proxy/AbstractProxyInvoker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/proxy/InvokerInvocationHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/proxy/InvokerInvocationHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/proxy/javassist/JavassistProxyFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/proxy/javassist/JavassistProxyFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/support/MockInvoker.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/support/MockInvoker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/support/RpcUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/main/java/org/apache/dubbo/rpc/support/RpcUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-api/src/test/resources/log4j.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-dubbo/src/main/java/org/apache/dubbo/rpc/protocol/dubbo/DubboCodec.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-dubbo/src/main/java/org/apache/dubbo/rpc/protocol/dubbo/DubboCodec.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-dubbo/src/main/java/org/apache/dubbo/rpc/protocol/dubbo/DubboInvoker.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-dubbo/src/main/java/org/apache/dubbo/rpc/protocol/dubbo/DubboInvoker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-dubbo/src/main/java/org/apache/dubbo/rpc/protocol/dubbo/DubboProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-dubbo/src/main/java/org/apache/dubbo/rpc/protocol/dubbo/DubboProtocol.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-dubbo/src/main/java/org/apache/dubbo/rpc/protocol/dubbo/DubboProtocolServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-dubbo/src/main/java/org/apache/dubbo/rpc/protocol/dubbo/DubboProtocolServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-dubbo/src/main/java/org/apache/dubbo/rpc/protocol/dubbo/ReferenceCountExchangeClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-dubbo/src/main/java/org/apache/dubbo/rpc/protocol/dubbo/ReferenceCountExchangeClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-grpc/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-grpc/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-grpc/src/main/java/org/apache/dubbo/rpc/protocol/grpc/GrpcInvoker.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-grpc/src/main/java/org/apache/dubbo/rpc/protocol/grpc/GrpcInvoker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-injvm/src/main/java/org/apache/dubbo/rpc/protocol/injvm/InjvmExporter.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-injvm/src/main/java/org/apache/dubbo/rpc/protocol/injvm/InjvmExporter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-injvm/src/main/java/org/apache/dubbo/rpc/protocol/injvm/InjvmInvoker.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-injvm/src/main/java/org/apache/dubbo/rpc/protocol/injvm/InjvmInvoker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-injvm/src/main/java/org/apache/dubbo/rpc/protocol/injvm/InjvmProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-injvm/src/main/java/org/apache/dubbo/rpc/protocol/injvm/InjvmProtocol.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/pom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/java/org/apache/dubbo/rpc/protocol/thrift/ClassNameGenerator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/java/org/apache/dubbo/rpc/protocol/thrift/DubboClassNameGenerator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/java/org/apache/dubbo/rpc/protocol/thrift/ThriftClassNameGenerator.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/java/org/apache/dubbo/rpc/protocol/thrift/ThriftCodec.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/java/org/apache/dubbo/rpc/protocol/thrift/ThriftConstants.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/java/org/apache/dubbo/rpc/protocol/thrift/ThriftInvoker.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/java/org/apache/dubbo/rpc/protocol/thrift/ThriftNativeCodec.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/java/org/apache/dubbo/rpc/protocol/thrift/ThriftProtocol.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/java/org/apache/dubbo/rpc/protocol/thrift/ThriftType.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/java/org/apache/dubbo/rpc/protocol/thrift/ThriftUtils.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/java/org/apache/dubbo/rpc/protocol/thrift/ext/MultiServiceProcessor.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/java/org/apache/dubbo/rpc/protocol/thrift/io/InputStreamWrapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/java/org/apache/dubbo/rpc/protocol/thrift/io/RandomAccessByteArrayOutputStream.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/resources/META-INF/dubbo/internal/org.apache.dubbo.remoting.Codec2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/resources/META-INF/dubbo/internal/org.apache.dubbo.rpc.Protocol" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/main/resources/META-INF/dubbo/internal/org.apache.dubbo.rpc.protocol.thrift.ClassNameGenerator" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/test/resources/dubbo-demo-consumer.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/dubbo-rpc-thrift/src/test/resources/dubbo-demo-provider.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-rpc/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-rpc/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dubbo-serialization/dubbo-serialization-api/src/main/java/org/apache/dubbo/common/serialize/support/SerializableClassRegistry.java" beforeDir="false" afterPath="$PROJECT_DIR$/dubbo-serialization/dubbo-serialization-api/src/main/java/org/apache/dubbo/common/serialize/support/SerializableClassRegistry.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CodeStyleSettingsInfer">
+    <option name="done" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="package-info" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HierarchyBrowserManager">
+    <option name="SCOPE" value="All" />
+  </component>
+  <component name="ProjectCodeStyleSettingsMigration">
+    <option name="version" value="1" />
+  </component>
+  <component name="ProjectId" id="1cim5A0t5obIwbMoMpohKbbit0L" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
+    <property name="settings.editor.selected.configurable" value="editing.templates" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="org.apache.dubbo.common.constants" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Jetty Server.启动服务">
+    <configuration name="StringUtils" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.apache.dubbo.common.utils.StringUtils" />
+      <module name="dubbo-common" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.apache.dubbo.common.utils.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="启动服务" type="JettyConfiguration" factoryName="Local" APPLICATION_SERVER_NAME="Jetty 9.4.30.v20200611" ALTERNATIVE_JRE_ENABLED="false">
+      <option name="UPDATING_POLICY" value="restart-server" />
+      <deployment>
+        <artifact name="dubbo-admin:war">
+          <settings DEPLOYMENT_METHOD="contexts" />
+        </artifact>
+      </deployment>
+      <server-settings>
+        <data>
+          <option name="baseDirectoryName" value="启动服务_dubbo-parent" />
+          <option name="configFiles">
+            <list>
+              <JettyConfigFile>
+                <option name="path" value="modules/stats.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-gcloud.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jolokia.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/console-capture.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logging-jul.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logging-jetty.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logging-logback.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/alpn.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/ssl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/apache-jsp.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/cdi-decorate.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/customrequestlog.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jmx-remote.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jaas.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/gzip.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/infinispan-embedded-query.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/infinispan-remote.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/ext.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/proxy.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/unixsocket-forwarded.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/slf4j-log4j.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/log4j2-impl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-jdbc.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/log4j2-api.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/cdi2.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/quickstart.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/debuglog.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jul-impl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/resources.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/unixsocket-proxy-protocol.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/unixsocket-http.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/flight-recorder.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-hazelcast-embedded.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/log4j2-slf4j.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/gcloud-datastore.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-cache.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/security.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/unixsocket.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logging-slf4j.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-file.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/requestlog.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/cdi.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="active" value="true" />
+                <option name="path" value="modules/jmx.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-mongo.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-cache-null.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/http-forwarded.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jstl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/lowresources.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/client.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/global-webapp-common.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/decorate.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/servlets.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/slf4j-log4j2.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/plus.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/acceptratelimit.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jamon.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/websocket.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jaspi.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/continuation.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/fcgi.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/connectionlimit.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jdbc.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logback-access.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/threadpool.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/rewrite-compactpath.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/annotations.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/ipaccess.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/log4j-impl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/stop.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/transactions.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jvm.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/unixsocket-secure.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/setuid.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/home-base-warning.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/hawtio.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logback-impl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/mail.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/server.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/infinispan-remote-query.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-infinispan-remote.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/sessions.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/cdi-spi.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/bytebufferpool.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/unixsocket-http2c.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jcl-slf4j.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/apache-jstl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/http2c.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/gcloud.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/slf4j-logback.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logging-log4j2.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jndi.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/deploy.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/openid.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jsp.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/servlet.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/rewrite.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logging-log4j.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/rewrite-customizer.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-hazelcast-remote.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/threadlimit.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/infinispan-embedded.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/conscrypt.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-infinispan-embedded.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/slf4j-simple-impl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-cache-hash.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jul-slf4j.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/http.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/slf4j-api.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/https.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/http2.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/inetaccess.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/proxy-protocol-ssl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/spring.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/slf4j-jul.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/webapp.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/alpn-impl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/debug.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jminix.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/proxy-protocol.mod" />
+              </JettyConfigFile>
+            </list>
+          </option>
+          <base-directory-name>启动服务_dubbo-parent</base-directory-name>
+          <option name="myConfigFiles">
+            <list>
+              <JettyConfigFile>
+                <option name="path" value="modules/stats.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-gcloud.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jolokia.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/console-capture.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logging-jul.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logging-jetty.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logging-logback.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/alpn.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/ssl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/apache-jsp.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/cdi-decorate.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/customrequestlog.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jmx-remote.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jaas.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/gzip.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/infinispan-embedded-query.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/infinispan-remote.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/ext.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/proxy.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/unixsocket-forwarded.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/slf4j-log4j.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/log4j2-impl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-jdbc.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/log4j2-api.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/cdi2.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/quickstart.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/debuglog.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jul-impl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/resources.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/unixsocket-proxy-protocol.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/unixsocket-http.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/flight-recorder.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-hazelcast-embedded.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/log4j2-slf4j.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/gcloud-datastore.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-cache.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/security.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/unixsocket.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logging-slf4j.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-file.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/requestlog.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/cdi.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="active" value="true" />
+                <option name="path" value="modules/jmx.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-mongo.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-cache-null.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/http-forwarded.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jstl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/lowresources.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/client.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/global-webapp-common.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/decorate.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/servlets.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/slf4j-log4j2.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/plus.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/acceptratelimit.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jamon.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/websocket.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jaspi.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/continuation.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/fcgi.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/connectionlimit.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jdbc.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logback-access.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/threadpool.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/rewrite-compactpath.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/annotations.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/ipaccess.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/log4j-impl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/stop.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/transactions.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jvm.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/unixsocket-secure.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/setuid.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/home-base-warning.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/hawtio.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logback-impl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/mail.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/server.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/infinispan-remote-query.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-infinispan-remote.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/sessions.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/cdi-spi.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/bytebufferpool.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/unixsocket-http2c.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jcl-slf4j.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/apache-jstl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/http2c.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/gcloud.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/slf4j-logback.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logging-log4j2.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jndi.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/deploy.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/openid.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jsp.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/servlet.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/rewrite.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/logging-log4j.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/rewrite-customizer.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-hazelcast-remote.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/threadlimit.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/infinispan-embedded.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/conscrypt.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-store-infinispan-embedded.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/slf4j-simple-impl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/session-cache-hash.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jul-slf4j.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/http.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/slf4j-api.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/https.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/http2.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/inetaccess.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/proxy-protocol-ssl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/spring.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/slf4j-jul.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/webapp.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/alpn-impl.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/debug.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/jminix.mod" />
+              </JettyConfigFile>
+              <JettyConfigFile>
+                <option name="path" value="modules/proxy-protocol.mod" />
+              </JettyConfigFile>
+            </list>
+          </option>
+        </data>
+      </server-settings>
+      <predefined_log_file enabled="true" id="Jetty" />
+      <ConfigurationWrapper VM_VAR="" RunnerId="Debug">
+        <option name="USE_ENV_VARIABLES" value="true" />
+        <STARTUP>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </STARTUP>
+        <SHUTDOWN>
+          <option name="USE_DEFAULT" value="true" />
+          <option name="SCRIPT" value="" />
+          <option name="VM_PARAMETERS" value="" />
+          <option name="PROGRAM_PARAMETERS" value="" />
+        </SHUTDOWN>
+      </ConfigurationWrapper>
+      <method v="2">
+        <option name="Make" enabled="true" />
+        <option name="BuildArtifacts" enabled="true">
+          <artifact name="dubbo-admin:war" />
+        </option>
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.StringUtils" />
+      <item itemvalue="Jetty Server.启动服务" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.StringUtils" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2b27b710-be4b-4309-b83b-bbd1ca57a5ab" name="Default Changelist" comment="" />
+      <created>1591019601753</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1591019601753</updated>
+      <workItem from="1591019610211" duration="3529000" />
+      <workItem from="1591028136477" duration="1392000" />
+      <workItem from="1591061560972" duration="37921000" />
+      <workItem from="1591200715875" duration="213000" />
+      <workItem from="1591673594208" duration="44295000" />
+      <workItem from="1591890305403" duration="48107000" />
+      <workItem from="1592233643296" duration="582000" />
+      <workItem from="1592319259886" duration="1045000" />
+      <workItem from="1592320357843" duration="40257000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="2" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="505" y="269" key="#Jetty_Server" timestamp="1592218812650">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state x="505" y="269" key="#Jetty_Server/0.23.1440.809@0.23.1440.809" timestamp="1592218812650" />
+    <state x="603" y="297" width="679" height="490" key="#Notifications" timestamp="1592361242305">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state x="603" y="297" width="679" height="490" key="#Notifications/0.23.1440.809@0.23.1440.809" timestamp="1592361242305" />
+    <state x="208" y="23" key="#Project_Structure" timestamp="1591864630523">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state x="208" y="23" key="#Project_Structure/0.23.1440.809@0.23.1440.809" timestamp="1591864630523" />
+    <state x="184" y="89" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1592218843835">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state x="184" y="89" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1440.809@0.23.1440.809" timestamp="1592218843835" />
+    <state x="408" y="170" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1592233552564">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state x="408" y="170" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.23.1440.809@0.23.1440.809" timestamp="1592233552564" />
+    <state x="0" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1592539052872">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state x="0" y="23" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.23.1440.809@0.23.1440.809" timestamp="1592539052872" />
+    <state width="958" height="330" key="GridCell.Tab.0.bottom" timestamp="1592297901624">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state width="958" height="330" key="GridCell.Tab.0.bottom/0.23.1440.809@0.23.1440.809" timestamp="1592297901624" />
+    <state width="958" height="330" key="GridCell.Tab.0.center" timestamp="1592297901624">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state width="958" height="330" key="GridCell.Tab.0.center/0.23.1440.809@0.23.1440.809" timestamp="1592297901624" />
+    <state width="958" height="330" key="GridCell.Tab.0.left" timestamp="1592297901623">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state width="958" height="330" key="GridCell.Tab.0.left/0.23.1440.809@0.23.1440.809" timestamp="1592297901623" />
+    <state width="958" height="330" key="GridCell.Tab.0.right" timestamp="1592297901624">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state width="958" height="330" key="GridCell.Tab.0.right/0.23.1440.809@0.23.1440.809" timestamp="1592297901624" />
+    <state width="958" height="330" key="GridCell.Tab.1.bottom" timestamp="1592297901626">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state width="958" height="330" key="GridCell.Tab.1.bottom/0.23.1440.809@0.23.1440.809" timestamp="1592297901626" />
+    <state width="958" height="330" key="GridCell.Tab.1.center" timestamp="1592297901625">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state width="958" height="330" key="GridCell.Tab.1.center/0.23.1440.809@0.23.1440.809" timestamp="1592297901625" />
+    <state width="958" height="330" key="GridCell.Tab.1.left" timestamp="1592297901625">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state width="958" height="330" key="GridCell.Tab.1.left/0.23.1440.809@0.23.1440.809" timestamp="1592297901625" />
+    <state width="958" height="330" key="GridCell.Tab.1.right" timestamp="1592297901625">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state width="958" height="330" key="GridCell.Tab.1.right/0.23.1440.809@0.23.1440.809" timestamp="1592297901625" />
+    <state x="221" y="66" key="SettingsEditor" timestamp="1592539817228">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state x="221" y="66" key="SettingsEditor/0.23.1440.809@0.23.1440.809" timestamp="1592539817228" />
+    <state x="430" y="166" width="549" height="524" key="StructurePopup" timestamp="1592742382070">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state x="430" y="166" width="549" height="524" key="StructurePopup/0.23.1440.809@0.23.1440.809" timestamp="1592742382070" />
+    <state x="331" y="23" key="VCS.ChangeListViewerDialog" timestamp="1591784483064">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state x="331" y="23" key="VCS.ChangeListViewerDialog/0.23.1440.809@0.23.1440.809" timestamp="1591784483064" />
+    <state x="464" y="279" key="cloudConfig.PluginsDialog" timestamp="1592320075154">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state x="464" y="279" key="cloudConfig.PluginsDialog/0.23.1440.809@0.23.1440.809" timestamp="1592320075154" />
+    <state x="601" y="279" width="603" height="455" key="cloudConfig.SelfSettingsDialog" timestamp="1592321124016">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state x="601" y="279" width="603" height="455" key="cloudConfig.SelfSettingsDialog/0.23.1440.809@0.23.1440.809" timestamp="1592321124016" />
+    <state x="421" y="60" width="916" height="735" key="find.popup" timestamp="1591200665119">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state x="421" y="60" width="916" height="735" key="find.popup/0.23.1440.809@0.23.1440.809" timestamp="1591200665119" />
+    <state x="365" y="156" width="670" height="676" key="search.everywhere.popup" timestamp="1592742378443">
+      <screen x="0" y="23" width="1440" height="809" />
+    </state>
+    <state x="365" y="156" width="670" height="676" key="search.everywhere.popup/0.23.1440.809@0.23.1440.809" timestamp="1592742378443" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ApplicationConfig.java</url>
+          <line>201</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/dubbo-common/src/main/java/org/apache/dubbo/config/ApplicationConfig.java</url>
+          <line>208</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/ReferenceConfig.java</url>
+          <line>343</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

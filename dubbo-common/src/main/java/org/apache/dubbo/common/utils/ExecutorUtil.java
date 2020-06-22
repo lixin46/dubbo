@@ -129,7 +129,9 @@ public class ExecutorUtil {
      * @return new url with updated thread name
      */
     public static URL setThreadName(URL url, String defaultName) {
+        // threadname=DubboClientHandler
         String name = url.getParameter(THREAD_NAME_KEY, defaultName);
+        // 线程名-地址
         name = name + "-" + url.getAddress();
         url = url.addParameter(THREAD_NAME_KEY, name);
         return url;

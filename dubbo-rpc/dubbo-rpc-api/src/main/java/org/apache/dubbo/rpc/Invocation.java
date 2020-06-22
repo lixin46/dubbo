@@ -74,13 +74,13 @@ public interface Invocation {
      */
     Object[] getArguments();
 
-    /**
-     * get attachments.
-     *
-     * @return attachments.
-     * @serial
-     */
-    Map<String, String> getAttachments();
+//    /**
+//     * get attachments.
+//     *
+//     * @return attachments.
+//     * @serial
+//     */
+//    Map<String, String> getAttachments();
 
     @Experimental("Experiment api for supporting Object transmission")
     Map<String, Object> getObjectAttachments();

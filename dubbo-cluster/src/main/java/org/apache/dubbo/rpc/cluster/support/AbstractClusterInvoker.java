@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.apache.commons.io.FilenameUtils.getExtension;
 import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_LOADBALANCE;
 import static org.apache.dubbo.common.constants.CommonConstants.LOADBALANCE_KEY;
 import static org.apache.dubbo.rpc.cluster.Constants.CLUSTER_AVAILABLE_CHECK_KEY;
@@ -59,6 +60,9 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
 
     private AtomicBoolean destroyed = new AtomicBoolean(false);
 
+    /**
+     * sticky什么意思???
+     */
     private volatile Invoker<T> stickyInvoker = null;
 
     public AbstractClusterInvoker() {
@@ -95,9 +99,11 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
     @Override
     public boolean isAvailable() {
         Invoker<T> invoker = stickyInvoker;
+        // 存在调用器,则判断调用器的可用性
         if (invoker != null) {
             return invoker.isAvailable();
         }
+        // 不存在调用器,则判断目录的可用性
         return directory.isAvailable();
     }
 
@@ -128,6 +134,15 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
      * @return the invoker which will final to do invoke.
      * @throws RpcException exception
      */
+    /**
+     * 负载均衡
+     * @param loadbalance 负载均衡策略
+     * @param invocation 调用描述
+     * @param invokers 路由后的调用器列表
+     * @param selected 已经选择的调用器
+     * @return
+     * @throws RpcException
+     */
     protected Invoker<T> select(LoadBalance loadbalance, Invocation invocation,
                                 List<Invoker<T>> invokers, List<Invoker<T>> selected) throws RpcException {
 
@@ -136,6 +151,7 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
         }
         String methodName = invocation == null ? StringUtils.EMPTY_STRING : invocation.getMethodName();
 
+        // 获取sticky参数,默认为false
         boolean sticky = invokers.get(0).getUrl()
                 .getMethodParameter(methodName, CLUSTER_STICKY_KEY, DEFAULT_CLUSTER_STICKY);
 
@@ -150,6 +166,7 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
             }
         }
 
+        // 负载均衡
         Invoker<T> invoker = doSelect(loadbalance, invocation, invokers, selected);
 
         if (sticky) {
@@ -158,25 +175,41 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
         return invoker;
     }
 
+    /**
+     * 负载均衡2
+     * @param loadbalance 负载均衡策略
+     * @param invocation 调用描述
+     * @param invokers 调用器列表
+     * @param selected 已经选择的调用器
+     * @return
+     * @throws RpcException
+     */
     private Invoker<T> doSelect(LoadBalance loadbalance, Invocation invocation,
                                 List<Invoker<T>> invokers, List<Invoker<T>> selected) throws RpcException {
-
+        // 为空返回null
         if (CollectionUtils.isEmpty(invokers)) {
             return null;
         }
+        // 只有一个则返回
         if (invokers.size() == 1) {
             return invokers.get(0);
         }
+        // 调用策略选择
         Invoker<T> invoker = loadbalance.select(invokers, getUrl(), invocation);
 
         //If the `invoker` is in the  `selected` or invoker is unavailable && availablecheck is true, reselect.
+        // 已经选择过或选择出来的不可用
         if ((selected != null && selected.contains(invoker))
                 || (!invoker.isAvailable() && getUrl() != null && availablecheck)) {
             try {
+                // 再次选择
                 Invoker<T> rInvoker = reselect(loadbalance, invocation, invokers, selected, availablecheck);
+                // 存在
                 if (rInvoker != null) {
                     invoker = rInvoker;
-                } else {
+                }
+                // 不存在,则从第一次选择结果找下一个
+                else {
                     //Check the index of current selected invoker, if it's not the last one, choose the one at index+1.
                     int index = invokers.indexOf(invoker);
                     try {
@@ -245,17 +278,28 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
 
     @Override
     public Result invoke(final Invocation invocation) throws RpcException {
+        // 检查是否销毁???
         checkWhetherDestroyed();
 
         // binding attachments into invocation.
-        Map<String, Object> contextAttachments = RpcContext.getContext().getObjectAttachments();
+        // 调用端上下文(初始会创建)
+        RpcContext context = RpcContext.getContext();
+        // 对象附件
+        Map<String, Object> contextAttachments = context.getObjectAttachments();
+        // 非空,则追加rpc上下文中的对象附件
         if (contextAttachments != null && contextAttachments.size() != 0) {
+            // 添加对象附件
             ((RpcInvocation) invocation).addObjectAttachments(contextAttachments);
         }
 
+        // 调用目录,获取调用器列表,
+        // 路由逻辑
         List<Invoker<T>> invokers = list(invocation);
+        // 获取负载均衡扩展组件
         LoadBalance loadbalance = initLoadBalance(invokers, invocation);
+        //
         RpcUtils.attachInvocationIdIfAsync(getUrl(), invocation);
+        // 发起调用
         return doInvoke(invocation, invokers, loadbalance);
     }
 
@@ -303,11 +347,18 @@ public abstract class AbstractClusterInvoker<T> implements Invoker<T> {
      * @return LoadBalance instance. if not need init, return null.
      */
     protected LoadBalance initLoadBalance(List<Invoker<T>> invokers, Invocation invocation) {
+        // 调用器列表非空
         if (CollectionUtils.isNotEmpty(invokers)) {
-            return ExtensionLoader.getExtensionLoader(LoadBalance.class).getExtension(invokers.get(0).getUrl()
-                    .getMethodParameter(RpcUtils.getMethodName(invocation), LOADBALANCE_KEY, DEFAULT_LOADBALANCE));
-        } else {
-            return ExtensionLoader.getExtensionLoader(LoadBalance.class).getExtension(DEFAULT_LOADBALANCE);
+            ExtensionLoader<LoadBalance> extensionLoader = ExtensionLoader.getExtensionLoader(LoadBalance.class);
+            String methodName = RpcUtils.getMethodName(invocation);
+            // 从url中获取loadbalance作为负载均衡的配置,默认为random随机
+            String loadbalance = invokers.get(0).getUrl().getMethodParameter(methodName, LOADBALANCE_KEY, DEFAULT_LOADBALANCE);
+            return extensionLoader.getExtension(loadbalance);
+        }
+        // 列表为空,则直接使用默认的random负载均衡策略
+        else {
+            ExtensionLoader<LoadBalance> extensionLoader = ExtensionLoader.getExtensionLoader(LoadBalance.class);
+            return extensionLoader.getExtension(DEFAULT_LOADBALANCE);
         }
     }
 }

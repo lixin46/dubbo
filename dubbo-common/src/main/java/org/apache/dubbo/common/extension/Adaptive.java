@@ -26,6 +26,7 @@ import java.lang.annotation.Target;
 
 /**
  * Provide helpful information for {@link ExtensionLoader} to inject dependency extension instance.
+ * 为ExtensionLoader扩展加载器提供有帮助的信息,用来给扩展实例注入依赖
  *
  * @see ExtensionLoader
  * @see URL
@@ -34,26 +35,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 public @interface Adaptive {
+
     /**
-     * Decide which target extension to be injected. The name of the target extension is decided by the parameter passed
-     * in the URL, and the parameter names are given by this method.
-     * <p>
-     * If the specified parameters are not found from {@link URL}, then the default extension will be used for
-     * dependency injection (specified in its interface's {@link SPI}).
-     * <p>
-     * For example, given <code>String[] {"key1", "key2"}</code>:
-     * <ol>
-     * <li>find parameter 'key1' in URL, use its value as the extension's name</li>
-     * <li>try 'key2' for extension's name if 'key1' is not found (or its value is empty) in URL</li>
-     * <li>use default extension if 'key2' doesn't exist either</li>
-     * <li>otherwise, throw {@link IllegalStateException}</li>
-     * </ol>
-     * If the parameter names are empty, then a default parameter name is generated from interface's
-     * class name with the rule: divide classname from capital char into several parts, and separate the parts with
-     * dot '.', for example, for {@code org.apache.dubbo.xxx.YyyInvokerWrapper}, the generated name is
-     * <code>String[] {"yyy.invoker.wrapper"}</code>.
+     * 要使用的扩展实例的名称值,在url中对应的参数名.
+     * 适配器类会从URL对象中,根据名称获取extName扩展实例名称(通过getParameter()或getMethodParameter()),
+     * 之后通过扩展加载器获取名称对应的的扩展实例,并返回.
      *
-     * @return parameter names in URL
+     * @return 扩展实例名称在url中的参数名
      */
     String[] value() default {};
 

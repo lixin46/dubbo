@@ -21,19 +21,58 @@ import org.apache.dubbo.common.URL;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+/**
+ * zk客户端,对应zk操作
+ */
 public interface ZookeeperClient {
 
+    /**
+     * 创建节点
+     * @param path 节点路径
+     * @param ephemeral 是否临时节点
+     */
     void create(String path, boolean ephemeral);
 
+    /**
+     * 创建节点
+     * @param path 节点路径
+     * @param content 节点内容
+     * @param ephemeral 是否临时节点
+     */
+    void create(String path, String content, boolean ephemeral);
+
+    /**
+     * 删除节点
+     * @param path 节点路径
+     */
     void delete(String path);
 
+    /**
+     *
+     * @param path 节点路径
+     * @return 节点内容
+     */
+    String getContent(String path);
+
+    /**
+     * 获取指定节点的子节点名称
+     * @param path 节点类路径
+     * @return 子节点名称
+     */
     List<String> getChildren(String path);
 
+    /**
+     * 追加子节点变化监听器
+     * @param path 节点路径
+     * @param listener 监听器
+     * @return ???
+     */
     List<String> addChildListener(String path, ChildListener listener);
 
     /**
-     * @param path:    directory. All of child of path will be listened.
-     * @param listener
+     * 追加节点数据变化监听器
+     * @param path 节点路径
+     * @param listener 监听器
      */
     void addDataListener(String path, DataListener listener);
 
@@ -56,10 +95,10 @@ public interface ZookeeperClient {
 
     void close();
 
+    /**
+     *
+     * @return 连接信息
+     */
     URL getUrl();
-
-    void create(String path, String content, boolean ephemeral);
-
-    String getContent(String path);
 
 }

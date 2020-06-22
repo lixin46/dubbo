@@ -22,9 +22,9 @@ import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.ProxyFactory;
 import org.apache.dubbo.rpc.RpcException;
 import org.apache.dubbo.rpc.service.Destroyable;
+import org.apache.dubbo.rpc.service.EchoService;
 import org.apache.dubbo.rpc.service.GenericService;
 
-import com.alibaba.dubbo.rpc.service.EchoService;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -82,6 +82,13 @@ public abstract class AbstractProxyFactory implements ProxyFactory {
         return getProxy(invoker, interfaces.toArray(new Class<?>[0]));
     }
 
+    /**
+     * 生成代理
+     * @param invoker 要代理的调用器
+     * @param types 要代理的接口
+     * @param <T>
+     * @return
+     */
     public abstract <T> T getProxy(Invoker<T> invoker, Class<?>[] types);
 
 }

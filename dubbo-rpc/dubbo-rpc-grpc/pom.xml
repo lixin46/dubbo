@@ -24,7 +24,10 @@
     <artifactId>dubbo-rpc-grpc</artifactId>
     <packaging>jar</packaging>
     <name>${project.artifactId}</name>
-    <description>The gRPC integration module</description>
+    <description>
+        The gRPC integration module
+        google的rpc框架
+    </description>
     <properties>
         <skip_maven_deploy>false</skip_maven_deploy>
     </properties>

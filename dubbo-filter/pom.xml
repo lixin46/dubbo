@@ -25,7 +25,11 @@
     <artifactId>dubbo-filter</artifactId>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
-    <description>The filter module of dubbo project</description>
+    <description>
+        The filter module of dubbo project
+        rpc层的过滤器实现
+
+    </description>
     <properties>
         <skip_maven_deploy>false</skip_maven_deploy>
     </properties>

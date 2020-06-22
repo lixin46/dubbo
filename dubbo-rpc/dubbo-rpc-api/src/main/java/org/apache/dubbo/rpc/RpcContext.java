@@ -53,7 +53,7 @@ import static org.apache.dubbo.rpc.Constants.RETURN_KEY;
 public class RpcContext {
 
     /**
-     * use internal thread local to improve performance
+     * 本地调用上下文
      */
     // FIXME REQUEST_CONTEXT
     private static final InternalThreadLocal<RpcContext> LOCAL = new InternalThreadLocal<RpcContext>() {
@@ -71,6 +71,63 @@ public class RpcContext {
         }
     };
 
+    /**
+     * get server side context.
+     *
+     * @return server context
+     */
+    public static RpcContext getServerContext() {
+        return SERVER_LOCAL.get();
+    }
+
+    public static void restoreServerContext(RpcContext oldServerContext) {
+        SERVER_LOCAL.set(oldServerContext);
+    }
+
+    /**
+     * remove server side context.
+     *
+     * @see org.apache.dubbo.rpc.filter.ContextFilter
+     */
+    public static void removeServerContext() {
+        SERVER_LOCAL.remove();
+    }
+
+    /**
+     * get context.
+     *
+     * @return context
+     */
+    public static RpcContext getContext() {
+        return LOCAL.get();
+    }
+    public static void restoreContext(RpcContext oldContext) {
+        LOCAL.set(oldContext);
+    }
+
+    /**
+     * remove context.
+     *
+     * @see org.apache.dubbo.rpc.filter.ContextFilter
+     */
+    public static void removeContext() {
+        removeContext(false);
+    }
+
+    /**
+     * customized for internal use.
+     *
+     * @param checkCanRemove if need check before remove
+     */
+    public static void removeContext(boolean checkCanRemove) {
+        if (LOCAL.get().canRemove()) {
+            LOCAL.remove();
+        }
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    /**
+     * 附件键值对
+     */
     protected final Map<String, Object> attachments = new HashMap<>();
     private final Map<String, Object> values = new HashMap<String, Object>();
 
@@ -105,40 +162,13 @@ public class RpcContext {
 
     private boolean remove = true;
 
-
+    /**
+     * 构造方法
+     */
     protected RpcContext() {
     }
 
-    /**
-     * get server side context.
-     *
-     * @return server context
-     */
-    public static RpcContext getServerContext() {
-        return SERVER_LOCAL.get();
-    }
 
-    public static void restoreServerContext(RpcContext oldServerContext) {
-        SERVER_LOCAL.set(oldServerContext);
-    }
-
-    /**
-     * remove server side context.
-     *
-     * @see org.apache.dubbo.rpc.filter.ContextFilter
-     */
-    public static void removeServerContext() {
-        SERVER_LOCAL.remove();
-    }
-
-    /**
-     * get context.
-     *
-     * @return context
-     */
-    public static RpcContext getContext() {
-        return LOCAL.get();
-    }
 
     public boolean canRemove() {
         return remove;
@@ -148,29 +178,7 @@ public class RpcContext {
         this.remove = remove;
     }
 
-    public static void restoreContext(RpcContext oldContext) {
-        LOCAL.set(oldContext);
-    }
 
-    /**
-     * remove context.
-     *
-     * @see org.apache.dubbo.rpc.filter.ContextFilter
-     */
-    public static void removeContext() {
-        removeContext(false);
-    }
-
-    /**
-     * customized for internal use.
-     *
-     * @param checkCanRemove if need check before remove
-     */
-    public static void removeContext(boolean checkCanRemove) {
-        if (LOCAL.get().canRemove()) {
-            LOCAL.remove();
-        }
-    }
 
     /**
      * Get the request object of the underlying RPC protocol, e.g. HttpServletRequest

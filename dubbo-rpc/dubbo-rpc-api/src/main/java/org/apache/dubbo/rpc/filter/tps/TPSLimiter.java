@@ -27,6 +27,10 @@ import org.apache.dubbo.rpc.Invocation;
  *     should not be allowed <b>isAllowable</b> will return false.
  * </pre>
  */
+
+/**
+ * TPS限流器
+ */
 public interface TPSLimiter {
 
     /**

@@ -37,6 +37,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.DUBBO;
  * ReferenceConfig
  * 引用配置
  *
+ *
  * @export
  */
 public abstract class ReferenceConfigBase<T> extends AbstractReferenceConfig {
@@ -44,51 +45,97 @@ public abstract class ReferenceConfigBase<T> extends AbstractReferenceConfig {
     private static final long serialVersionUID = -5864351140409987595L;
 
     /**
-     * The interface name of the reference service
+     * 服务接口名,通过<dubbo:reference interface="">配置
      */
     protected String interfaceName;
 
     /**
-     * The interface class of the reference service
      * 服务接口类,setter注入,<dubbo:reference interfaceClass="">配置
      */
     protected Class<?> interfaceClass;
 
     /**
      * client type
+     * 客户端类型???
      */
     protected String client;
 
     /**
-     * The url for peer-to-peer invocation
+     * xml配置,用于直连访问,可选
      */
     protected String url;
 
     /**
-     * The consumer config (default)
      * 消费者配置
+     * <dubbo:consumer>下配置<dubbo:reference>子元素时,会有此对象
      */
     protected ConsumerConfig consumer;
 
     /**
-     * Only the service provider of the specified protocol is invoked, and other protocols are ignored.
+     * 协议
+     * 只有特定的服务提供者协议被调用,其他协议会被忽略
+     * 注意与RegistryConfig的protocol的区别
+     * 当前是与服务端通信的协议,
+     * 而RegistryConfig配置的是与注册中心通信的协议
      */
     protected String protocol;
 
+    /**
+     * 服务元数据,用于服务发现注册表的
+     */
     protected ServiceMetadata serviceMetadata;
 
+    /**
+     * 构造方法
+     */
     public ReferenceConfigBase() {
         serviceMetadata = new ServiceMetadata();
         serviceMetadata.addAttribute("ORIGIN_CONFIG", this);
     }
 
-    public ReferenceConfigBase(Reference reference) {
-        serviceMetadata = new ServiceMetadata();
-        serviceMetadata.addAttribute("ORIGIN_CONFIG", this);
-        appendAnnotation(Reference.class, reference);
-        setMethods(MethodConfig.constructMethodConfig(reference.methods()));
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可导出getter
+    public String getInterface() {
+        return interfaceName;
+    }
+    public String getClient() {
+        return client;
+    }
+    public String getProtocol() {
+        return protocol;
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可注入setter
+    /**
+     * @param interfaceClass
+     * @see #setInterface(Class)
+     * @deprecated
+     */
+    @Deprecated
+    public void setInterfaceClass(Class<?> interfaceClass) {
+        setInterface(interfaceClass);
     }
 
+    public void setInterface(String interfaceName) {
+        this.interfaceName = interfaceName;
+        if (StringUtils.isEmpty(id)) {
+            id = interfaceName;
+        }
+    }
+    public void setClient(String client) {
+        this.client = client;
+    }
+    public void setUrl(String url) {
+        this.url = url;
+    }
+    public void setConsumer(ConsumerConfig consumer) {
+        this.consumer = consumer;
+    }
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // 普通
     public boolean shouldCheck() {
         Boolean shouldCheck = isCheck();
         if (shouldCheck == null && getConsumer() != null) {
@@ -133,7 +180,6 @@ public abstract class ReferenceConfigBase<T> extends AbstractReferenceConfig {
         }
         return actualInterface;
     }
-
     public Class<?> getInterfaceClass() {
         if (interfaceClass != null) {
             return interfaceClass;
@@ -152,28 +198,6 @@ public abstract class ReferenceConfigBase<T> extends AbstractReferenceConfig {
 
         return interfaceClass;
     }
-
-    /**
-     * @param interfaceClass
-     * @see #setInterface(Class)
-     * @deprecated
-     */
-    @Deprecated
-    public void setInterfaceClass(Class<?> interfaceClass) {
-        setInterface(interfaceClass);
-    }
-
-    public String getInterface() {
-        return interfaceName;
-    }
-
-    public void setInterface(String interfaceName) {
-        this.interfaceName = interfaceName;
-        if (StringUtils.isEmpty(id)) {
-            id = interfaceName;
-        }
-    }
-
     public void setInterface(Class<?> interfaceClass) {
         if (interfaceClass != null && !interfaceClass.isInterface()) {
             throw new IllegalStateException("The interface class " + interfaceClass + " is not a interface!");
@@ -181,50 +205,21 @@ public abstract class ReferenceConfigBase<T> extends AbstractReferenceConfig {
         this.interfaceClass = interfaceClass;
         setInterface(interfaceClass == null ? null : interfaceClass.getName());
     }
-
-    public String getClient() {
-        return client;
-    }
-
-    public void setClient(String client) {
-        this.client = client;
-    }
-
     @Parameter(excluded = true)
     public String getUrl() {
         return url;
     }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
     public ConsumerConfig getConsumer() {
         return consumer;
     }
-
-    public void setConsumer(ConsumerConfig consumer) {
-        this.consumer = consumer;
-    }
-
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public void setProtocol(String protocol) {
-        this.protocol = protocol;
-    }
-
     public ServiceMetadata getServiceMetadata() {
         return serviceMetadata;
     }
-
     @Override
     @Parameter(excluded = true)
     public String getPrefix() {
         return DUBBO + ".reference." + interfaceName;
     }
-
     public void resolveFile() {
         String resolve = System.getProperty(interfaceName);
         String resolveFile = null;
@@ -268,7 +263,6 @@ public abstract class ReferenceConfigBase<T> extends AbstractReferenceConfig {
             }
         }
     }
-
     @Parameter(excluded = true)
     public String getUniqueServiceName() {
         String group = StringUtils.isEmpty(this.group) ? consumer.getGroup() : this.group;
@@ -279,6 +273,19 @@ public abstract class ReferenceConfigBase<T> extends AbstractReferenceConfig {
     public abstract T get();
 
     public abstract void destroy();
+    // -----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

@@ -38,6 +38,7 @@ import org.apache.dubbo.metadata.report.MetadataReport;
 import org.apache.dubbo.metadata.report.support.AbstractMetadataReportFactory;
 
 /**
+ * 组件名称为etcd
  * MetadataReportFactory to create an Etcd based {@link MetadataReport}.
  */
 public class EtcdMetadataReportFactory extends AbstractMetadataReportFactory {

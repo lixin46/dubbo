@@ -36,6 +36,7 @@ import java.util.concurrent.CompletionException;
  * InvokerWrapper
  */
 public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
+
     Logger logger = LoggerFactory.getLogger(AbstractProxyInvoker.class);
 
     private final T proxy;
@@ -44,6 +45,12 @@ public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
 
     private final URL url;
 
+    /**
+     * 构造方法
+     * @param proxy 对象
+     * @param type 类型
+     * @param url url
+     */
     public AbstractProxyInvoker(T proxy, Class<T> type, URL url) {
         if (proxy == null) {
             throw new IllegalArgumentException("proxy == null");
@@ -81,21 +88,37 @@ public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
     @Override
     public Result invoke(Invocation invocation) throws RpcException {
         try {
-            Object value = doInvoke(proxy, invocation.getMethodName(), invocation.getParameterTypes(), invocation.getArguments());
+            // 调用,获取结果
+            Object value = doInvoke(
+                    proxy,
+                    invocation.getMethodName(),
+                    invocation.getParameterTypes(),
+                    invocation.getArguments()
+            );
+            // 转换为Future
 			CompletableFuture<Object> future = wrapWithFuture(value);
+			//
             CompletableFuture<AppResponse> appResponseFuture = future.handle((obj, t) -> {
+                //
                 AppResponse result = new AppResponse();
+                // 存在异常
                 if (t != null) {
+                    // 完成异常,则使用原因
                     if (t instanceof CompletionException) {
                         result.setException(t.getCause());
-                    } else {
+                    }
+                    // 其他直接注入
+                    else {
                         result.setException(t);
                     }
-                } else {
+                }
+                // 没有异常,则注入结果
+                else {
                     result.setValue(obj);
                 }
                 return result;
             });
+            // 封装异步结果
             return new AsyncRpcResult(appResponseFuture, invocation);
         } catch (InvocationTargetException e) {
             if (RpcContext.getContext().isAsyncStarted() && !RpcContext.getContext().stopAsync()) {
@@ -108,11 +131,15 @@ public abstract class AbstractProxyInvoker<T> implements Invoker<T> {
     }
 
 	private CompletableFuture<Object> wrapWithFuture(Object value) {
+        // 内部上下文可识别的异步调用,则从上下文获取
         if (RpcContext.getContext().isAsyncStarted()) {
             return ((AsyncContextImpl)(RpcContext.getContext().getAsyncContext())).getInternalFuture();
-        } else if (value instanceof CompletableFuture) {
+        }
+        // 结果已经是Future,则直接返回
+        else if (value instanceof CompletableFuture) {
             return (CompletableFuture<Object>) value;
         }
+        // 静态值封装为已经完成的Future
         return CompletableFuture.completedFuture(value);
     }
 

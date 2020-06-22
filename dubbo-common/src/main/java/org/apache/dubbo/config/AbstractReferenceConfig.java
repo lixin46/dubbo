@@ -27,6 +27,8 @@ import static org.apache.dubbo.common.constants.CommonConstants.STUB_EVENT_KEY;
 /**
  * AbstractConsumerConfig
  * 抽象的客户端引用配置
+ * <p>
+ * 引用配置
  *
  * @export
  * @see ReferenceConfigBase
@@ -52,22 +54,24 @@ public abstract class AbstractReferenceConfig extends AbstractInterfaceConfig {
      */
     protected String generic;
 
-    /**
-     * Whether to find reference's instance from the current JVM
-     */
-    protected Boolean injvm;
 
     /**
+     * 是否延迟创建连接
      * Lazy create connection
      */
     protected Boolean lazy;
-
+    /**
+     * ???
+     */
     protected String reconnect;
-
+    /**
+     * ???
+     */
     protected Boolean sticky = false;
 
     /**
      * Whether to support event in stub.
+     * 是否支持事件桩
      */
     //TODO solve merge problem
     protected Boolean stubevent;//= Constants.DEFAULT_STUB_EVENT;
@@ -85,42 +89,81 @@ public abstract class AbstractReferenceConfig extends AbstractInterfaceConfig {
 
     /**
      * declares which app or service this interface belongs to
+     * 声明这个接口属于哪个应用或服务
      */
     protected String providedBy;
 
+    /**
+     * 路由器
+     */
     protected String router;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可导出getter
     public Boolean isCheck() {
         return check;
-    }
-
-    public void setCheck(Boolean check) {
-        this.check = check;
     }
 
     public Boolean isInit() {
         return init;
     }
 
-    public void setInit(Boolean init) {
-        this.init = init;
-    }
-
-    @Deprecated
-    @Parameter(excluded = true)
-    public Boolean isGeneric() {
-        return this.generic != null ? ProtocolUtils.isGeneric(generic) : null;
-    }
-
-    @Deprecated
-    public void setGeneric(Boolean generic) {
-        if (generic != null) {
-            this.generic = generic.toString();
-        }
-    }
-
     public String getGeneric() {
         return generic;
+    }
+
+//    /**
+//     * @return
+//     * @deprecated instead, use the parameter <b>scope</> to judge if it's in jvm, scope=local
+//     */
+//    @Deprecated
+//    public Boolean isInjvm() {
+//        return injvm;
+//    }
+
+    public Boolean getLazy() {
+        return lazy;
+    }
+
+    @Parameter(key = STUB_EVENT_KEY)
+    public Boolean getStubevent() {
+        return stubevent;
+    }
+
+    public String getReconnect() {
+        return reconnect;
+    }
+
+    public Boolean getSticky() {
+        return sticky;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    @Parameter(key = "provided-by")
+    public String getProvidedBy() {
+        return providedBy;
+    }
+
+    @Parameter(key = "router", append = true)
+    public String getRouter() {
+        return router;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可注入setter
+    public void setCheck(Boolean check) {
+        this.check = check;
+    }
+
+    public void setInit(Boolean init) {
+        this.init = init;
     }
 
     public void setGeneric(String generic) {
@@ -134,24 +177,46 @@ public abstract class AbstractReferenceConfig extends AbstractInterfaceConfig {
         }
     }
 
-    /**
-     * @return
-     * @deprecated instead, use the parameter <b>scope</> to judge if it's in jvm, scope=local
-     */
-    @Deprecated
-    public Boolean isInjvm() {
-        return injvm;
+//    /**
+//     * @param injvm
+//     * @deprecated instead, use the parameter <b>scope</b> to judge if it's in jvm, scope=local
+//     */
+//    @Deprecated
+//    public void setInjvm(Boolean injvm) {
+//        this.injvm = injvm;
+//    }
+
+    public void setLazy(Boolean lazy) {
+        this.lazy = lazy;
     }
 
-    /**
-     * @param injvm
-     * @deprecated instead, use the parameter <b>scope</b> to judge if it's in jvm, scope=local
-     */
-    @Deprecated
-    public void setInjvm(Boolean injvm) {
-        this.injvm = injvm;
+    public void setReconnect(String reconnect) {
+        this.reconnect = reconnect;
     }
 
+    public void setSticky(Boolean sticky) {
+        this.sticky = sticky;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public void setProvidedBy(String providedBy) {
+        this.providedBy = providedBy;
+    }
+
+    public void setRouter(String router) {
+        this.router = router;
+    }
+
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 普通
     @Override
     @Parameter(key = REFERENCE_FILTER_KEY, append = true)
     public String getFilter() {
@@ -169,14 +234,6 @@ public abstract class AbstractReferenceConfig extends AbstractInterfaceConfig {
         super.setListener(listener);
     }
 
-    public Boolean getLazy() {
-        return lazy;
-    }
-
-    public void setLazy(Boolean lazy) {
-        this.lazy = lazy;
-    }
-
     @Override
     public void setOnconnect(String onconnect) {
         if (onconnect != null && onconnect.length() > 0) {
@@ -192,59 +249,7 @@ public abstract class AbstractReferenceConfig extends AbstractInterfaceConfig {
         }
         super.setOndisconnect(ondisconnect);
     }
+    // -----------------------------------------------------------------------------------------------------------------
 
-    @Parameter(key = STUB_EVENT_KEY)
-    public Boolean getStubevent() {
-        return stubevent;
-    }
 
-    public String getReconnect() {
-        return reconnect;
-    }
-
-    public void setReconnect(String reconnect) {
-        this.reconnect = reconnect;
-    }
-
-    public Boolean getSticky() {
-        return sticky;
-    }
-
-    public void setSticky(Boolean sticky) {
-        this.sticky = sticky;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
-    @Parameter(key = "provided-by")
-    public String getProvidedBy() {
-        return providedBy;
-    }
-
-    public void setProvidedBy(String providedBy) {
-        this.providedBy = providedBy;
-    }
-
-    @Parameter(key = "router", append = true)
-    public String getRouter() {
-        return router;
-    }
-
-    public void setRouter(String router) {
-        this.router = router;
-    }
 }

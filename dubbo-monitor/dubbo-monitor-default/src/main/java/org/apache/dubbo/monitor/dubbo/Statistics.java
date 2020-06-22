@@ -44,6 +44,10 @@ public class Statistics implements Serializable {
 
     private String server;
 
+    /**
+     * 构造方法
+     * @param url 统计信息
+     */
     public Statistics(URL url) {
         this.url = url;
         this.application = url.getParameter(MonitorService.APPLICATION);

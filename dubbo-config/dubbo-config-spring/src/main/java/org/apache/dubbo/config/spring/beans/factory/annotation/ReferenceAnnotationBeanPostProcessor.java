@@ -256,7 +256,8 @@ public class ReferenceAnnotationBeanPostProcessor extends AbstractAnnotationBean
     }
 
     private boolean isRemoteReferenceBean(ReferenceBean referenceBean, AnnotationAttributes attributes) {
-        boolean remote = Boolean.FALSE.equals(referenceBean.isInjvm()) || Boolean.FALSE.equals(attributes.get("injvm"));
+//        boolean remote = Boolean.FALSE.equals(referenceBean.isInjvm()) || Boolean.FALSE.equals(attributes.get("injvm"));
+        boolean remote = Boolean.FALSE.equals(attributes.get("injvm"));
         return remote;
     }
 

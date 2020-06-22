@@ -31,7 +31,8 @@ public class ChannelHandlers {
     }
 
     public static ChannelHandler wrap(ChannelHandler handler, URL url) {
-        return ChannelHandlers.getInstance().wrapInternal(handler, url);
+        ChannelHandlers handlers = ChannelHandlers.getInstance();
+        return handlers.wrapInternal(handler, url);
     }
 
     protected static ChannelHandlers getInstance() {

@@ -44,18 +44,6 @@ import static org.apache.dubbo.common.constants.CommonConstants.VERSION_KEY;
  */
 public abstract class AbstractProtocol implements Protocol {
 
-    protected final Logger logger = LoggerFactory.getLogger(getClass());
-
-    protected final Map<String, Exporter<?>> exporterMap = new ConcurrentHashMap<String, Exporter<?>>();
-
-    /**
-     * <host:port, ProtocolServer>
-     */
-    protected final Map<String, ProtocolServer> serverMap = new ConcurrentHashMap<>();
-
-    //TODO SoftReference
-    protected final Set<Invoker<?>> invokers = new ConcurrentHashSet<Invoker<?>>();
-
     protected static String serviceKey(URL url) {
         int port = url.getParameter(Constants.BIND_PORT_KEY, url.getPort());
         return serviceKey(port, url.getPath(), url.getParameter(VERSION_KEY), url.getParameter(GROUP_KEY));
@@ -64,6 +52,22 @@ public abstract class AbstractProtocol implements Protocol {
     protected static String serviceKey(int port, String serviceName, String serviceVersion, String serviceGroup) {
         return ProtocolUtils.serviceKey(port, serviceName, serviceVersion, serviceGroup);
     }
+    // -----------------------------------------------------------------------------------------------------------------
+
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
+
+    /**
+     * 导出器映射
+     */
+    protected final Map<String, Exporter<?>> exporterMap = new ConcurrentHashMap<String, Exporter<?>>();
+
+    /**
+     * 协议服务器映射,key为host:port,value为对象
+     */
+    protected final Map<String, ProtocolServer> serverMap = new ConcurrentHashMap<>();
+
+    //TODO SoftReference
+    protected final Set<Invoker<?>> invokers = new ConcurrentHashSet<Invoker<?>>();
 
     public List<ProtocolServer> getServers() {
         return Collections.unmodifiableList(new ArrayList<>(serverMap.values()));

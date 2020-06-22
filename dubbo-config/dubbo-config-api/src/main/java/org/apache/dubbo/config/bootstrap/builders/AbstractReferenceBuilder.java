@@ -42,10 +42,10 @@ public abstract class AbstractReferenceBuilder<T extends AbstractReferenceConfig
      */
     protected String generic;
 
-    /**
-     * Whether to find reference's instance from the current JVM
-     */
-    protected Boolean injvm;
+//    /**
+//     * Whether to find reference's instance from the current JVM
+//     */
+//    protected Boolean injvm;
 
     /**
      * Lazy create connection
@@ -90,16 +90,16 @@ public abstract class AbstractReferenceBuilder<T extends AbstractReferenceConfig
         return getThis();
     }
 
-    /**
-     * @param injvm
-     * @see AbstractInterfaceBuilder#scope(String)
-     * @deprecated instead, use the parameter <b>scope</b> to judge if it's in jvm, scope=local
-     */
-    @Deprecated
-    public B injvm(Boolean injvm) {
-        this.injvm = injvm;
-        return getThis();
-    }
+//    /**
+//     * @param injvm
+//     * @see AbstractInterfaceBuilder#scope(String)
+//     * @deprecated instead, use the parameter <b>scope</b> to judge if it's in jvm, scope=local
+//     */
+//    @Deprecated
+//    public B injvm(Boolean injvm) {
+//        this.injvm = injvm;
+//        return getThis();
+//    }
 
     public B lazy(Boolean lazy) {
         this.lazy = lazy;
@@ -139,9 +139,9 @@ public abstract class AbstractReferenceBuilder<T extends AbstractReferenceConfig
         if (!StringUtils.isEmpty(generic)) {
             instance.setGeneric(generic);
         }
-        if (injvm != null) {
-            instance.setInjvm(injvm);
-        }
+//        if (injvm != null) {
+//            instance.setInjvm(injvm);
+//        }
         if (lazy != null) {
             instance.setLazy(lazy);
         }

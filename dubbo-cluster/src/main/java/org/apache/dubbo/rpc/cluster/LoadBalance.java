@@ -26,23 +26,23 @@ import org.apache.dubbo.rpc.cluster.loadbalance.RandomLoadBalance;
 
 import java.util.List;
 
+
 /**
- * LoadBalance. (SPI, Singleton, ThreadSafe)
- * <p>
- * <a href="http://en.wikipedia.org/wiki/Load_balancing_(computing)">Load-Balancing</a>
- *
- * @see org.apache.dubbo.rpc.cluster.Cluster#join(Directory)
+ * 负载均衡策略(SPI, Singleton, ThreadSafe)
+ * 默认映射组件为random
  */
 @SPI(RandomLoadBalance.NAME)
 public interface LoadBalance {
 
     /**
-     * select one invoker in list.
+     * 负载均衡
      *
-     * @param invokers   invokers.
-     * @param url        refer url
-     * @param invocation invocation.
-     * @return selected invoker.
+     * @param invokers   可选的调用器列表
+     * @param url        配置信息
+     * @param invocation 调用描述
+     * @param <T>        返回值类型
+     * @return 选择结果
+     * @throws RpcException 异常
      */
     @Adaptive("loadbalance")
     <T> Invoker<T> select(List<Invoker<T>> invokers, URL url, Invocation invocation) throws RpcException;

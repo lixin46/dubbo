@@ -65,14 +65,14 @@ public class ReferenceBean<T> extends ReferenceConfig<T>
         super();
     }
 
-    /**
-     * 构造方法
-     *
-     * @param reference 推荐使用@DubboReference
-     */
-    public ReferenceBean(Reference reference) {
-        super(reference);
-    }
+//    /**
+//     * 构造方法
+//     *
+//     * @param reference 推荐使用@DubboReference
+//     */
+//    public ReferenceBean(Reference reference) {
+//        super(reference);
+//    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {

@@ -19,10 +19,15 @@ package org.apache.dubbo.metadata.definition.model;
 import java.util.Map;
 
 /**
+ * 完整服务定义,
+ * 服务定义的子类,额外附加参数信息
  * 2018/10/25
  */
 public class FullServiceDefinition extends ServiceDefinition {
 
+    /**
+     * 参数
+     */
     private Map<String, String> parameters;
 
     public Map<String, String> getParameters() {

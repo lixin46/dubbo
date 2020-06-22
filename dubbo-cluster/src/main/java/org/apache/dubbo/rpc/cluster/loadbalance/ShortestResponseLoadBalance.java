@@ -32,6 +32,11 @@ import java.util.concurrent.ThreadLocalRandom;
  * if there are multiple invokers and the weights are not the same, then random according to the total weight;
  * if there are multiple invokers and the same weight, then randomly called.
  */
+
+/**
+ * 最短响应时间负载均衡
+ * 组件名称为shortestresponse
+ */
 public class ShortestResponseLoadBalance extends AbstractLoadBalance {
 
     public static final String NAME = "shortestresponse";

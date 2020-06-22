@@ -20,6 +20,7 @@ import org.apache.dubbo.common.utils.StringUtils;
 
 /**
  * The service consumer default configuration
+ *
  * 客户端的默认配置
  * @export
  */
@@ -62,7 +63,57 @@ public class ConsumerConfig extends AbstractReferenceConfig {
      * This property can be set to share multiple TCP long-connection communications. Note that only the dubbo protocol takes effect.
      */
     private Integer shareconnections;
-
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可导出getter
+    public Boolean isDefault() {
+        return isDefault;
+    }
+    public Boolean getDefault() {
+        return isDefault;
+    }
+    public String getClient() {
+        return client;
+    }
+    public String getThreadpool() {
+        return threadpool;
+    }
+    public Integer getCorethreads() {
+        return corethreads;
+    }
+    public Integer getThreads() {
+        return threads;
+    }
+    public Integer getQueues() {
+        return queues;
+    }
+    public Integer getShareconnections() {
+        return shareconnections;
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可注入setter
+    public void setDefault(Boolean isDefault) {
+        this.isDefault = isDefault;
+    }
+    public void setClient(String client) {
+        this.client = client;
+    }
+    public void setThreadpool(String threadpool) {
+        this.threadpool = threadpool;
+    }
+    public void setCorethreads(Integer corethreads) {
+        this.corethreads = corethreads;
+    }
+    public void setThreads(Integer threads) {
+        this.threads = threads;
+    }
+    public void setQueues(Integer queues) {
+        this.queues = queues;
+    }
+    public void setShareconnections(Integer shareconnections) {
+        this.shareconnections = shareconnections;
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // 普通
     @Override
     public void setTimeout(Integer timeout) {
         super.setTimeout(timeout);
@@ -72,64 +123,11 @@ public class ConsumerConfig extends AbstractReferenceConfig {
             System.setProperty("sun.rmi.transport.tcp.responseTimeout", String.valueOf(timeout));
         }
     }
+    // -----------------------------------------------------------------------------------------------------------------
 
-    public Boolean isDefault() {
-        return isDefault;
-    }
 
-    public String getClient() {
-        return client;
-    }
 
-    public void setClient(String client) {
-        this.client = client;
-    }
 
-    public String getThreadpool() {
-        return threadpool;
-    }
 
-    public void setThreadpool(String threadpool) {
-        this.threadpool = threadpool;
-    }
 
-    public Boolean getDefault() {
-        return isDefault;
-    }
-
-    public void setDefault(Boolean isDefault) {
-        this.isDefault = isDefault;
-    }
-
-    public Integer getCorethreads() {
-        return corethreads;
-    }
-
-    public void setCorethreads(Integer corethreads) {
-        this.corethreads = corethreads;
-    }
-
-    public Integer getThreads() {
-        return threads;
-    }
-
-    public void setThreads(Integer threads) {
-        this.threads = threads;
-    }
-
-    public Integer getQueues() {
-        return queues;
-    }
-
-    public void setQueues(Integer queues) {
-        this.queues = queues;
-    }
-
-    public Integer getShareconnections() {
-        return shareconnections;
-    }
-
-    public void setShareconnections(Integer shareconnections) {
-        this.shareconnections = shareconnections;
-    }
 }

@@ -34,6 +34,7 @@ public class JaketConfigurationUtils {
 
     static {
         Properties props = new Properties();
+        // jaket.properties
         InputStream inStream = JaketConfigurationUtils.class.getClassLoader().getResourceAsStream(CONFIGURATION_FILE);
         try {
             props.load(inStream);

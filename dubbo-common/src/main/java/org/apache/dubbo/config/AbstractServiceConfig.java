@@ -38,36 +38,43 @@ public abstract class AbstractServiceConfig extends AbstractInterfaceConfig {
 
     /**
      * The service version
+     * 版本
      */
     protected String version;
 
     /**
      * The service group
+     * 分组
      */
     protected String group;
 
     /**
      * whether the service is deprecated
+     * 服务是否废弃
      */
     protected Boolean deprecated = false;
 
     /**
      * The time delay register service (milliseconds)
+     * 是否延迟发布
      */
     protected Integer delay;
 
     /**
      * Whether to export the service
+     * 是否导出服务
      */
     protected Boolean export;
 
     /**
      * The service weight
+     * 服务权重
      */
     protected Integer weight;
 
     /**
      * Document center
+     * 文档中心???
      */
     protected String document;
 
@@ -75,16 +82,19 @@ public abstract class AbstractServiceConfig extends AbstractInterfaceConfig {
      * Whether to register as a dynamic service or not on register center, the value is true, the status will be enabled
      * after the service registered,and it needs to be disabled manually; if you want to disable the service, you also need
      * manual processing
+     * 是否注册为动态服务
      */
     protected Boolean dynamic = true;
 
     /**
      * Whether to use token
+     * ???
      */
     protected String token;
 
     /**
      * Whether to export access logs to logs
+     * 是否导出访问日志
      */
     protected String accesslog;
 
@@ -119,44 +129,26 @@ public abstract class AbstractServiceConfig extends AbstractInterfaceConfig {
      */
     private String serialization;
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可导出getter
     public String getVersion() {
         return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
     }
 
     public String getGroup() {
         return group;
     }
 
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
     public Integer getDelay() {
         return delay;
-    }
-
-    public void setDelay(Integer delay) {
-        this.delay = delay;
     }
 
     public Boolean getExport() {
         return export;
     }
 
-    public void setExport(Boolean export) {
-        this.export = export;
-    }
-
     public Integer getWeight() {
         return weight;
-    }
-
-    public void setWeight(Integer weight) {
-        this.weight = weight;
     }
 
     @Parameter(escaped = true)
@@ -164,90 +156,24 @@ public abstract class AbstractServiceConfig extends AbstractInterfaceConfig {
         return document;
     }
 
-    public void setDocument(String document) {
-        this.document = document;
-    }
-
     public String getToken() {
         return token;
-    }
-
-    public void setToken(Boolean token) {
-        if (token == null) {
-            setToken((String) null);
-        } else {
-            setToken(String.valueOf(token));
-        }
-    }
-
-    public void setToken(String token) {
-        this.token = token;
     }
 
     public Boolean isDeprecated() {
         return deprecated;
     }
 
-    public void setDeprecated(Boolean deprecated) {
-        this.deprecated = deprecated;
-    }
-
     public Boolean isDynamic() {
         return dynamic;
-    }
-
-    public void setDynamic(Boolean dynamic) {
-        this.dynamic = dynamic;
-    }
-
-    public List<ProtocolConfig> getProtocols() {
-        return protocols;
-    }
-
-    @SuppressWarnings({"unchecked"})
-    public void setProtocols(List<? extends ProtocolConfig> protocols) {
-        this.protocols = (List<ProtocolConfig>) protocols;
-    }
-
-    public ProtocolConfig getProtocol() {
-        return CollectionUtils.isEmpty(protocols) ? null : protocols.get(0);
-    }
-
-    public void setProtocol(ProtocolConfig protocol) {
-        setProtocols(new ArrayList<>(Arrays.asList(protocol)));
-    }
-
-    @Parameter(excluded = true)
-    public String getProtocolIds() {
-        return protocolIds;
-    }
-
-    public void setProtocolIds(String protocolIds) {
-        this.protocolIds = protocolIds;
     }
 
     public String getAccesslog() {
         return accesslog;
     }
 
-    public void setAccesslog(Boolean accesslog) {
-        if (accesslog == null) {
-            setAccesslog((String) null);
-        } else {
-            setAccesslog(String.valueOf(accesslog));
-        }
-    }
-
-    public void setAccesslog(String accesslog) {
-        this.accesslog = accesslog;
-    }
-
     public Integer getExecutes() {
         return executes;
-    }
-
-    public void setExecutes(Integer executes) {
-        this.executes = executes;
     }
 
     @Override
@@ -262,32 +188,122 @@ public abstract class AbstractServiceConfig extends AbstractInterfaceConfig {
         return listener;
     }
 
-    @Override
-    public void setListener(String listener) {
-        this.listener = listener;
-    }
-
     public Boolean isRegister() {
         return register;
-    }
-
-    public void setRegister(Boolean register) {
-        this.register = register;
     }
 
     public Integer getWarmup() {
         return warmup;
     }
 
-    public void setWarmup(Integer warmup) {
-        this.warmup = warmup;
-    }
-
     public String getSerialization() {
         return serialization;
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可自动注入
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    public void setDelay(Integer delay) {
+        this.delay = delay;
+    }
+
+    public void setExport(Boolean export) {
+        this.export = export;
+    }
+
+    public void setWeight(Integer weight) {
+        this.weight = weight;
+    }
+
+    public void setDocument(String document) {
+        this.document = document;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public void setDeprecated(Boolean deprecated) {
+        this.deprecated = deprecated;
+    }
+
+    public void setDynamic(Boolean dynamic) {
+        this.dynamic = dynamic;
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public void setProtocols(List<? extends ProtocolConfig> protocols) {
+        this.protocols = (List<ProtocolConfig>) protocols;
+    }
+
+    public void setProtocol(ProtocolConfig protocol) {
+        setProtocols(new ArrayList<>(Arrays.asList(protocol)));
+    }
+
+    public void setProtocolIds(String protocolIds) {
+        this.protocolIds = protocolIds;
+    }
+
+    public void setAccesslog(String accesslog) {
+        this.accesslog = accesslog;
+    }
+
+    public void setExecutes(Integer executes) {
+        this.executes = executes;
+    }
+
+    @Override
+    public void setListener(String listener) {
+        this.listener = listener;
+    }
+
+    public void setRegister(Boolean register) {
+        this.register = register;
+    }
+
+    public void setWarmup(Integer warmup) {
+        this.warmup = warmup;
+    }
+
     public void setSerialization(String serialization) {
         this.serialization = serialization;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 普通方法
+    public void setToken(Boolean token) {
+        if (token == null) {
+            setToken((String) null);
+        } else {
+            setToken(String.valueOf(token));
+        }
+    }
+
+    public List<ProtocolConfig> getProtocols() {
+        return protocols;
+    }
+
+    public ProtocolConfig getProtocol() {
+        return CollectionUtils.isEmpty(protocols) ? null : protocols.get(0);
+    }
+
+    @Parameter(excluded = true)
+    public String getProtocolIds() {
+        return protocolIds;
+    }
+
+    public void setAccesslog(Boolean accesslog) {
+        if (accesslog == null) {
+            setAccesslog((String) null);
+        } else {
+            setAccesslog(String.valueOf(accesslog));
+        }
     }
 }

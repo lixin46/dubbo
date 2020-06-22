@@ -56,11 +56,21 @@ public class ZookeeperDynamicConfiguration implements DynamicConfiguration {
     private CountDownLatch initializedLatch;
 
     private CacheListener cacheListener;
+    /**
+     * 配置信息
+     */
     private URL url;
 
 
+    /**
+     * 构造方法
+     * @param url 信息
+     * @param zookeeperTransporter zk传输器,内部引用zk客户端
+     */
     ZookeeperDynamicConfiguration(URL url, ZookeeperTransporter zookeeperTransporter) {
         this.url = url;
+        // config.namespace参数,默认为dubbo
+        // /dubbo/config
         rootPath = PATH_SEPARATOR + url.getParameter(CONFIG_NAMESPACE_KEY, DEFAULT_GROUP) + "/config";
 
         initializedLatch = new CountDownLatch(1);

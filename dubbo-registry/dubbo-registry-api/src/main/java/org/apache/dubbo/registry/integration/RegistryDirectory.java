@@ -134,6 +134,11 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
     private ReferenceConfigurationListener serviceConfigurationListener;
 
 
+    /**
+     * 构造方法
+     * @param serviceType 服务接口类型
+     * @param url 信息
+     */
     public RegistryDirectory(Class<T> serviceType, URL url) {
         super(url);
         if (serviceType == null) {

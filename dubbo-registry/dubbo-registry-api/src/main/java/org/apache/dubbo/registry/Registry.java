@@ -20,16 +20,22 @@ import org.apache.dubbo.common.Node;
 import org.apache.dubbo.common.URL;
 
 /**
- * Registry. (SPI, Prototype, ThreadSafe)
- *
- * @see org.apache.dubbo.registry.RegistryFactory#getRegistry(URL)
- * @see org.apache.dubbo.registry.support.AbstractRegistry
+ * 注册中心(SPI, Prototype, ThreadSafe)
  */
 public interface Registry extends Node, RegistryService {
+
+    /**
+     * 重新导出注册???
+     * @param url 指定的信息
+     */
     default void reExportRegister(URL url) {
         register(url);
     }
 
+    /**
+     * 重新导出注销???
+     * @param url 指定的信息
+     */
     default void reExportUnregister(URL url) {
         unregister(url);
     }

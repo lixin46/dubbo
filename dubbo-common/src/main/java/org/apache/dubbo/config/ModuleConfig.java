@@ -68,23 +68,26 @@ public class ModuleConfig extends AbstractConfig {
      */
     private Boolean isDefault;
 
+    /**
+     * 构造方法
+     */
     public ModuleConfig() {
     }
 
+    /**
+     * 构造方法
+     *
+     * @param name
+     */
     public ModuleConfig(String name) {
         setName(name);
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可导出getter
     @Parameter(key = "module")
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-        if (StringUtils.isEmpty(id)) {
-            id = name;
-        }
     }
 
     @Parameter(key = "module.version")
@@ -92,28 +95,37 @@ public class ModuleConfig extends AbstractConfig {
         return version;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
     public String getOwner() {
         return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
     }
 
     public String getOrganization() {
         return organization;
     }
 
-    public void setOrganization(String organization) {
-        this.organization = organization;
+    public Boolean isDefault() {
+        return isDefault;
     }
 
-    public RegistryConfig getRegistry() {
-        return CollectionUtils.isEmpty(registries) ? null : registries.get(0);
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可注入setter
+    public void setName(String name) {
+        this.name = name;
+        if (StringUtils.isEmpty(id)) {
+            id = name;
+        }
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public void setOrganization(String organization) {
+        this.organization = organization;
     }
 
     public void setRegistry(RegistryConfig registry) {
@@ -122,33 +134,36 @@ public class ModuleConfig extends AbstractConfig {
         this.registries = registries;
     }
 
-    public List<RegistryConfig> getRegistries() {
-        return registries;
-    }
-
     @SuppressWarnings({"unchecked"})
     public void setRegistries(List<? extends RegistryConfig> registries) {
         this.registries = (List<RegistryConfig>) registries;
-    }
-
-    public MonitorConfig getMonitor() {
-        return monitor;
     }
 
     public void setMonitor(MonitorConfig monitor) {
         this.monitor = monitor;
     }
 
-    public void setMonitor(String monitor) {
-        this.monitor = new MonitorConfig(monitor);
-    }
-
-    public Boolean isDefault() {
-        return isDefault;
-    }
-
     public void setDefault(Boolean isDefault) {
         this.isDefault = isDefault;
     }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 普通
+    public RegistryConfig getRegistry() {
+        return CollectionUtils.isEmpty(registries) ? null : registries.get(0);
+    }
+
+    public List<RegistryConfig> getRegistries() {
+        return registries;
+    }
+
+    public MonitorConfig getMonitor() {
+        return monitor;
+    }
+
+    public void setMonitor(String monitor) {
+        this.monitor = new MonitorConfig(monitor);
+    }
+    // -----------------------------------------------------------------------------------------------------------------
 
 }

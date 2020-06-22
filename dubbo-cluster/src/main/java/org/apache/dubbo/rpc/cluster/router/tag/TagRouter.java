@@ -45,6 +45,7 @@ import static org.apache.dubbo.rpc.Constants.FORCE_USE_TAG;
 
 /**
  * TagRouter, "application.tag-router"
+ * 标签路由器
  */
 public class TagRouter extends AbstractRouter implements ConfigurationListener {
     public static final String NAME = "TAG_ROUTER";
@@ -55,6 +56,10 @@ public class TagRouter extends AbstractRouter implements ConfigurationListener {
     private TagRouterRule tagRouterRule;
     private String application;
 
+    /**
+     * 构造方法
+     * @param url 信息
+     */
     public TagRouter(URL url) {
         super(url);
         this.priority = TAG_ROUTER_DEFAULT_PRIORITY;

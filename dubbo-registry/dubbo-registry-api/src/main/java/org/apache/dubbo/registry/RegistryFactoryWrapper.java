@@ -21,18 +21,33 @@ import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.extension.ExtensionLoader;
 
 import java.util.Collections;
+import java.util.List;
 
+/**
+ * 组件名称为wrapper
+ */
 public class RegistryFactoryWrapper implements RegistryFactory {
+
     private RegistryFactory registryFactory;
 
+    /**
+     * 构造方法
+     * @param registryFactory 注册中心工厂
+     */
     public RegistryFactoryWrapper(RegistryFactory registryFactory) {
         this.registryFactory = registryFactory;
     }
 
     @Override
     public Registry getRegistry(URL url) {
-        return new ListenerRegistryWrapper(registryFactory.getRegistry(url),
-                Collections.unmodifiableList(ExtensionLoader.getExtensionLoader(RegistryServiceListener.class)
-                        .getActivateExtension(url, "registry.listeners")));
+        // 获取注册中心
+        Registry registry = registryFactory.getRegistry(url);
+
+        // 获取
+        ExtensionLoader<RegistryServiceListener> extensionLoader = ExtensionLoader.getExtensionLoader(RegistryServiceListener.class);
+        List<RegistryServiceListener> listeners = extensionLoader.getActivateExtension(url, "registry.listeners");
+
+        // 创建代理
+        return new ListenerRegistryWrapper(registry,Collections.unmodifiableList(listeners));
     }
 }

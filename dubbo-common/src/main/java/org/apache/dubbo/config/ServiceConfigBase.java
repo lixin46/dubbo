@@ -36,7 +36,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.DUBBO;
 
 /**
  * ServiceConfig
- *
+ * <p>
  * 服务配置的基类
  *
  * @export
@@ -45,69 +45,8 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
 
     private static final long serialVersionUID = 3033787999037024738L;
 
-    /**
-     * The interface name of the exported service
-     * 接口名称
-     */
-    protected String interfaceName;
-
-    /**
-     * The interface class of the exported service
-     * 接口类
-     */
-    protected Class<?> interfaceClass;
-
-    /**
-     * The reference of the interface implementation
-     * 接口实现类,对象的引用
-     */
-    protected T ref;
-
-    /**
-     * The service name
-     * 服务名称,或叫路径
-     */
-    protected String path;
-
-    /**
-     * The provider configuration
-     * 提供者配置
-     */
-    protected ProviderConfig provider;
-
-    /**
-     * The providerIds
-     */
-    protected String providerIds;
-
-    /**
-     * whether it is a GenericService
-     */
-    protected volatile String generic;
-
-    /**
-     * 服务元数据???
-     */
-    protected ServiceMetadata serviceMetadata;
-
-    /**
-     * 构造方法
-     */
-    public ServiceConfigBase() {
-        serviceMetadata = new ServiceMetadata();
-        serviceMetadata.addAttribute("ORIGIN_CONFIG", this);
-    }
-
-    /**
-     * 构造方法
-     * @param service
-     */
-    public ServiceConfigBase(Service service) {
-        serviceMetadata = new ServiceMetadata();
-        serviceMetadata.addAttribute("ORIGIN_CONFIG", this);
-        appendAnnotation(Service.class, service);
-        setMethods(MethodConfig.constructMethodConfig(service.methods()));
-    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // static
 
     @Deprecated
     private static List<ProtocolConfig> convertProviderToProtocol(List<ProviderConfig> providers) {
@@ -164,6 +103,156 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
         provider.setParameters(protocol.getParameters());
         return provider;
     }
+    // -----------------------------------------------------------------------------------------------------------------
+    /**
+     * The provider configuration
+     * 提供者配置
+     */
+    protected ProviderConfig provider;
+    /**
+     * The providerIds
+     */
+    protected String providerIds;
+    /**
+     * The interface name of the exported service
+     * 接口名称
+     */
+    protected String interfaceName;
+    /**
+     * The interface class of the exported service
+     * 接口类
+     */
+    protected Class<?> interfaceClass;
+
+    /**
+     * The reference of the interface implementation
+     * 接口实现类,对象的引用
+     */
+    protected T ref;
+    /**
+     * The service name
+     * 服务名称,或叫路径
+     */
+    protected String path;
+
+    /**
+     * whether it is a GenericService
+     */
+    protected volatile String generic;
+    /**
+     * 服务元数据???
+     */
+    protected ServiceMetadata serviceMetadata;
+
+    /**
+     * 构造方法
+     */
+    public ServiceConfigBase() {
+        serviceMetadata = new ServiceMetadata();
+        serviceMetadata.addAttribute("ORIGIN_CONFIG", this);
+    }
+
+//    /**
+//     * 构造方法
+//     *
+//     * @param service
+//     */
+//    public ServiceConfigBase(Service service) {
+//        serviceMetadata = new ServiceMetadata();
+//        serviceMetadata.addAttribute("ORIGIN_CONFIG", this);
+//        appendAnnotation(Service.class, service);
+//        setMethods(MethodConfig.constructMethodConfig(service.methods()));
+//    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可导出getter
+    public String getInterface() {
+        return interfaceName;
+    }
+
+    public String getGeneric() {
+        return generic;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可自动注入setter
+    public void setRef(T ref) {
+        this.ref = ref;
+    }
+
+    /**
+     * @param interfaceClass
+     * @see #setInterface(Class)
+     * @deprecated
+     */
+    public void setInterfaceClass(Class<?> interfaceClass) {
+        setInterface(interfaceClass);
+    }
+
+    public void setInterface(String interfaceName) {
+        this.interfaceName = interfaceName;
+        if (StringUtils.isEmpty(id)) {
+            id = interfaceName;
+        }
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public void setProvider(ProviderConfig provider) {
+        ApplicationModel.getConfigManager().addProvider(provider);
+        this.provider = provider;
+    }
+
+    public void setProviderIds(String providerIds) {
+        this.providerIds = providerIds;
+    }
+
+    public void setGeneric(String generic) {
+        if (StringUtils.isEmpty(generic)) {
+            return;
+        }
+        if (ProtocolUtils.isValidGenericValue(generic)) {
+            this.generic = generic;
+        } else {
+            throw new IllegalArgumentException("Unsupported generic type " + generic);
+        }
+    }
+
+    /**
+     * @deprecated Replace to setProtocols()
+     */
+    @Deprecated
+    public void setProviders(List<ProviderConfig> providers) {
+        this.protocols = convertProviderToProtocol(providers);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 普通
+    // -----------------------------------------------------------------------------------------------------------------
+    public T getRef() {
+        return ref;
+    }
+
+    public Class<?> getInterfaceClass() {
+        if (interfaceClass != null) {
+            return interfaceClass;
+        }
+        if (ref instanceof GenericService) {
+            return GenericService.class;
+        }
+        try {
+            if (interfaceName != null && interfaceName.length() > 0) {
+                this.interfaceClass = Class.forName(interfaceName, true, Thread.currentThread()
+                        .getContextClassLoader());
+            }
+        } catch (ClassNotFoundException t) {
+            throw new IllegalStateException(t.getMessage(), t);
+        }
+        return interfaceClass;
+    }
+
 
     public boolean shouldExport() {
         Boolean export = getExport();
@@ -224,9 +313,12 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
     }
 
     public void checkProtocol() {
+        // 协议配置列表为空,且provider非null
+        // 则设置
         if (CollectionUtils.isEmpty(protocols) && provider != null) {
             setProtocols(provider.getProtocols());
         }
+        // 根据id获取协议配置对象
         convertProtocolIdsToProtocols();
     }
 
@@ -235,15 +327,19 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
         super.completeCompoundConfigs(provider);
         // 存在提供者,则填充未设置的属性
         if (provider != null) {
+            // 当前协议配置不存在,则设置
             if (protocols == null) {
                 setProtocols(provider.getProtocols());
             }
+            // 配置中心不存在,则设置
             if (configCenter == null) {
                 setConfigCenter(provider.getConfigCenter());
             }
+            // 注册中心id为空,则取provider
             if (StringUtils.isEmpty(registryIds)) {
                 setRegistryIds(provider.getRegistryIds());
             }
+            // 协议id为空,则获取provider
             if (StringUtils.isEmpty(protocolIds)) {
                 setProtocolIds(provider.getProtocolIds());
             }
@@ -289,36 +385,6 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
         }
     }
 
-    public Class<?> getInterfaceClass() {
-        if (interfaceClass != null) {
-            return interfaceClass;
-        }
-        if (ref instanceof GenericService) {
-            return GenericService.class;
-        }
-        try {
-            if (interfaceName != null && interfaceName.length() > 0) {
-                this.interfaceClass = Class.forName(interfaceName, true, Thread.currentThread()
-                        .getContextClassLoader());
-            }
-        } catch (ClassNotFoundException t) {
-            throw new IllegalStateException(t.getMessage(), t);
-        }
-        return interfaceClass;
-    }
-
-    /**
-     * @param interfaceClass
-     * @see #setInterface(Class)
-     * @deprecated
-     */
-    public void setInterfaceClass(Class<?> interfaceClass) {
-        setInterface(interfaceClass);
-    }
-
-    public String getInterface() {
-        return interfaceName;
-    }
 
     public void setInterface(Class<?> interfaceClass) {
         if (interfaceClass != null && !interfaceClass.isInterface()) {
@@ -328,62 +394,21 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
         setInterface(interfaceClass == null ? null : interfaceClass.getName());
     }
 
-    public void setInterface(String interfaceName) {
-        this.interfaceName = interfaceName;
-        if (StringUtils.isEmpty(id)) {
-            id = interfaceName;
-        }
-    }
-
-    public T getRef() {
-        return ref;
-    }
-
-    public void setRef(T ref) {
-        this.ref = ref;
-    }
-
     @Parameter(excluded = true)
     public String getPath() {
         return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
     }
 
     public ProviderConfig getProvider() {
         return provider;
     }
 
-    public void setProvider(ProviderConfig provider) {
-        ApplicationModel.getConfigManager().addProvider(provider);
-        this.provider = provider;
-    }
 
     @Parameter(excluded = true)
     public String getProviderIds() {
         return providerIds;
     }
 
-    public void setProviderIds(String providerIds) {
-        this.providerIds = providerIds;
-    }
-
-    public String getGeneric() {
-        return generic;
-    }
-
-    public void setGeneric(String generic) {
-        if (StringUtils.isEmpty(generic)) {
-            return;
-        }
-        if (ProtocolUtils.isValidGenericValue(generic)) {
-            this.generic = generic;
-        } else {
-            throw new IllegalArgumentException("Unsupported generic type " + generic);
-        }
-    }
 
     @Override
     public void setMock(String mock) {
@@ -407,13 +432,6 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
         return convertProtocolToProvider(protocols);
     }
 
-    /**
-     * @deprecated Replace to setProtocols()
-     */
-    @Deprecated
-    public void setProviders(List<ProviderConfig> providers) {
-        this.protocols = convertProviderToProtocol(providers);
-    }
 
     @Override
     @Parameter(excluded = true)
@@ -450,8 +468,10 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
 
     public abstract void unexport();
 
+    @Parameter(excluded = true)
     public abstract boolean isExported();
 
+    @Parameter(excluded = true)
     public abstract boolean isUnexported();
 
 }

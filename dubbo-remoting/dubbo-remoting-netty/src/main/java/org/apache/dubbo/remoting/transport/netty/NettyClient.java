@@ -36,6 +36,7 @@ import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -48,28 +49,55 @@ public class NettyClient extends AbstractClient {
 
     // ChannelFactory's closure has a DirectMemory leak, using static to avoid
     // https://issues.jboss.org/browse/NETTY-424
-    private static final ChannelFactory CHANNEL_FACTORY = new NioClientSocketChannelFactory(Executors.newCachedThreadPool(new NamedThreadFactory("NettyClientBoss", true)),
-            Executors.newCachedThreadPool(new NamedThreadFactory("NettyClientWorker", true)),
-            Constants.DEFAULT_IO_THREADS);
-    private ClientBootstrap bootstrap;
+    private static final ChannelFactory CHANNEL_FACTORY;
+    static {
+        // 按需产生线程的线程池
+        ExecutorService nettyClientBoss = Executors.newCachedThreadPool(new NamedThreadFactory("NettyClientBoss", true));
+        // 按需产生线程的线程池
+        ExecutorService nettyClientWoker = Executors.newCachedThreadPool(new NamedThreadFactory("NettyClientWorker", true));
 
+        CHANNEL_FACTORY = new NioClientSocketChannelFactory(
+                nettyClientBoss,
+                nettyClientWoker,
+                Constants.DEFAULT_IO_THREADS// 可用核数+1,不高于32核
+        );
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    /**
+     * 客户端启动逻辑,open时构建
+     */
+    private ClientBootstrap bootstrap;
+    /**
+     * 通道,用于通信,connect成功后获取
+     */
     private volatile Channel channel; // volatile, please copy reference to use
 
+    /**
+     * 构造方法
+     * @param url 配置
+     * @param handler 通道处理器
+     * @throws RemotingException
+     */
     public NettyClient(final URL url, final ChannelHandler handler) throws RemotingException {
         super(url, wrapChannelHandler(url, handler));
     }
 
     @Override
     protected void doOpen() throws Throwable {
+        //
         NettyHelper.setNettyLoggerFactory();
+        // 客户端引导
         bootstrap = new ClientBootstrap(CHANNEL_FACTORY);
         // config
         // @see org.jboss.netty.channel.socket.SocketChannelConfig
         bootstrap.setOption("keepAlive", true);
         bootstrap.setOption("tcpNoDelay", true);
         bootstrap.setOption("connectTimeoutMillis", getConnectTimeout());
+        // 通道处理器
         final NettyHandler nettyHandler = new NettyHandler(getUrl(), this);
-        bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+
+        // 管道工厂
+        ChannelPipelineFactory channelPipelineFactory = new ChannelPipelineFactory() {
             @Override
             public ChannelPipeline getPipeline() {
                 NettyCodecAdapter adapter = new NettyCodecAdapter(getCodec(), getUrl(), NettyClient.this);
@@ -79,22 +107,30 @@ public class NettyClient extends AbstractClient {
                 pipeline.addLast("handler", nettyHandler);
                 return pipeline;
             }
-        });
+        };
+        //
+        bootstrap.setPipelineFactory(channelPipelineFactory);
     }
 
     @Override
     protected void doConnect() throws Throwable {
         long start = System.currentTimeMillis();
+        // 连接url中的主机端口
         ChannelFuture future = bootstrap.connect(getConnectAddress());
         try {
+            // 等待超时
             boolean ret = future.awaitUninterruptibly(getConnectTimeout(), TimeUnit.MILLISECONDS);
 
+            // 连接成功
             if (ret && future.isSuccess()) {
+                // 获取通道
                 Channel newChannel = future.getChannel();
+                // 读写事件
                 newChannel.setInterestOps(Channel.OP_READ_WRITE);
                 try {
                     // Close old channel
                     Channel oldChannel = NettyClient.this.channel; // copy reference
+                    // 已经存在通道,则关闭
                     if (oldChannel != null) {
                         try {
                             if (logger.isInfoEnabled()) {
@@ -120,10 +156,14 @@ public class NettyClient extends AbstractClient {
                         NettyClient.this.channel = newChannel;
                     }
                 }
-            } else if (future.getCause() != null) {
+            }
+            // 连接失败
+            else if (future.getCause() != null) {
                 throw new RemotingException(this, "client(url: " + getUrl() + ") failed to connect to server "
                         + getRemoteAddress() + ", error message is:" + future.getCause().getMessage(), future.getCause());
-            } else {
+            }
+            // 连接超时
+            else {
                 throw new RemotingException(this, "client(url: " + getUrl() + ") failed to connect to server "
                         + getRemoteAddress() + " client-side timeout "
                         + getConnectTimeout() + "ms (elapsed: " + (System.currentTimeMillis() - start) + "ms) from netty client "

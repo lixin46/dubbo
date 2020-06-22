@@ -47,13 +47,24 @@ public class TypeDefinitionBuilder {
         BUILDERS = builders;
     }
 
+    /**
+     *
+     * @param type 通用类型
+     * @param clazz 类
+     * @param typeCache 类型定义缓存
+     * @return
+     */
     public static TypeDefinition build(Type type, Class<?> clazz, Map<Class<?>, TypeDefinition> typeCache) {
+        //
         TypeBuilder builder = getGenericTypeBuilder(type, clazz);
         TypeDefinition td;
+        // 存在,则调用构建IQ构建
         if (builder != null) {
             td = builder.build(type, clazz, typeCache);
             td.setTypeBuilderName(builder.getClass().getName());
-        } else {
+        }
+        // 不存在,则使用默认的构建器构建
+        else {
             td = DefaultTypeBuilder.build(clazz, typeCache);
             td.setTypeBuilderName(DefaultTypeBuilder.class.getName());
         }
@@ -64,8 +75,10 @@ public class TypeDefinitionBuilder {
     }
 
     private static TypeBuilder getGenericTypeBuilder(Type type, Class<?> clazz) {
+        // 遍历构建器
         for (TypeBuilder builder : BUILDERS) {
             try {
+                // 接受则返回
                 if (builder.accept(type, clazz)) {
                     return builder;
                 }
@@ -79,6 +92,12 @@ public class TypeDefinitionBuilder {
 
     private Map<Class<?>, TypeDefinition> typeCache = new HashMap<>();
 
+    /**
+     * 例如:如果形参是List<String>,则type为ParameterizedType,而具体类为List.class
+     * @param type 指定的通用类型,可能是Class,也可能是参数化类型,通配符类型,类型变量等
+     * @param clazz 指定的具体类
+     * @return 构建的类型定义
+     */
     public TypeDefinition build(Type type, Class<?> clazz) {
         return build(type, clazz, typeCache);
     }

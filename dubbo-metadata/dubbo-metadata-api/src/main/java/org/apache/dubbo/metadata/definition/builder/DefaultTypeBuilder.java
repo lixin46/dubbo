@@ -32,37 +32,44 @@ import java.util.Map;
 public final class DefaultTypeBuilder {
 
     public static TypeDefinition build(Class<?> clazz, Map<Class<?>, TypeDefinition> typeCache) {
-//        final String canonicalName = clazz.getCanonicalName();
+        // 全限定类名
         final String name = clazz.getName();
 
-        TypeDefinition td = new TypeDefinition(name);
+        TypeDefinition typeDefinition = new TypeDefinition(name);
         // Try to get a cached definition
+        // 获取缓存返回
         if (typeCache.containsKey(clazz)) {
             return typeCache.get(clazz);
         }
 
         // Primitive type
         if (!JaketConfigurationUtils.needAnalyzing(clazz)) {
-            return td;
+            return typeDefinition;
         }
 
         // Custom type
         TypeDefinition ref = new TypeDefinition(name);
         ref.set$ref(name);
         typeCache.put(clazz, ref);
-
+        // 获取所有非static且没有transient修饰的字段
+        // 遍历
         List<Field> fields = ClassUtils.getNonStaticFields(clazz);
         for (Field field : fields) {
+            // 名称
             String fieldName = field.getName();
+            // 声明类型
             Class<?> fieldClass = field.getType();
+            // 通用类型
             Type fieldType = field.getGenericType();
 
+            // 构建类型定义
             TypeDefinition fieldTd = TypeDefinitionBuilder.build(fieldType, fieldClass, typeCache);
-            td.getProperties().put(fieldName, fieldTd);
+            Map<String, TypeDefinition> properties = typeDefinition.getProperties();
+            properties.put(fieldName, fieldTd);
         }
 
-        typeCache.put(clazz, td);
-        return td;
+        typeCache.put(clazz, typeDefinition);
+        return typeDefinition;
     }
 
     private DefaultTypeBuilder() {

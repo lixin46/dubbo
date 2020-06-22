@@ -159,13 +159,13 @@ public class DubboBootstrap extends GenericEventListener {
 
     /**
      * 配置管理器
-     * 单例,从应用模型中获取,构造方法初始化
+     * 全局单例容器,从应用模型中获取,构造方法初始化
      * 追加的配置都可以通过应用模型获取
      */
     private final ConfigManager configManager;
     /**
      * 环境
-     * 单例,从应用模型中获取,构造方法初始化
+     * 全局单例容器,从应用模型中获取,构造方法初始化
      * 追加的配置都可以通过应用模型获取
      */
     private final Environment environment;
@@ -188,8 +188,15 @@ public class DubboBootstrap extends GenericEventListener {
 
     private volatile ServiceInstance serviceInstance;
 
+    /**
+     * 元数据服务
+     * MetadataService依赖MetadataReport
+     */
     private volatile MetadataService metadataService;
 
+    /**
+     * 导出器
+     */
     private volatile MetadataServiceExporter metadataServiceExporter;
 
     private List<ServiceConfigBase<?>> exportedServices = new ArrayList<>();
@@ -207,6 +214,7 @@ public class DubboBootstrap extends GenericEventListener {
 
         // 注册关闭钩子
         DubboShutdownHook.getDubboShutdownHook().register();
+
         ShutdownHookCallbacks.INSTANCE.addCallback(new ShutdownHookCallback() {
             @Override
             public void callback() throws Throwable {
@@ -520,7 +528,9 @@ public class DubboBootstrap extends GenericEventListener {
     }
 
     /**
-     * Initialize
+     * 启动初始化
+     * 配置中心服务和元数据服务需要最先启动
+     *
      */
     private void initialize() {
         if (!initialized.compareAndSet(false, true)) {
@@ -528,13 +538,13 @@ public class DubboBootstrap extends GenericEventListener {
         }
         // 初始化框架扩展,静态类中保存的FrameworkExt实例全部初始化
         ApplicationModel.initFrameworkExts();
-        // 启动配置中心
+        // 启动配置中心,实例化动态配置
         startConfigCenter();
         // 如果必要的话,使用服务注册表作为配置中心
         useRegistryAsConfigCenterIfNecessary();
-        // 加载远程配置
+        // 把动态配置对象(远程存储的键值对),生成对应的Config对象,加入到配置管理器中,整体刷新
         loadRemoteConfigs();
-        // 检查全局配置
+        // 检查全局配置,所有配置对象再刷新一遍
         checkGlobalConfigs();
         // 初始化元数据服务
         initMetadataService();
@@ -548,9 +558,10 @@ public class DubboBootstrap extends GenericEventListener {
 
     private void checkGlobalConfigs() {
         // check Application
+        // 刷新一次应用配置
         ConfigValidationUtils.validateApplicationConfig(getApplication());
 
-        // check Metadata
+        // 元数据报告配置,用于创建MetadataReport对象
         Collection<MetadataReportConfig> metadatas = configManager.getMetadataConfigs();
         if (CollectionUtils.isEmpty(metadatas)) {
             MetadataReportConfig metadataReportConfig = new MetadataReportConfig();
@@ -604,23 +615,30 @@ public class DubboBootstrap extends GenericEventListener {
         ConfigValidationUtils.validateSslConfig(getSsl());
     }
 
+    /**
+     * 启动配置中心,根据配置中心配置,创建动态配置对象
+     * 动态配置是可选的特性
+     */
     private void startConfigCenter() {
-        // 获取配置中心配置
+        // 获取所有配置中心配置,对应<dubbo:config-center>配置
         Collection<ConfigCenterConfig> configCenters = configManager.getConfigCenters();
 
-        // check Config Center
+        // 没有任何配置
         if (CollectionUtils.isEmpty(configCenters)) {
             // 创建配置中心配置对象
             ConfigCenterConfig configCenterConfig = new ConfigCenterConfig();
-            // 刷新
+            // 刷新,从Environment中获取Configuration,然后获取proerties注入
             configCenterConfig.refresh();
             // 有效,则追加到配置管理器中
+            // 存在address且地址存在协议,则有效
             if (configCenterConfig.isValid()) {
+                // 添加到配置管理器中
                 configManager.addConfigCenter(configCenterConfig);
+                // 重新获取
                 configCenters = configManager.getConfigCenters();
             }
         }
-        // 非空
+        // 存在显示配置
         else {
             // 遍历
             for (ConfigCenterConfig configCenterConfig : configCenters) {
@@ -632,36 +650,44 @@ public class DubboBootstrap extends GenericEventListener {
         }
 
         if (CollectionUtils.isNotEmpty(configCenters)) {
-            // 组合动态配置
+            // 创建组合动态配置
             CompositeDynamicConfiguration compositeDynamicConfiguration = new CompositeDynamicConfiguration();
             for (ConfigCenterConfig configCenter : configCenters) {
-                // 根据配置中心配置,准备动态配置
+                // 根据配置中心配置,准备动态配置,
+                // 创建动态配置实例
+                // 从中获取全局配置和应用配置,更新环境对象
                 DynamicConfiguration dynamicConfiguration = prepareEnvironment(configCenter);
+                // 添加动态配置
                 compositeDynamicConfiguration.addConfiguration(dynamicConfiguration);
             }
+            // 保存组合动态配置
             environment.setDynamicConfiguration(compositeDynamicConfiguration);
         }
+        // 全部刷新,内部全部对象重新注入属性???
         configManager.refreshAll();
     }
 
     private void startMetadataReport() {
         ApplicationConfig applicationConfig = getApplication();
-
+        // metadata-type配置
         String metadataType = applicationConfig.getMetadataType();
         // FIXME, multiple metadata config support.
         Collection<MetadataReportConfig> metadataReportConfigs = configManager.getMetadataConfigs();
+        // 不存在<dubbo:metadata-report>配置
         if (CollectionUtils.isEmpty(metadataReportConfigs)) {
+            // <dubbo:application metadata-type="remote">,则报错
             if (REMOTE_METADATA_STORAGE_TYPE.equals(metadataType)) {
                 throw new IllegalStateException("No MetadataConfig found, you must specify the remote Metadata Center address when 'metadata=remote' is enabled.");
             }
             return;
         }
+        // 如果配置了多个元数据报告配置,则只有第一个生效
         MetadataReportConfig metadataReportConfig = metadataReportConfigs.iterator().next();
         ConfigValidationUtils.validateMetadataConfig(metadataReportConfig);
         if (!metadataReportConfig.isValid()) {
             return;
         }
-
+        // 初始化
         MetadataReportInstance.init(metadataReportConfig.toUrl());
     }
 
@@ -676,38 +702,51 @@ public class DubboBootstrap extends GenericEventListener {
         if (environment.getDynamicConfiguration().isPresent()) {
             return;
         }
-        // 存在配置中心则返回
+        // 存在配置中心配置则返回
         if (CollectionUtils.isNotEmpty(configManager.getConfigCenters())) {
             return;
         }
+        // 不存在动态配置对象,也没有配置中心配置
 
+        // 获取默认使用的注册中心配置对象列表
+        // 如果没有配置useAsConfigCenter属性,或配置为true则使用(需要显示关闭)
         configManager.getDefaultRegistries()
                 .stream()
                 .filter(registryConfig -> registryConfig.getUseAsConfigCenter() == null || registryConfig.getUseAsConfigCenter())
                 .forEach(registryConfig -> {
+                    // 协议
                     String protocol = registryConfig.getProtocol();
+                    //
                     String id = "config-center-" + protocol + "-" + registryConfig.getPort();
-                    ConfigCenterConfig cc = new ConfigCenterConfig();
-                    cc.setId(id);
-                    if (cc.getParameters() == null) {
-                        cc.setParameters(new HashMap<>());
+                    ConfigCenterConfig configCenterConfig = new ConfigCenterConfig();
+                    configCenterConfig.setId(id);
+                    if (configCenterConfig.getParameters() == null) {
+                        configCenterConfig.setParameters(new HashMap<>());
                     }
+                    // 复制配置中心参数
                     if (registryConfig.getParameters() != null) {
-                        cc.getParameters().putAll(registryConfig.getParameters());
+                        configCenterConfig.getParameters().putAll(registryConfig.getParameters());
                     }
-                    cc.getParameters().put(CLIENT_KEY, registryConfig.getClient());
-                    cc.setProtocol(registryConfig.getProtocol());
-                    cc.setPort(registryConfig.getPort());
-                    cc.setAddress(registryConfig.getAddress());
-                    cc.setNamespace(registryConfig.getGroup());
-                    cc.setUsername(registryConfig.getUsername());
-                    cc.setPassword(registryConfig.getPassword());
+                    // client参数
+                    configCenterConfig.getParameters().put(CLIENT_KEY, registryConfig.getClient());
+                    // 协议
+                    configCenterConfig.setProtocol(registryConfig.getProtocol());
+                    // 端口
+                    configCenterConfig.setPort(registryConfig.getPort());
+                    // 地址
+                    configCenterConfig.setAddress(registryConfig.getAddress());
+                    // 使用注册中心分组,作为名称空间
+                    configCenterConfig.setNamespace(registryConfig.getGroup());
+                    configCenterConfig.setUsername(registryConfig.getUsername());
+                    configCenterConfig.setPassword(registryConfig.getPassword());
                     if (registryConfig.getTimeout() != null) {
-                        cc.setTimeout(registryConfig.getTimeout().longValue());
+                        configCenterConfig.setTimeout(registryConfig.getTimeout().longValue());
                     }
-                    cc.setHighestPriority(false);
-                    configManager.addConfigCenter(cc);
+                    configCenterConfig.setHighestPriority(false);
+                    // 追加配置中心配置实例
+                    configManager.addConfigCenter(configCenterConfig);
                 });
+        // 再次根据配置中心配置对象,创建动态配置对象
         startConfigCenter();
     }
 
@@ -720,6 +759,7 @@ public class DubboBootstrap extends GenericEventListener {
                 tmpRegistries.add(configManager.getRegistry(id).orElseGet(() -> {
                     RegistryConfig registryConfig = new RegistryConfig();
                     registryConfig.setId(id);
+                    // 此时刷新时,已经存在动态配置对象了
                     registryConfig.refresh();
                     return registryConfig;
                 }));
@@ -747,11 +787,14 @@ public class DubboBootstrap extends GenericEventListener {
 
 
     /**
-     * Initialize {@link MetadataService} from {@link WritableMetadataService}'s extension
+     * MetadataService依赖MetadataReport
      */
     private void initMetadataService() {
+        // 初始化MetadataReport单例
         startMetadataReport();
+        // 根据元数据类型(local or remote)获取对应的MetadataReport对象
         this.metadataService = getExtension(getMetadataType());
+        // 创建元数据服务导出器,用于暴露MetadataService的服务接口
         this.metadataServiceExporter = new ConfigurableMetadataServiceExporter(metadataService);
     }
 
@@ -919,26 +962,30 @@ public class DubboBootstrap extends GenericEventListener {
     /* serve for builder apis, end */
 
     private DynamicConfiguration prepareEnvironment(ConfigCenterConfig configCenter) {
+        // 配置中心有效
         if (configCenter.isValid()) {
-            //
+            // 变更初始化状态失败,说明已经初始化
             if (!configCenter.checkOrUpdateInited()) {
                 return null;
             }
-            //
-            DynamicConfiguration dynamicConfiguration = getDynamicConfiguration(configCenter.toUrl());
+            // 根据配置中心配置对象,生成url
+            URL configCenterUrl = configCenter.toUrl();
+            // 根据url,获取动态配置,每个动态配置实例其实就是一个键值对来源
+            DynamicConfiguration dynamicConfiguration = getDynamicConfiguration(configCenterUrl);
+            // 获取全局配置内容
             String configContent = dynamicConfiguration.getProperties(configCenter.getConfigFile(), configCenter.getGroup());
 
             String appGroup = getApplication().getName();
+            // 应用配置内容
             String appConfigContent = null;
             if (isNotEmpty(appGroup)) {
-                appConfigContent = dynamicConfiguration.getProperties
-                        (isNotEmpty(configCenter.getAppConfigFile()) ? configCenter.getAppConfigFile() : configCenter.getConfigFile(),
-                                appGroup
-                        );
+                appConfigContent = dynamicConfiguration.getProperties(isNotEmpty(configCenter.getAppConfigFile()) ? configCenter.getAppConfigFile() : configCenter.getConfigFile(), appGroup);
             }
             try {
                 environment.setConfigCenterFirst(configCenter.isHighestPriority());
+                // 更新外部全局配置
                 environment.updateExternalConfigurationMap(parseProperties(configContent));
+                // 更新外部应用配置
                 environment.updateAppExternalConfigurationMap(parseProperties(appConfigContent));
             } catch (IOException e) {
                 throw new IllegalStateException("Failed to parse configurations from Config Center.", e);

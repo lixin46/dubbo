@@ -22,14 +22,12 @@ import org.apache.dubbo.common.extension.SPI;
 
 import static org.apache.dubbo.common.extension.ExtensionLoader.getExtensionLoader;
 
+
 /**
- * The factory interface to create the instance of {@link DynamicConfiguration}
+ * 动态配置工厂
  */
 @SPI("nop") // 2.7.5 change the default SPI implementation
 public interface DynamicConfigurationFactory {
-
-    DynamicConfiguration getDynamicConfiguration(URL url);
-
     /**
      * Get an instance of {@link DynamicConfigurationFactory} by the specified name. If not found, take the default
      * extension of {@link DynamicConfigurationFactory}
@@ -43,4 +41,15 @@ public interface DynamicConfigurationFactory {
         ExtensionLoader<DynamicConfigurationFactory> loader = getExtensionLoader(DynamicConfigurationFactory.class);
         return loader.getOrDefaultExtension(protoccol);
     }
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+    /**
+     *
+     * @param url 信息
+     * @return 动态配置
+     */
+    DynamicConfiguration getDynamicConfiguration(URL url);
+
+
 }

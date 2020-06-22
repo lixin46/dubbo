@@ -28,6 +28,10 @@ import io.grpc.StatusException;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * ???
+ * @param <T>
+ */
 public class GrpcInvoker<T> extends AbstractInvoker<T> {
     private final ReentrantLock destroyLock = new ReentrantLock();
 

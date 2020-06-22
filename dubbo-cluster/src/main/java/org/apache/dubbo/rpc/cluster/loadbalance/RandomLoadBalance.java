@@ -31,6 +31,11 @@ import java.util.concurrent.ThreadLocalRandom;
  * Note that if the performance of the machine is better than others, you can set a larger weight.
  * If the performance is not so good, you can set a smaller weight.
  */
+
+/**
+ * 随机负载均衡
+ * 组件名称为random
+ */
 public class RandomLoadBalance extends AbstractLoadBalance {
 
     public static final String NAME = "random";

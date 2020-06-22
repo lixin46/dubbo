@@ -55,22 +55,40 @@ public class RedisMetadataReport extends AbstractMetadataReport {
     private final static String REDIS_DATABASE_KEY = "database";
     private final static Logger logger = LoggerFactory.getLogger(RedisMetadataReport.class);
 
+    /**
+     * jedis客户端池
+     */
     JedisPool pool;
+    /**
+     * 集群的可用节点
+     */
     Set<HostAndPort> jedisClusterNodes;
+    /**
+     *
+     */
     private int timeout;
-    private String password;
 
 
+    /**
+     * 构造方法
+     * @param url 元数据报告配置
+     */
     public RedisMetadataReport(URL url) {
         super(url);
+        // timeout,默认1秒
         timeout = url.getParameter(TIMEOUT_KEY, DEFAULT_TIMEOUT);
+        // cluster参数,默认为false
+        // 如果cluster为true
         if (url.getParameter(CLUSTER_KEY, false)) {
             jedisClusterNodes = new HashSet<HostAndPort>();
             List<URL> urls = url.getBackupUrls();
             for (URL tmpUrl : urls) {
                 jedisClusterNodes.add(new HostAndPort(tmpUrl.getHost(), tmpUrl.getPort()));
             }
-        } else {
+        }
+        // cluster为false
+        else {
+            // database参数,redis的库索引,默认为0
             int database = url.getParameter(REDIS_DATABASE_KEY, 0);
             pool = new JedisPool(new JedisPoolConfig(), url.getHost(), url.getPort(), timeout, url.getPassword(), database);
         }
@@ -120,16 +138,24 @@ public class RedisMetadataReport extends AbstractMetadataReport {
         return this.getMetadata(metadataIdentifier);
     }
 
-    private void storeMetadata(BaseMetadataIdentifier metadataIdentifier, String v) {
+    /**
+     * 保存元数据信息,包括服务端和客户端
+     * @param metadataIdentifier 元数据标识符
+     * @param serviceDefinition
+     */
+    private void storeMetadata(BaseMetadataIdentifier metadataIdentifier, String serviceDefinition) {
+        // 非集群
         if (pool != null) {
-            storeMetadataStandalone(metadataIdentifier, v);
-        } else {
-            storeMetadataInCluster(metadataIdentifier, v);
+            storeMetadataStandalone(metadataIdentifier, serviceDefinition);
+        }
+        // 集群
+        else {
+            storeMetadataInCluster(metadataIdentifier, serviceDefinition);
         }
     }
 
     private void storeMetadataInCluster(BaseMetadataIdentifier metadataIdentifier, String v) {
-        try (JedisCluster jedisCluster = new JedisCluster(jedisClusterNodes, timeout, timeout, 2, password, new GenericObjectPoolConfig())) {
+        try (JedisCluster jedisCluster = new JedisCluster(jedisClusterNodes, timeout, timeout, 2, null, new GenericObjectPoolConfig())) {
             jedisCluster.set(metadataIdentifier.getIdentifierKey() + META_DATA_STORE_TAG, v);
         } catch (Throwable e) {
             logger.error("Failed to put " + metadataIdentifier + " to redis cluster " + v + ", cause: " + e.getMessage(), e);
@@ -137,12 +163,15 @@ public class RedisMetadataReport extends AbstractMetadataReport {
         }
     }
 
-    private void storeMetadataStandalone(BaseMetadataIdentifier metadataIdentifier, String v) {
+    private void storeMetadataStandalone(BaseMetadataIdentifier metadataIdentifier, String serviceDefinition) {
+        // 获取客户端连接
         try (Jedis jedis = pool.getResource()) {
-            jedis.set(metadataIdentifier.getUniqueKey(KeyTypeEnum.UNIQUE_KEY), v);
+            String uniqueKey = metadataIdentifier.getUniqueKey(KeyTypeEnum.UNIQUE_KEY);
+            //
+            jedis.set(uniqueKey, serviceDefinition);
         } catch (Throwable e) {
-            logger.error("Failed to put " + metadataIdentifier + " to redis " + v + ", cause: " + e.getMessage(), e);
-            throw new RpcException("Failed to put " + metadataIdentifier + " to redis " + v + ", cause: " + e.getMessage(), e);
+            logger.error("Failed to put " + metadataIdentifier + " to redis " + serviceDefinition + ", cause: " + e.getMessage(), e);
+            throw new RpcException("Failed to put " + metadataIdentifier + " to redis " + serviceDefinition + ", cause: " + e.getMessage(), e);
         }
     }
 
@@ -155,7 +184,7 @@ public class RedisMetadataReport extends AbstractMetadataReport {
     }
 
     private void deleteMetadataInCluster(BaseMetadataIdentifier metadataIdentifier) {
-        try (JedisCluster jedisCluster = new JedisCluster(jedisClusterNodes, timeout, timeout, 2, password, new GenericObjectPoolConfig())) {
+        try (JedisCluster jedisCluster = new JedisCluster(jedisClusterNodes, timeout, timeout, 2, null, new GenericObjectPoolConfig())) {
             jedisCluster.del(metadataIdentifier.getIdentifierKey() + META_DATA_STORE_TAG);
         } catch (Throwable e) {
             logger.error("Failed to delete " + metadataIdentifier + " from redis cluster , cause: " + e.getMessage(), e);
@@ -181,7 +210,7 @@ public class RedisMetadataReport extends AbstractMetadataReport {
     }
 
     private String getMetadataInCluster(BaseMetadataIdentifier metadataIdentifier) {
-        try (JedisCluster jedisCluster = new JedisCluster(jedisClusterNodes, timeout, timeout, 2, password, new GenericObjectPoolConfig())) {
+        try (JedisCluster jedisCluster = new JedisCluster(jedisClusterNodes, timeout, timeout, 2, null, new GenericObjectPoolConfig())) {
             return jedisCluster.get(metadataIdentifier.getIdentifierKey() + META_DATA_STORE_TAG);
         } catch (Throwable e) {
             logger.error("Failed to get " + metadataIdentifier + " from redis cluster , cause: " + e.getMessage(), e);

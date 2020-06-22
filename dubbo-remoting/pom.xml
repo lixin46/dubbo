@@ -28,7 +28,7 @@
     <name>${project.artifactId}</name>
     <description>
         The remoting module of dubbo project
-        应用层网络协议???
+        远程模块解决应用层网络传输的问题
     </description>
     <properties>
         <skip_maven_deploy>false</skip_maven_deploy>

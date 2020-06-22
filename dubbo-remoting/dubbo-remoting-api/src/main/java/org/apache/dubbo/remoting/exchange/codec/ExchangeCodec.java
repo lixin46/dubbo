@@ -65,11 +65,16 @@ public class ExchangeCodec extends TelnetCodec {
 
     @Override
     public void encode(Channel channel, ChannelBuffer buffer, Object msg) throws IOException {
+        // 请求对象
         if (msg instanceof Request) {
             encodeRequest(channel, buffer, (Request) msg);
-        } else if (msg instanceof Response) {
+        }
+        // 响应对象
+        else if (msg instanceof Response) {
             encodeResponse(channel, buffer, (Response) msg);
-        } else {
+        }
+        // 父类编码
+        else {
             super.encode(channel, buffer, msg);
         }
     }
@@ -208,33 +213,42 @@ public class ExchangeCodec extends TelnetCodec {
     }
 
     protected void encodeRequest(Channel channel, ChannelBuffer buffer, Request req) throws IOException {
+        // 序列化对象
         Serialization serialization = getSerialization(channel);
-        // header.
+        // 16字节头
         byte[] header = new byte[HEADER_LENGTH];
-        // set magic number.
+        // 设置魔数
         Bytes.short2bytes(MAGIC, header);
 
         // set request and serialization flag.
+        // 对象类型+序列化类型
         header[2] = (byte) (FLAG_REQUEST | serialization.getContentTypeId());
 
+        // 双向
         if (req.isTwoWay()) {
             header[2] |= FLAG_TWOWAY;
         }
+        // 事件
         if (req.isEvent()) {
             header[2] |= FLAG_EVENT;
         }
 
         // set request id.
+        // 设置请求id
         Bytes.long2bytes(req.getId(), header, 4);
 
         // encode request data.
         int savedWriteIndex = buffer.writerIndex();
         buffer.writerIndex(savedWriteIndex + HEADER_LENGTH);
+        //
         ChannelBufferOutputStream bos = new ChannelBufferOutputStream(buffer);
         ObjectOutput out = serialization.serialize(channel.getUrl(), bos);
+        // 事件
         if (req.isEvent()) {
             encodeEventData(channel, out, req.getData());
-        } else {
+        }
+        // 其他
+        else {
             encodeRequestData(channel, out, req.getData(), req.getVersion());
         }
         out.flushBuffer();

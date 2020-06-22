@@ -37,6 +37,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.SERVICE_FILTER_K
 
 /**
  * ListenerProtocol
+ * 协议过滤器,包装器
  */
 public class ProtocolFilterWrapper implements Protocol {
 

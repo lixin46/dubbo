@@ -51,33 +51,58 @@ public class RpcInvocation implements Invocation, Serializable {
     private static final long serialVersionUID = -4355285085441097045L;
 
     private String targetServiceUniqueName;
+    private transient InvokeMode invokeMode;
 
+    /**
+     * 方法名
+     */
     private String methodName;
+    /**
+     * 接口名
+     */
     private String serviceName;
-
+    /**
+     * 形参
+     */
     private transient Class<?>[] parameterTypes;
-    private String parameterTypesDesc;
-    private String[] compatibleParamSignatures;
-
+    /**
+     * 实参
+     */
     private Object[] arguments;
+    /**
+     * 方法声明的返回类型
+     */
+    private transient Class<?> returnType;
+
+    private transient Invoker<?> invoker;
+
+
+
+    /**
+     * 参数描述???
+     */
+    private String parameterTypesDesc;
+    /**
+     * 兼容的 参数签名???
+     */
+    private String[] compatibleParamSignatures;
+    /**
+     * 返回值类型???
+     */
+    private transient Type[] returnTypes;
+
 
     /**
      * Passed to the remote server during RPC call
+     * 客户端调用上下文中的对象附件
      */
     private Map<String, Object> attachments;
 
     /**
      * Only used on the caller side, will not appear on the wire.
+     * 只在调用方使用
      */
     private Map<Object, Object> attributes = new HashMap<Object, Object>();
-
-    private transient Invoker<?> invoker;
-
-    private transient Class<?> returnType;
-
-    private transient Type[] returnTypes;
-
-    private transient InvokeMode invokeMode;
 
     public RpcInvocation() {
     }
@@ -117,6 +142,12 @@ public class RpcInvocation implements Invocation, Serializable {
         this.targetServiceUniqueName = invocation.getTargetServiceUniqueName();
     }
 
+    /**
+     * 构造方法
+     * @param method 方法
+     * @param serviceName 接口名
+     * @param arguments 实参
+     */
     public RpcInvocation(Method method, String serviceName, Object[] arguments) {
         this(method, serviceName, arguments, null, null);
     }
@@ -147,11 +178,17 @@ public class RpcInvocation implements Invocation, Serializable {
     }
 
     private void initParameterDesc() {
+        //
         ServiceRepository repository = ApplicationModel.getServiceRepository();
+        // 接口名非空
         if (StringUtils.isNotEmpty(serviceName)) {
+            // 查找服务描述符
             ServiceDescriptor serviceDescriptor = repository.lookupService(serviceName);
+            // 存在
             if (serviceDescriptor != null) {
+                // 获取方法描述符
                 MethodDescriptor methodDescriptor = serviceDescriptor.getMethod(methodName, parameterTypes);
+                // 存在
                 if (methodDescriptor != null) {
                     this.parameterTypesDesc = methodDescriptor.getParamDesc();
                     this.compatibleParamSignatures = methodDescriptor.getCompatibleParamSignatures();
@@ -160,9 +197,13 @@ public class RpcInvocation implements Invocation, Serializable {
             }
         }
 
+        // 参数类型描述为nulll
         if (parameterTypesDesc == null) {
+            // 反射获取
             this.parameterTypesDesc = ReflectUtils.getDesc(this.getParameterTypes());
+            //
             this.compatibleParamSignatures = Stream.of(this.parameterTypes).map(Class::getName).toArray(String[]::new);
+            //
             this.returnTypes = RpcUtils.getReturnTypes(this);
         }
     }
@@ -262,16 +303,16 @@ public class RpcInvocation implements Invocation, Serializable {
         setObjectAttachment(key, value);
     }
 
-    @Deprecated
-    @Override
-    public Map<String, String> getAttachments() {
-        return new AttachmentsAdapter.ObjectToStringMap(attachments);
-    }
+//    @Deprecated
+//    @Override
+//    public Map<String, String> getAttachments() {
+//        return new AttachmentsAdapter.ObjectToStringMap(attachments);
+//    }
 
-    @Deprecated
-    public void setAttachments(Map<String, String> attachments) {
-        this.attachments = attachments == null ? new HashMap<>() : new HashMap<>(attachments);
-    }
+//    @Deprecated
+//    public void setAttachments(Map<String, String> attachments) {
+//        this.attachments = attachments == null ? new HashMap<>() : new HashMap<>(attachments);
+//    }
 
     public void setObjectAttachments(Map<String, Object> attachments) {
         this.attachments = attachments == null ? new HashMap<>() : attachments;
@@ -329,15 +370,15 @@ public class RpcInvocation implements Invocation, Serializable {
         this.attachments.putAll(attachments);
     }
 
-    @Deprecated
-    public void addAttachmentsIfAbsent(Map<String, String> attachments) {
-        if (attachments == null) {
-            return;
-        }
-        for (Map.Entry<String, String> entry : attachments.entrySet()) {
-            setAttachmentIfAbsent(entry.getKey(), entry.getValue());
-        }
-    }
+//    @Deprecated
+//    public void addAttachmentsIfAbsent(Map<String, String> attachments) {
+//        if (attachments == null) {
+//            return;
+//        }
+//        for (Map.Entry<String, String> entry : attachments.entrySet()) {
+//            setAttachmentIfAbsent(entry.getKey(), entry.getValue());
+//        }
+//    }
 
     public void addObjectAttachmentsIfAbsent(Map<String, Object> attachments) {
         if (attachments == null) {

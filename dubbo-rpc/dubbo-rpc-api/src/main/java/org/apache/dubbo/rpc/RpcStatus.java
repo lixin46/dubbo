@@ -53,6 +53,7 @@ public class RpcStatus {
      * @return status
      */
     public static RpcStatus getStatus(URL url) {
+        // 无参数的url
         String uri = url.toIdentityString();
         return SERVICE_STATISTICS.computeIfAbsent(uri, key -> new RpcStatus());
     }
@@ -96,7 +97,9 @@ public class RpcStatus {
      */
     public static boolean beginCount(URL url, String methodName, int max) {
         max = (max <= 0) ? Integer.MAX_VALUE : max;
+        // 应用状态
         RpcStatus appStatus = getStatus(url);
+        // 方法状态
         RpcStatus methodStatus = getStatus(url, methodName);
         if (methodStatus.active.get() == Integer.MAX_VALUE) {
             return false;

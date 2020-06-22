@@ -36,6 +36,9 @@ import org.springframework.context.ApplicationEventPublisherAware;
  * ServiceFactoryBean
  *
  * 服务端bean
+ * 集成了spring特性,可以在spring上下文刷新时,发布服务
+ *
+ *
  *
  * @export
  */
@@ -61,10 +64,10 @@ public class ServiceBean<T> extends ServiceConfig<T>
         this.service = null;
     }
 
-    public ServiceBean(Service service) {
-        super(service);
-        this.service = service;
-    }
+//    public ServiceBean(Service service) {
+//        super(service);
+//        this.service = service;
+//    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -88,7 +91,10 @@ public class ServiceBean<T> extends ServiceConfig<T>
 
     @Override
     public void afterPropertiesSet() throws Exception {
+        // 路径为空
         if (StringUtils.isEmpty(getPath())) {
+            // beanName非空,且接口名非空,且bean名称以接口名开头
+            // 则设置beanName为路径
             if (StringUtils.isNotEmpty(beanName)
                     && StringUtils.isNotEmpty(getInterface())
                     && beanName.startsWith(getInterface())) {

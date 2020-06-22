@@ -21,6 +21,7 @@ import org.apache.dubbo.common.extension.Adaptive;
 import org.apache.dubbo.common.extension.SPI;
 
 /**
+ * 配置器工厂
  * ConfiguratorFactory. (SPI, Singleton, ThreadSafe)
  *
  */

@@ -28,19 +28,11 @@ import java.util.SortedSet;
 import static org.apache.dubbo.common.config.configcenter.DynamicConfigurationFactory.getDynamicConfigurationFactory;
 import static org.apache.dubbo.common.extension.ExtensionLoader.getExtensionLoader;
 
+
 /**
- * Dynamic Configuration
- * <br/>
- * From the use scenario internally inside framework, there're mainly three kinds of methods:
- * <ol>
- * <li>{@link #getProperties(String, String, long)}, get configuration file from Config Center at start up.</li>
- * <li>{@link #addListener(String, String, ConfigurationListener)}/ {@link #removeListener(String, String, ConfigurationListener)}
- * , add or remove listeners for governance rules or config items that need to watch.</li>
- * <li>{@link #getProperty(String, Object)}, get a single config item.</li>
- * <li>{@link #getConfig(String, String, long)}, get the specified config</li>
- * </ol>
+ * 动态配置
  *
- * @see AbstractDynamicConfiguration
+ * 可以读写配置,也可以追加/删除监听器
  */
 public interface DynamicConfiguration extends Configuration, AutoCloseable {
 

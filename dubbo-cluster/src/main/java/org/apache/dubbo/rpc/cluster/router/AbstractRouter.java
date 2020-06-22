@@ -21,18 +21,38 @@ import org.apache.dubbo.common.extension.ExtensionLoader;
 import org.apache.dubbo.rpc.cluster.Router;
 import org.apache.dubbo.rpc.cluster.governance.GovernanceRuleRepository;
 
+/**
+ * 路由器抽象实现
+ */
 public abstract class AbstractRouter implements Router {
     protected int priority = DEFAULT_PRIORITY;
+    /**
+     * 是否强制
+     */
     protected boolean force = false;
+    /**
+     *
+     */
     protected URL url;
 
+    /**
+     * 规则治理仓库
+     *
+     */
     protected GovernanceRuleRepository ruleRepository;
 
+    /**
+     * 构造方法
+     * @param url 信息
+     */
     public AbstractRouter(URL url) {
         this.ruleRepository = ExtensionLoader.getExtensionLoader(GovernanceRuleRepository.class).getDefaultExtension();
         this.url = url;
     }
 
+    /**
+     * 构造方法
+     */
     public AbstractRouter() {
     }
 

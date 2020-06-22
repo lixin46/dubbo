@@ -42,6 +42,7 @@ import org.apache.dubbo.rpc.Exporter;
 import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.Protocol;
 import org.apache.dubbo.rpc.ProxyFactory;
+import org.apache.dubbo.rpc.cluster.Configurator;
 import org.apache.dubbo.rpc.cluster.ConfiguratorFactory;
 import org.apache.dubbo.rpc.model.ApplicationModel;
 import org.apache.dubbo.rpc.model.ServiceDescriptor;
@@ -128,13 +129,16 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
      */
     private static final ProxyFactory PROXY_FACTORY = ExtensionLoader.getExtensionLoader(ProxyFactory.class).getAdaptiveExtension();
 
+    // -----------------------------------------------------------------------------------------------------------------
     /**
      * Whether the provider has been exported
+     * 是否已导出
      */
     private transient volatile boolean exported;
 
     /**
      * The flag whether a service has unexported ,if the method unexported is invoked, the value is true
+     * 服务是否已经取消导出,即已关闭
      */
     private transient volatile boolean unexported;
 
@@ -145,23 +149,42 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
      */
     private final List<Exporter<?>> exporters = new ArrayList<Exporter<?>>();
 
+    /**
+     * 构造方法
+     */
     public ServiceConfig() {
     }
+//
+//    /**
+//     * 构造方法
+//     * @param service
+//     */
+//    public ServiceConfig(Service service) {
+//        super(service);
+//    }
 
-    public ServiceConfig(Service service) {
-        super(service);
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可导出getter
+    // -----------------------------------------------------------------------------------------------------------------
+    // 可注入setter
+    public void setBootstrap(DubboBootstrap bootstrap) {
+        this.bootstrap = bootstrap;
     }
-
+    // -----------------------------------------------------------------------------------------------------------------
+    // 普通
     @Parameter(excluded = true)
+    @Override
     public boolean isExported() {
         return exported;
     }
 
     @Parameter(excluded = true)
+    @Override
     public boolean isUnexported() {
         return unexported;
     }
 
+    @Override
     public void unexport() {
         if (!exported) {
             return;
@@ -184,33 +207,50 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         // dispatch a ServiceConfigUnExportedEvent since 2.7.4
         dispatch(new ServiceConfigUnexportedEvent(this));
     }
-
+    /**
+     * 服务启动入口
+     */
     public synchronized void export() {
+        // 不应该导出
+        // 可以配置导出开关,优先取ProviderConfig的开关
         if (!shouldExport()) {
             return;
         }
 
+        // 不存在引导对象,则获取单例,并初始化???
         if (bootstrap == null) {
             bootstrap = DubboBootstrap.getInstance();
             bootstrap.init();
         }
 
+        // 检查和更新各项子配置
+        // 这里面就已经整合provider的配置了
         checkAndUpdateSubConfigs();
 
-        //init serviceMetadata
+        // init serviceMetadata
+        // 版本
         serviceMetadata.setVersion(version);
+        // 分组
         serviceMetadata.setGroup(group);
+        // 默认分组
         serviceMetadata.setDefaultGroup(group);
+        // 服务接口类型
         serviceMetadata.setServiceType(getInterfaceClass());
+        // 服务接口名
         serviceMetadata.setServiceInterfaceName(getInterface());
+        // 目标对象
         serviceMetadata.setTarget(getRef());
 
+        // 应该延迟发布
         if (shouldDelay()) {
+            // 使用调度线程池调度
             DELAY_EXPORT_EXECUTOR.schedule(this::doExport, getDelay(), TimeUnit.MILLISECONDS);
-        } else {
+        }
+        // 不延迟,则直接导出
+        else {
             doExport();
         }
-
+        // 发布已导出事件
         exported();
     }
 
@@ -221,24 +261,27 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
     private void checkAndUpdateSubConfigs() {
         // Use default configs defined explicitly with global scope
+        // 合并provider的配置,如果当前配置为null,则取provider的配置
         completeCompoundConfigs();
-        // 确保provider非null
+        // 如果provider配置为null,则创建默认
         checkDefault();
-        // 确保设置了协议
+        // 协议为空则使用默认provider的
+        // 把id转换为对象
         checkProtocol();
         // init some null configuration.
         ExtensionLoader<ConfigInitializer> extensionLoader = ExtensionLoader.getExtensionLoader(ConfigInitializer.class);
-        // 获取配置初始化器
+        // 获取配置初始化器(定制扩展点)
         List<ConfigInitializer> configInitializers = extensionLoader.getActivateExtension(URL.valueOf("configInitializer://"), (String[]) null);
         // 遍历,调用初始化服务配置
         configInitializers.forEach(e -> e.initServiceConfig(this));
 
         // if protocol is not injvm checkRegistry
-        // 如果协议不是injvm,则检查注册表
+        // 如果协议不是只有injvm,则检查注册中心
         if (!isOnlyInJvm()) {
+            // 检查注册中心配置有效性
             checkRegistry();
         }
-        // 刷新
+        // 刷新???
         this.refresh();
 
         // 接口名为空报错
@@ -262,9 +305,9 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException(e.getMessage(), e);
             }
-            // 检查接口和方法
+            // 检查接口和方法配置
             checkInterfaceAndMethods(interfaceClass, getMethods());
-            //
+            // 服务bean非null,且与接口类型匹配
             checkRef();
             // 非通用服务
             generic = Boolean.FALSE.toString();
@@ -305,76 +348,110 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         ConfigValidationUtils.checkMock(interfaceClass, this);
         // 验证服务配置
         ConfigValidationUtils.validateServiceConfig(this);
-        //
+        // 定制扩展点
         postProcessConfig();
     }
 
 
     protected synchronized void doExport() {
+        // 已关闭服务,则报错
         if (unexported) {
             throw new IllegalStateException("The service " + interfaceClass.getName() + " has already unexported!");
         }
+        // 已导出,则幂等返回
         if (exported) {
             return;
         }
+        // 变更为已导出
         exported = true;
 
+        // 路径为空,则默认为接口名
         if (StringUtils.isEmpty(path)) {
             path = interfaceName;
         }
+        //
         doExportUrls();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void doExportUrls() {
+        // 服务仓库
         ServiceRepository repository = ApplicationModel.getServiceRepository();
+        // 注册服务,获取服务描述符
         ServiceDescriptor serviceDescriptor = repository.registerService(getInterfaceClass());
+        // 注册提供者
         repository.registerProvider(
-                getUniqueServiceName(),
-                ref,
-                serviceDescriptor,
-                this,
-                serviceMetadata
+                getUniqueServiceName(),// 唯一服务名,group/path:version
+                ref,// 对象
+                serviceDescriptor,// 服务描述符
+                this,// 当前配置
+                serviceMetadata// 服务元数据
         );
 
+        // 生成注册中心的URL对象
         List<URL> registryURLs = ConfigValidationUtils.loadRegistries(this, true);
 
+        // 遍历协议配置
         for (ProtocolConfig protocolConfig : protocols) {
-            String pathKey = URL.buildKey(getContextPath(protocolConfig)
+            // 上下文路径
+            String contextPath = getContextPath(protocolConfig)
                     .map(p -> p + "/" + path)
-                    .orElse(path), group, version);
+                    .orElse(path);
+            // 路径键
+            String pathKey = URL.buildKey(contextPath, group, version);
             // In case user specified path, register service one more time to map it to path.
+            // 注册服务
             repository.registerService(pathKey, interfaceClass);
             // TODO, uncomment this line once service key is unified
+            // 设置服务键
             serviceMetadata.setServiceKey(pathKey);
+            //
             doExportUrlsFor1Protocol(protocolConfig, registryURLs);
         }
     }
 
+    /**
+     * @param protocolConfig 某一个协议配置
+     * @param registryURLs   所有的注册中心
+     */
     private void doExportUrlsFor1Protocol(ProtocolConfig protocolConfig, List<URL> registryURLs) {
-        String name = protocolConfig.getName();
-        if (StringUtils.isEmpty(name)) {
-            name = DUBBO;
+        // 协议名称,默认为dubbo
+        String protocolName = protocolConfig.getName();
+        // "dubbo"
+        if (StringUtils.isEmpty(protocolName)) {
+            protocolName = DUBBO;
         }
 
         Map<String, String> map = new HashMap<String, String>();
+        // side=provider
         map.put(SIDE_KEY, PROVIDER_SIDE);
 
+        // 向map追加dubbo版本信息
         ServiceConfig.appendRuntimeParameters(map);
+        // 追加metics配置
         AbstractConfig.appendParameters(map, getMetrics());
+        // 追加应用配置
         AbstractConfig.appendParameters(map, getApplication());
+        // 追加模块配置
         AbstractConfig.appendParameters(map, getModule());
-        // remove 'default.' prefix for configs from ProviderConfig
-        // appendParameters(map, provider, Constants.DEFAULT_KEY);
+        // 追加提供者配置
         AbstractConfig.appendParameters(map, provider);
+        // 追加协议配置
         AbstractConfig.appendParameters(map, protocolConfig);
+        // 追加当前服务配置
         AbstractConfig.appendParameters(map, this);
+
         MetadataReportConfig metadataReportConfig = getMetadataReportConfig();
         if (metadataReportConfig != null && metadataReportConfig.isValid()) {
+            // metadata-type=remote
             map.putIfAbsent(METADATA_KEY, REMOTE_METADATA_STORAGE_TYPE);
         }
+
+        // 存在方法配置
         if (CollectionUtils.isNotEmpty(getMethods())) {
+            // 遍历方法配置
             for (MethodConfig method : getMethods()) {
+                // 追加方法配置
                 AbstractConfig.appendParameters(map, method, method.getName());
                 String retryKey = method.getName() + ".retry";
                 if (map.containsKey(retryKey)) {
@@ -429,12 +506,19 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             } // end of methods for
         }
 
+        // 通用服务
         if (ProtocolUtils.isGeneric(generic)) {
+            // generic=true|nativejava|bean
             map.put(GENERIC_KEY, generic);
+            // methods=*
             map.put(METHODS_KEY, ANY_VALUE);
-        } else {
+        }
+        // 非通用
+        else {
+            //
             String revision = Version.getVersion(interfaceClass, version);
             if (revision != null && revision.length() > 0) {
+                // revision=
                 map.put(REVISION_KEY, revision);
             }
 
@@ -465,38 +549,68 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         serviceMetadata.getAttachments().putAll(map);
 
         // export service
+        // 追加主机
         String host = findConfigedHosts(protocolConfig, registryURLs, map);
-        Integer port = findConfigedPorts(protocolConfig, name, map);
-        URL url = new URL(name, host, port, getContextPath(protocolConfig).map(p -> p + "/" + path).orElse(path), map);
+        // 追加端口
+        Integer port = findConfigedPorts(protocolConfig, protocolName, map);
+        // 至此,Map收集完毕
+
+        //
+        String contextPath = getContextPath(protocolConfig).map(p -> p + "/" + path).orElse(path);
+        // 封装URL
+        URL url = new URL(protocolName, host, port, contextPath, map);
 
         // You can customize Configurator to append extra parameters
+        // 定制配置器,用来追加额外的参数
+
+        // 配置器工厂,包含对应协议的扩展实例
         if (ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class)
                 .hasExtension(url.getProtocol())) {
-            url = ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class)
-                    .getExtension(url.getProtocol()).getConfigurator(url).configure(url);
+            // 获取加载器
+            ExtensionLoader<ConfiguratorFactory> extensionLoader = ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class);
+            ConfiguratorFactory configuratorFactory = extensionLoader.getExtension(url.getProtocol());
+            Configurator configurator = configuratorFactory.getConfigurator(url);
+            //
+            url = configurator.configure(url);
         }
 
+        /*
+         *获取scope参数值,
+         * none:不导出
+         * remote:只导出远程
+         * local:只导出本地
+         */
         String scope = url.getParameter(SCOPE_KEY);
         // don't export when none is configured
+        // 不为none,则需要进行导出
         if (!SCOPE_NONE.equalsIgnoreCase(scope)) {
 
             // export to local if the config is not remote (export to remote only when config is remote)
+            // 非remote,则认定为local
             if (!SCOPE_REMOTE.equalsIgnoreCase(scope)) {
+                // 导出本地
                 exportLocal(url);
             }
             // export to remote if the config is not local (export to local only when config is local)
+            // 非local,则认定为remote
             if (!SCOPE_LOCAL.equalsIgnoreCase(scope)) {
+                //  注册中心url非空
                 if (CollectionUtils.isNotEmpty(registryURLs)) {
+                    // 遍历注册中心配置
                     for (URL registryURL : registryURLs) {
                         //if protocol is only injvm ,not register
+                        // 忽略 injvm://协议
                         if (LOCAL_PROTOCOL.equalsIgnoreCase(url.getProtocol())) {
                             continue;
                         }
+                        // dynamic=
                         url = url.addParameterIfAbsent(DYNAMIC_KEY, registryURL.getParameter(DYNAMIC_KEY));
+                        // 加载监控中心
                         URL monitorUrl = ConfigValidationUtils.loadMonitor(this, registryURL);
                         if (monitorUrl != null) {
                             url = url.addParameterAndEncoded(MONITOR_KEY, monitorUrl.toFullString());
                         }
+                        // 打印日志
                         if (logger.isInfoEnabled()) {
                             if (url.getParameter(REGISTER_KEY, true)) {
                                 logger.info("Register dubbo service " + interfaceClass.getName() + " url " + url + " to registry " + registryURL);
@@ -510,14 +624,18 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                         if (StringUtils.isNotEmpty(proxy)) {
                             registryURL = registryURL.addParameter(PROXY_KEY, proxy);
                         }
-
+                        // 获取调用器
                         Invoker<?> invoker = PROXY_FACTORY.getInvoker(ref, (Class) interfaceClass, registryURL.addParameterAndEncoded(EXPORT_KEY, url.toFullString()));
+                        // ???
                         DelegateProviderMetaDataInvoker wrapperInvoker = new DelegateProviderMetaDataInvoker(invoker, this);
-
+                        // 导出调用器
+                        // 端口监听,服务注册
                         Exporter<?> exporter = PROTOCOL.export(wrapperInvoker);
                         exporters.add(exporter);
                     }
-                } else {
+                }
+                // 注册中心为空
+                else {
                     if (logger.isInfoEnabled()) {
                         logger.info("Export dubbo service " + interfaceClass.getName() + " to url " + url);
                     }
@@ -545,15 +663,18 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
      * always export injvm
      */
     private void exportLocal(URL url) {
-        URL local = URLBuilder.from(url)
-                .setProtocol(LOCAL_PROTOCOL)
-                .setHost(LOCALHOST_VALUE)
-                .setPort(0)
+        URL localUrl = URLBuilder.from(url)
+                .setProtocol(LOCAL_PROTOCOL)// 协议变为injvm
+                .setHost(LOCALHOST_VALUE)// 注解变为127.0.0.1
+                .setPort(0)// 端口0
                 .build();
-        Exporter<?> exporter = PROTOCOL.export(
-                PROXY_FACTORY.getInvoker(ref, (Class) interfaceClass, local));
+        //  获取调用器(负责调用对象拿结果)
+        Invoker invoker = PROXY_FACTORY.getInvoker(ref, (Class) interfaceClass, localUrl);
+        // 调用协议,导出调用器
+        Exporter<?> exporter = PROTOCOL.export(invoker);
+        // 保存导出器
         exporters.add(exporter);
-        logger.info("Export dubbo service " + interfaceClass.getName() + " to local registry url : " + local);
+        logger.info("Export dubbo service " + interfaceClass.getName() + " to local registry url : " + localUrl);
     }
 
     /**
@@ -751,8 +872,11 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
     public DubboBootstrap getBootstrap() {
         return bootstrap;
     }
+    // -----------------------------------------------------------------------------------------------------------------
 
-    public void setBootstrap(DubboBootstrap bootstrap) {
-        this.bootstrap = bootstrap;
-    }
+
+
+
+
+
 }

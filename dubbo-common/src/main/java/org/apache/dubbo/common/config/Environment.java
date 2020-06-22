@@ -31,39 +31,55 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * 环境
+ */
 public class Environment extends LifecycleAdapter implements FrameworkExt {
+
     public static final String NAME = "environment";
 
     /**
-     * 属性配置
+     * 属性配置,构造方法初始化
      */
     private final PropertiesConfiguration propertiesConfiguration;
     /**
-     * 系统配置
+     * 系统配置,构造方法初始化
      */
     private final SystemConfiguration systemConfiguration;
     /**
-     * 环境配置
+     * 环境配置,构造方法初始化
      */
     private final EnvironmentConfiguration environmentConfiguration;
     /**
-     * 外部配置
+     * 外部配置,构造方法初始化
      */
     private final InmemoryConfiguration externalConfiguration;
     /**
-     * 应用外部配置
+     * 应用外部配置,构造方法初始化
      */
     private final InmemoryConfiguration appExternalConfiguration;
 
     private CompositeConfiguration globalConfiguration;
 
+    /**
+     * 外部配置映射,来自配置中心
+     */
     private Map<String, String> externalConfigurationMap = new HashMap<>();
+    /**
+     * 应用外部配置映射,来自配置中心
+     */
     private Map<String, String> appExternalConfigurationMap = new HashMap<>();
 
     private boolean configCenterFirst = true;
 
+    /**
+     * 动态配置,可获取键值对,并监听变化
+     */
     private DynamicConfiguration dynamicConfiguration;
 
+    /**
+     * 构造方法
+     */
     public Environment() {
         this.propertiesConfiguration = new PropertiesConfiguration();
         this.systemConfiguration = new SystemConfiguration();
@@ -75,9 +91,13 @@ public class Environment extends LifecycleAdapter implements FrameworkExt {
     @Override
     public void initialize() throws IllegalStateException {
         ConfigManager configManager = ApplicationModel.getConfigManager();
+        // 获取默认配置中心
         Optional<Collection<ConfigCenterConfig>> defaultConfigs = configManager.getDefaultConfigCenter();
+        // 存在
         defaultConfigs.ifPresent(configs -> {
+            // 遍历配置中心配置
             for (ConfigCenterConfig config : configs) {
+                //
                 this.setExternalConfigMap(config.getExternalConfiguration());
                 this.setAppExternalConfigMap(config.getAppExternalConfiguration());
             }
@@ -137,14 +157,14 @@ public class Environment extends LifecycleAdapter implements FrameworkExt {
             prefixedConfiguration.addConfiguration(environmentConfiguration);
             prefixedConfiguration.addConfiguration(appExternalConfiguration);
             prefixedConfiguration.addConfiguration(externalConfiguration);
-            prefixedConfiguration.addConfiguration(configuration);
+            prefixedConfiguration.addConfiguration(configuration);// 指定的配置
             prefixedConfiguration.addConfiguration(propertiesConfiguration);
         } else {
             // The sequence would be: SystemConfiguration -> AbstractConfig -> AppExternalConfiguration -> ExternalConfiguration -> PropertiesConfiguration
             // Config center has the highest priority
             prefixedConfiguration.addConfiguration(systemConfiguration);
             prefixedConfiguration.addConfiguration(environmentConfiguration);
-            prefixedConfiguration.addConfiguration(configuration);
+            prefixedConfiguration.addConfiguration(configuration);// 指定的配置
             prefixedConfiguration.addConfiguration(appExternalConfiguration);
             prefixedConfiguration.addConfiguration(externalConfiguration);
             prefixedConfiguration.addConfiguration(propertiesConfiguration);

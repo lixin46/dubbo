@@ -21,8 +21,14 @@ import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.dubbo.remoting.RemotingServer;
 import org.apache.dubbo.rpc.ProtocolServer;
 
+/**
+ * 协议服务器
+ */
 public class DubboProtocolServer implements ProtocolServer {
 
+    /**
+     * 远程服务器
+     */
     private RemotingServer server;
     private String address;
 

@@ -34,14 +34,26 @@ import java.util.Set;
 @Deprecated
 public class ServiceAnnotationBeanPostProcessor extends ServiceClassPostProcessor {
 
+    /**
+     * 构造方法
+     * @param packagesToScan 要扫描的包
+     */
     public ServiceAnnotationBeanPostProcessor(String... packagesToScan) {
         this(Arrays.asList(packagesToScan));
     }
 
+    /**
+     * 构造方法
+     * @param packagesToScan 要扫描的包
+     */
     public ServiceAnnotationBeanPostProcessor(Collection<String> packagesToScan) {
         this(new LinkedHashSet<>(packagesToScan));
     }
 
+    /**
+     * 核心构造方法
+     * @param packagesToScan 要扫描的包
+     */
     public ServiceAnnotationBeanPostProcessor(Set<String> packagesToScan) {
         super(packagesToScan);
     }

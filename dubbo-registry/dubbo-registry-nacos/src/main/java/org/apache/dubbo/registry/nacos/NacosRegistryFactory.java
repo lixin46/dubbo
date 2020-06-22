@@ -25,6 +25,7 @@ import static org.apache.dubbo.registry.nacos.util.NacosNamingServiceUtils.creat
 
 /**
  * Nacos {@link RegistryFactory}
+ * 组件名称为nacos
  *
  * @since 2.6.5
  */

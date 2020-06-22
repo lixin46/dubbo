@@ -20,9 +20,10 @@ import org.apache.dubbo.rpc.RpcException;
 import org.apache.dubbo.rpc.cluster.Directory;
 import org.apache.dubbo.rpc.cluster.support.wrapper.AbstractCluster;
 
+
 /**
- * {@link FailoverClusterInvoker}
- *
+ * 组件名称为failover
+ * Cluster接口默认映射的实现
  */
 public class FailoverCluster extends AbstractCluster {
 

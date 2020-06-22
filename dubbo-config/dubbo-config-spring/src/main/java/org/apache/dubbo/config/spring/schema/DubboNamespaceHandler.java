@@ -91,6 +91,7 @@ public class DubboNamespaceHandler extends NamespaceHandlerSupport implements Co
         registerBeanDefinitionParser("metrics", new DubboBeanDefinitionParser(MetricsConfig.class, true));
         // 8.
         registerBeanDefinitionParser("ssl", new DubboBeanDefinitionParser(SslConfig.class, true));
+
         // 14.bean定义注册表处理器,用于识别dubbo注解
         registerBeanDefinitionParser("annotation", new AnnotationBeanDefinitionParser());
     }

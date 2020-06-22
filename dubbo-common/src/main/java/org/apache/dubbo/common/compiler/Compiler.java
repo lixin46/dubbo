@@ -25,11 +25,10 @@ import org.apache.dubbo.common.extension.SPI;
 public interface Compiler {
 
     /**
-     * Compile java source code.
-     *
-     * @param code        Java source code
-     * @param classLoader classloader
-     * @return Compiled class
+     * 编译java源代码,生成字节码,并使用指定的类加载器加载
+     * @param code 源代码
+     * @param classLoader 类加载器
+     * @return 加载后的类对象
      */
     Class<?> compile(String code, ClassLoader classLoader);
 

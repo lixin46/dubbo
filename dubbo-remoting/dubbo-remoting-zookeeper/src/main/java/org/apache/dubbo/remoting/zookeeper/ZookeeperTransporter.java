@@ -21,10 +21,21 @@ import org.apache.dubbo.common.extension.Adaptive;
 import org.apache.dubbo.common.extension.SPI;
 import org.apache.dubbo.remoting.Constants;
 
+/**
+ * zk传输器,默认使用curator实现
+ *
+ * 负责连接服务器,创建并管理客户端缓存
+ */
 @SPI("curator")
 public interface ZookeeperTransporter {
 
+    /**
+     * 进行连接
+     * 可通过client参数或transporter参数变更传输器实现
+     * @param registryUrl 注册中心url
+     * @return
+     */
     @Adaptive({Constants.CLIENT_KEY, Constants.TRANSPORTER_KEY})
-    ZookeeperClient connect(URL url);
+    ZookeeperClient connect(URL registryUrl);
 
 }

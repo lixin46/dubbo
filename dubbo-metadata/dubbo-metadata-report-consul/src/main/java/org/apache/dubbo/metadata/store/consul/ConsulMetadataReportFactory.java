@@ -22,6 +22,7 @@ import org.apache.dubbo.metadata.report.MetadataReport;
 import org.apache.dubbo.metadata.report.support.AbstractMetadataReportFactory;
 
 /**
+ * 组件名称为consul
  * metadata report factory impl for consul
  */
 public class ConsulMetadataReportFactory extends AbstractMetadataReportFactory {

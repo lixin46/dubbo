@@ -67,7 +67,8 @@ public class Exchangers {
             throw new IllegalArgumentException("handler == null");
         }
         url = url.addParameterIfAbsent(Constants.CODEC_KEY, "exchange");
-        return getExchanger(url).bind(url, handler);
+        Exchanger exchanger = getExchanger(url);
+        return exchanger.bind(url, handler);
     }
 
     public static ExchangeClient connect(String url) throws RemotingException {

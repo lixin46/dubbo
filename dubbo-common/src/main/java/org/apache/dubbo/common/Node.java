@@ -18,6 +18,10 @@ package org.apache.dubbo.common;
 
 /**
  * Node. (API/SPI, Prototype, ThreadSafe)
+ * 所有的SPI动态选择扩展实例,都是基于url中的参数配置实现的.
+ * 因此根接口可以获取URL对象
+ *
+ * 所有的网络节点都可以通过URL定位
  */
 public interface Node {
 

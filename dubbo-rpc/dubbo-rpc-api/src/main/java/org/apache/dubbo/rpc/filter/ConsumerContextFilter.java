@@ -40,24 +40,33 @@ import static org.apache.dubbo.common.constants.CommonConstants.TIME_COUNTDOWN_K
  * @see org.apache.dubbo.rpc.Filter
  * @see RpcContext
  */
+
+/**
+ * 负责在调用发送之前,装填上下文
+ */
 @Activate(group = CONSUMER, order = -10000)
 public class ConsumerContextFilter implements Filter {
 
     @Override
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         RpcContext context = RpcContext.getContext();
-        context.setInvoker(invoker)
-                .setInvocation(invocation)
-                .setLocalAddress(NetUtils.getLocalHost(), 0)
-                .setRemoteAddress(invoker.getUrl().getHost(), invoker.getUrl().getPort())
-                .setRemoteApplicationName(invoker.getUrl().getParameter(REMOTE_APPLICATION_KEY))
-                .setAttachment(REMOTE_APPLICATION_KEY, invoker.getUrl().getParameter(APPLICATION_KEY));
+
+        context.setInvoker(invoker)// 调用器
+                .setInvocation(invocation)// 调用描述
+                .setLocalAddress(NetUtils.getLocalHost(), 0)// 本地主机端口
+                .setRemoteAddress(invoker.getUrl().getHost(), invoker.getUrl().getPort())// 远程主机端口
+                .setRemoteApplicationName(invoker.getUrl().getParameter(REMOTE_APPLICATION_KEY))//远程应用名,remote.application
+                .setAttachment(REMOTE_APPLICATION_KEY, invoker.getUrl().getParameter(APPLICATION_KEY));// 附件
+
+        // rpc调用,则给调用描述注入调用器
         if (invocation instanceof RpcInvocation) {
             ((RpcInvocation) invocation).setInvoker(invoker);
         }
 
         // pass default timeout set by end user (ReferenceConfig)
+        // timeout-countdown
         Object countDown = context.get(TIME_COUNTDOWN_KEY);
+        // 超时熔断???
         if (countDown != null) {
             TimeoutCountDown timeoutCountDown = (TimeoutCountDown) countDown;
             if (timeoutCountDown.isExpired()) {

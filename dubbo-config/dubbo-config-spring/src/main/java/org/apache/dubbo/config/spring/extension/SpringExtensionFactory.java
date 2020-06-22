@@ -29,11 +29,16 @@ import org.springframework.context.ConfigurableApplicationContext;
 import java.util.Set;
 
 /**
+ * 组件名称为spring
  * SpringExtensionFactory
  */
 public class SpringExtensionFactory implements ExtensionFactory {
+
     private static final Logger logger = LoggerFactory.getLogger(SpringExtensionFactory.class);
 
+    /**
+     * spring上下文集合
+     */
     private static final Set<ApplicationContext> CONTEXTS = new ConcurrentHashSet<ApplicationContext>();
 
     public static void addApplicationContext(ApplicationContext context) {
@@ -56,17 +61,23 @@ public class SpringExtensionFactory implements ExtensionFactory {
         CONTEXTS.clear();
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getExtension(Class<T> type, String name) {
 
-        //SPI should be get from SpiExtensionFactory
+        // SPI should be get from SpiExtensionFactory
+        // 当前工厂不支持SPI接口
         if (type.isInterface() && type.isAnnotationPresent(SPI.class)) {
             return null;
         }
 
+        // 遍历上下文
         for (ApplicationContext context : CONTEXTS) {
+            // 获取指定名称的bean
             T bean = BeanFactoryUtils.getOptionalBean(context, name, type);
+            // 存在,则返回
             if (bean != null) {
                 return bean;
             }

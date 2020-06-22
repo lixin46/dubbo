@@ -83,49 +83,87 @@ public abstract class AbstractMetadataReport implements MetadataReport {
 
     private static final int ONE_DAY_IN_MILLISECONDS = 60 * 24 * 60 * 1000;
     private static final int FOUR_HOURS_IN_MILLISECONDS = 60 * 4 * 60 * 1000;
+
+    // -----------------------------------------------------------------------------------------------------------------
+
     // Log output
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     // Local disk cache, where the special key value.registries records the list of metadata centers, and the others are the list of notified service providers
+    /**
+     * 从文件中加载的结果
+     */
     final Properties properties = new Properties();
     private final ExecutorService reportCacheExecutor = Executors.newFixedThreadPool(1, new NamedThreadFactory("DubboSaveMetadataReport", true));
     final Map<MetadataIdentifier, Object> allMetadataReports = new ConcurrentHashMap<>(4);
 
     private final AtomicLong lastCacheChanged = new AtomicLong();
     final Map<MetadataIdentifier, Object> failedReports = new ConcurrentHashMap<>(4);
+    /**
+     * 元数据报告服务的配置信息
+     */
     private URL reportURL;
+    /**
+     * 是否同步报告,默认为false
+     */
     boolean syncReport;
     // Local disk cache file
+    /**
+     * 本地文件路径
+     */
     File file;
     private AtomicBoolean initialized = new AtomicBoolean(false);
+    /**
+     * 重试策略
+     */
     public MetadataReportRetry metadataReportRetry;
 
+    /**
+     * 唯一构造方法
+     * @param reportServerURL 元数据报告服务配置
+     */
     public AbstractMetadataReport(URL reportServerURL) {
         setUrl(reportServerURL);
         // Start file save timer
+        // ~/.dubbo/dubbo-metadata-{application}-{address}.cache
         String defaultFilename = System.getProperty("user.home") + "/.dubbo/dubbo-metadata-" + reportServerURL.getParameter(APPLICATION_KEY) + "-" + reportServerURL.getAddress().replaceAll(":", "-") + ".cache";
+        // file参数值,默认为用户目录下的默认文件
         String filename = reportServerURL.getParameter(FILE_KEY, defaultFilename);
         File file = null;
+        // 显示指定的文件
         if (ConfigUtils.isNotEmpty(filename)) {
             file = new File(filename);
+            // 不存在且父目录不存在
             if (!file.exists() && file.getParentFile() != null && !file.getParentFile().exists()) {
+                // 父目录创建失败则报错
                 if (!file.getParentFile().mkdirs()) {
                     throw new IllegalArgumentException("Invalid service store file " + file + ", cause: Failed to create directory " + file.getParentFile() + "!");
                 }
             }
             // if this file exist, firstly delete it.
+            // 状态为false,且文件已存在,则删除
             if (!initialized.getAndSet(true) && file.exists()) {
                 file.delete();
             }
         }
         this.file = file;
+        // 读取文件
         loadProperties();
+        // sync.report参数,默认为false
         syncReport = reportServerURL.getParameter(SYNC_REPORT_KEY, false);
-        metadataReportRetry = new MetadataReportRetry(reportServerURL.getParameter(RETRY_TIMES_KEY, DEFAULT_METADATA_REPORT_RETRY_TIMES),
-                reportServerURL.getParameter(RETRY_PERIOD_KEY, DEFAULT_METADATA_REPORT_RETRY_PERIOD));
+        // 重试策略
+        metadataReportRetry = new MetadataReportRetry(
+                // retry.times,默认100次
+                reportServerURL.getParameter(RETRY_TIMES_KEY, DEFAULT_METADATA_REPORT_RETRY_TIMES),
+                // retry.period,默认3秒
+                reportServerURL.getParameter(RETRY_PERIOD_KEY, DEFAULT_METADATA_REPORT_RETRY_PERIOD)
+        );
         // cycle report the data switch
+        // cycle.report参数,默认为true
         if (reportServerURL.getParameter(CYCLE_REPORT_KEY, DEFAULT_METADATA_REPORT_CYCLE_REPORT)) {
+            // 创建单线程的调度执行器
             ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("DubboMetadataReportTimer", true));
+            // 进行调度,调用publishAll方法
             scheduler.scheduleAtFixedRate(this::publishAll, calculateStartTime(), ONE_DAY_IN_MILLISECONDS, TimeUnit.MILLISECONDS);
         }
     }
@@ -367,6 +405,7 @@ public abstract class AbstractMetadataReport implements MetadataReport {
 
     /**
      * not private. just for unittest.
+     * 调度逻辑
      */
     void publishAll() {
         logger.info("start to publish all metadata.");
@@ -402,6 +441,11 @@ public abstract class AbstractMetadataReport implements MetadataReport {
 
         int retryLimit;
 
+        /**
+         * 构造方法
+         * @param retryTimes 重试次数
+         * @param retryPeriod 重试间隔
+         */
         public MetadataReportRetry(int retryTimes, int retryPeriod) {
             this.retryPeriod = retryPeriod;
             this.retryLimit = retryTimes;

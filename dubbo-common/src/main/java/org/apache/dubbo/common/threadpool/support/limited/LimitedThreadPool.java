@@ -22,11 +22,8 @@ import org.apache.dubbo.common.threadlocal.NamedInternalThreadFactory;
 import org.apache.dubbo.common.threadpool.ThreadPool;
 import org.apache.dubbo.common.threadpool.support.AbortPolicyWithReport;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.AbstractQueue;
+import java.util.concurrent.*;
 
 import static org.apache.dubbo.common.constants.CommonConstants.CORE_THREADS_KEY;
 import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_CORE_THREADS;
@@ -40,20 +37,33 @@ import static org.apache.dubbo.common.constants.CommonConstants.THREAD_NAME_KEY;
 /**
  * Creates a thread pool that creates new threads as needed until limits reaches. This thread pool will not shrink
  * automatically.
+ *
+ * 限制最大线程数,但不会缩容
  */
 public class LimitedThreadPool implements ThreadPool {
 
     @Override
     public Executor getExecutor(URL url) {
+        // threadname=Dubbo
         String name = url.getParameter(THREAD_NAME_KEY, DEFAULT_THREAD_NAME);
+        // corethreads=0
         int cores = url.getParameter(CORE_THREADS_KEY, DEFAULT_CORE_THREADS);
+        // threads=200
         int threads = url.getParameter(THREADS_KEY, DEFAULT_THREADS);
+        // queues=0
         int queues = url.getParameter(QUEUES_KEY, DEFAULT_QUEUES);
-        return new ThreadPoolExecutor(cores, threads, Long.MAX_VALUE, TimeUnit.MILLISECONDS,
-                queues == 0 ? new SynchronousQueue<Runnable>() :
-                        (queues < 0 ? new LinkedBlockingQueue<Runnable>()
-                                : new LinkedBlockingQueue<Runnable>(queues)),
-                new NamedInternalThreadFactory(name, true), new AbortPolicyWithReport(name, url));
+        BlockingQueue<Runnable> queue = queues == 0 ? new SynchronousQueue<Runnable>() :
+                (queues < 0 ? new LinkedBlockingQueue<Runnable>()
+                        : new LinkedBlockingQueue<Runnable>(queues));
+        return new ThreadPoolExecutor(
+                cores,
+                threads,
+                Long.MAX_VALUE,
+                TimeUnit.MILLISECONDS,
+                queue,
+                new NamedInternalThreadFactory(name, true),
+                new AbortPolicyWithReport(name, url)
+        );
     }
 
 }

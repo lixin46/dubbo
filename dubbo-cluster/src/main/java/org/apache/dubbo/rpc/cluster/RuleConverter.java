@@ -22,6 +22,9 @@ import org.apache.dubbo.common.extension.SPI;
 
 import java.util.List;
 
+/**
+ * 规则转换器???
+ */
 @SPI
 public interface RuleConverter {
 

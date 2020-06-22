@@ -23,11 +23,11 @@ package org.apache.dubbo.common.extension;
 public interface ExtensionFactory {
 
     /**
-     * Get extension.
-     *
-     * @param type object type.
-     * @param name object name.
-     * @return object instance.
+     * 获取扩展实例
+     * @param type 声明的类型
+     * @param name 属性名
+     * @param <T>
+     * @return 扩展实例
      */
     <T> T getExtension(Class<T> type, String name);
 

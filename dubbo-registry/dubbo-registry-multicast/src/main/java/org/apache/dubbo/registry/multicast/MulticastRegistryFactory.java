@@ -21,6 +21,7 @@ import org.apache.dubbo.registry.Registry;
 import org.apache.dubbo.registry.support.AbstractRegistryFactory;
 
 /**
+ * 组件名称为multicast
  * MulticastRegistryLocator
  *
  */

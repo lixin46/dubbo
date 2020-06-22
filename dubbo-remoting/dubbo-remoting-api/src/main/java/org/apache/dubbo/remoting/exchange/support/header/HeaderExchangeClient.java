@@ -45,14 +45,22 @@ import static org.apache.dubbo.remoting.utils.UrlUtils.getIdleTimeout;
  */
 public class HeaderExchangeClient implements ExchangeClient {
 
+    private static final HashedWheelTimer IDLE_CHECK_TIMER = new HashedWheelTimer(
+            new NamedThreadFactory("dubbo-client-idleCheck", true), 1, TimeUnit.SECONDS, TICKS_PER_WHEEL);
+
+    // ----------------------
     private final Client client;
     private final ExchangeChannel channel;
 
-    private static final HashedWheelTimer IDLE_CHECK_TIMER = new HashedWheelTimer(
-            new NamedThreadFactory("dubbo-client-idleCheck", true), 1, TimeUnit.SECONDS, TICKS_PER_WHEEL);
+
     private HeartbeatTimerTask heartBeatTimerTask;
     private ReconnectTimerTask reconnectTimerTask;
 
+    /**
+     * 构造方法
+     * @param client
+     * @param startTimer
+     */
     public HeaderExchangeClient(Client client, boolean startTimer) {
         Assert.notNull(client, "Client can't be null");
         this.client = client;
