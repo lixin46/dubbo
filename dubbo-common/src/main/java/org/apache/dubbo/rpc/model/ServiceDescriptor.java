@@ -42,7 +42,14 @@ public class ServiceDescriptor {
     private final Class<?> serviceInterfaceClass;
     // to accelerate search
     // 为了加速搜索
+    /**
+     * 方法描述符映射
+     * key为方法名,value为同名方法列表
+     */
     private final Map<String, List<MethodDescriptor>> methods = new HashMap<>();
+    /**
+     * 一级key为方法名,二级key为参数描述,value为方法描述符
+     */
     private final Map<String, Map<String, MethodDescriptor>> descToMethods = new HashMap<>();
 
     /**
@@ -68,11 +75,10 @@ public class ServiceDescriptor {
         }
 
         methods.forEach((methodName, methodList) -> {
+            // 获取方法名对应的Map,不存在则创建保存
             Map<String, MethodDescriptor> descMap = descToMethods.computeIfAbsent(methodName, k -> new HashMap<>());
+            // 保存
             methodList.forEach(methodModel -> descMap.put(methodModel.getParamDesc(), methodModel));
-
-//            Map<Class<?>[], MethodModel> typesMap = typeToMethods.computeIfAbsent(methodName, k -> new HashMap<>());
-//            methodList.forEach(methodModel -> typesMap.put(methodModel.getParameterClasses(), methodModel));
         });
     }
 

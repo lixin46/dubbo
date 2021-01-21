@@ -39,8 +39,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import static org.apache.dubbo.common.constants.CommonConstants.GROUP_KEY;
 import static org.apache.dubbo.common.constants.CommonConstants.VERSION_KEY;
 
+
 /**
- * abstract ProtocolSupport.
+ * 除注册中心以外的其他协议的基类
  */
 public abstract class AbstractProtocol implements Protocol {
 
@@ -52,12 +53,17 @@ public abstract class AbstractProtocol implements Protocol {
     protected static String serviceKey(int port, String serviceName, String serviceVersion, String serviceGroup) {
         return ProtocolUtils.serviceKey(port, serviceName, serviceVersion, serviceGroup);
     }
+
     // -----------------------------------------------------------------------------------------------------------------
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * 导出器映射
+     * key为服务键,通常为group/interfaceName:version
+     * value为对应的导出器实例
+     * <p>
+     * 协议对应端口,导出器对应接口
      */
     protected final Map<String, Exporter<?>> exporterMap = new ConcurrentHashMap<String, Exporter<?>>();
 
@@ -66,7 +72,6 @@ public abstract class AbstractProtocol implements Protocol {
      */
     protected final Map<String, ProtocolServer> serverMap = new ConcurrentHashMap<>();
 
-    //TODO SoftReference
     protected final Set<Invoker<?>> invokers = new ConcurrentHashSet<Invoker<?>>();
 
     public List<ProtocolServer> getServers() {
@@ -111,6 +116,14 @@ public abstract class AbstractProtocol implements Protocol {
         return new AsyncToSyncInvoker<>(invoker);
     }
 
+    /**
+     * 协议绑定引用???
+     * @param type 接口
+     * @param url 信息
+     * @param <T>
+     * @return
+     * @throws RpcException
+     */
     protected abstract <T> Invoker<T> protocolBindingRefer(Class<T> type, URL url) throws RpcException;
 
     public Map<String, Exporter<?>> getExporterMap() {

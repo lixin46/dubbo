@@ -60,6 +60,9 @@ import static org.apache.dubbo.remoting.Constants.DEFAULT_CONNECT_TIMEOUT;
 import static org.apache.dubbo.remoting.Constants.SERVER_KEY;
 import static org.apache.dubbo.rpc.protocol.rest.Constants.EXTENSION_KEY;
 
+/**
+ * 组件名称为rest
+ */
 public class RestProtocol extends AbstractProxyProtocol {
 
     private static final int DEFAULT_PORT = 80;
@@ -94,7 +97,9 @@ public class RestProtocol extends AbstractProxyProtocol {
     @Override
     protected <T> Runnable doExport(T impl, Class<T> type, URL url) throws RpcException {
         String addr = getAddr(url);
+        // 实现类
         Class implClass = ApplicationModel.getProviderModel(url.getServiceKey()).getServiceInstance().getClass();
+        // rest协议服务器
         RestProtocolServer server = (RestProtocolServer) serverMap.computeIfAbsent(addr, restServer -> {
             RestProtocolServer s = serverFactory.createServer(url.getParameter(SERVER_KEY, DEFAULT_SERVER));
             s.setAddress(url.getAddress());
@@ -124,7 +129,7 @@ public class RestProtocol extends AbstractProxyProtocol {
         }
 
         final Class resourceDef = GetRestful.getRootResourceClass(implClass) != null ? implClass : type;
-
+        // 部署
         server.deploy(resourceDef, impl, contextPath);
 
         final RestProtocolServer s = server;

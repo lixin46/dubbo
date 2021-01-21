@@ -38,64 +38,53 @@ import static org.apache.dubbo.common.constants.RegistryConstants.EMPTY_PROTOCOL
 public interface Configurator extends Comparable<Configurator> {
 
     /**
-     * Get the configurator url.
-     *
-     * @return configurator url.
+     * 解析url,转换override url,生成配置器列表
+     * url协议如下:
+     * 1.override://0.0.0.0/...(或者override://ip:port...?anyhost=true)&para1=value1...代表全局规则(所有服务提供者都会生效)
+     * 2.override://ip:port...?anyhost=false,特定规则(只有某些的服务提供者)
+     * 3.override:// 规则不支持,需要通过注册中心计算
+     * 4.override://0.0.0.0/ 没有参数代表清除重写规则
+     * @param configuratorUrls
+     * @return
      */
-    URL getUrl();
-
-    /**
-     * Configure the provider url.
-     *
-     * @param url - old provider url.
-     * @return new provider url.
-     */
-    URL configure(URL url);
-
-
-    /**
-     * Convert override urls to map for use when re-refer. Send all rules every time, the urls will be reassembled and
-     * calculated
-     *
-     * URL contract:
-     * <ol>
-     * <li>override://0.0.0.0/...( or override://ip:port...?anyhost=true)&para1=value1... means global rules
-     * (all of the providers take effect)</li>
-     * <li>override://ip:port...?anyhost=false Special rules (only for a certain provider)</li>
-     * <li>override:// rule is not supported... ,needs to be calculated by registry itself</li>
-     * <li>override://0.0.0.0/ without parameters means clearing the override</li>
-     * </ol>
-     *
-     * @param urls URL list to convert
-     * @return converted configurator list
-     */
-    static Optional<List<Configurator>> toConfigurators(List<URL> urls) {
-        if (CollectionUtils.isEmpty(urls)) {
+    static Optional<List<Configurator>> toConfigurators(List<URL> configuratorUrls) {
+        if (CollectionUtils.isEmpty(configuratorUrls)) {
             return Optional.empty();
         }
 
-        ConfiguratorFactory configuratorFactory = ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class)
+        // 配置器工厂适配器实例
+        // 根据url协议进行动态映射
+        ConfiguratorFactory configuratorFactoryAdapter = ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class)
                 .getAdaptiveExtension();
 
-        List<Configurator> configurators = new ArrayList<>(urls.size());
-        for (URL url : urls) {
+        List<Configurator> configurators = new ArrayList<>(configuratorUrls.size());
+        // 遍历url
+        for (URL url : configuratorUrls) {
+            // empty://则清空列表
             if (EMPTY_PROTOCOL.equals(url.getProtocol())) {
                 configurators.clear();
                 break;
             }
+            // 获取重写的参数
             Map<String, String> override = new HashMap<>(url.getParameters());
             //The anyhost parameter of override may be added automatically, it can't change the judgement of changing url
+            // 删除anyhost参数
             override.remove(ANYHOST_KEY);
-            if (override.size() == 0) {
+            // 没有重写参数,则清空列表
+            if (override.isEmpty()) {
                 configurators.clear();
                 continue;
             }
-            configurators.add(configuratorFactory.getConfigurator(url));
+            // 调用工厂适配器,创建配置器
+            Configurator configurator = configuratorFactoryAdapter.getConfigurator(url);
+            configurators.add(configurator);
         }
+        // 排序
         Collections.sort(configurators);
         return Optional.of(configurators);
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
     /**
      * Sort by host, then by priority
      * 1. the url with a specific host ip should have higher priority than 0.0.0.0
@@ -117,4 +106,19 @@ public interface Configurator extends Comparable<Configurator> {
             return ipCompare;
         }
     }
+    // -----------------------------------------------------------------------------------------------------------------
+
+    /**
+     *
+     * @return 配置器url
+     */
+    URL getUrl();
+
+    /**
+     * 配置提供者url
+     * @param url 老的提供者url
+     * @return 新的提供者url
+     */
+    URL configure(URL url);
+
 }

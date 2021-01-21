@@ -99,11 +99,16 @@ public class DubboProtocol extends AbstractProtocol {
     private static final String IS_CALLBACK_SERVICE_INVOKE = "_isCallBackServiceInvoke";
     private static DubboProtocol INSTANCE;
 
+    // -----------------------------------------------------------------------------------------------------------------
+
     /**
      * <host:port,Exchanger>
      */
     private final Map<String, List<ReferenceCountExchangeClient>> referenceClientMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Object> locks = new ConcurrentHashMap<>();
+    /**
+     *
+     */
     private final Set<String> optimizers = new ConcurrentHashSet<>();
 
     /**
@@ -280,6 +285,8 @@ public class DubboProtocol extends AbstractProtocol {
         return Collections.unmodifiableCollection(invokers);
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Protocol接口实现
     @Override
     public int getDefaultPort() {
         return DEFAULT_PORT;
@@ -298,7 +305,9 @@ public class DubboProtocol extends AbstractProtocol {
         exporterMap.put(key, exporter);
 
         //export an stub service for dispatching event
+        // dubbo.stub.event
         Boolean isStubSupportEvent = url.getParameter(STUB_EVENT_KEY, DEFAULT_STUB_EVENT);
+        // is_callback_service
         Boolean isCallbackservice = url.getParameter(IS_CALLBACK_SERVICE, false);
         //
         if (isStubSupportEvent && !isCallbackservice) {
@@ -335,7 +344,7 @@ public class DubboProtocol extends AbstractProtocol {
                     server = serverMap.get(key);
                     // 不存在
                     if (server == null) {
-                        // 创建
+                        // 创建服务器
                         server = createServer(url);
                         // 保存映射
                         serverMap.put(key, server);
@@ -389,6 +398,7 @@ public class DubboProtocol extends AbstractProtocol {
     private void optimizeSerialization(URL url) throws RpcException {
         // optimizer
         String className = url.getParameter(OPTIMIZER_KEY, "");
+        // 为空或优化器集合已经包含,则返回
         if (StringUtils.isEmpty(className) || optimizers.contains(className)) {
             return;
         }
@@ -427,17 +437,58 @@ public class DubboProtocol extends AbstractProtocol {
         }
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // AbstractProtocol抽象类实现
+
     @Override
     public <T> Invoker<T> protocolBindingRefer(Class<T> serviceType, URL url) throws RpcException {
         // 优化序列化
         optimizeSerialization(url);
 
-        // create rpc invoker.
+        // 创建所有数据交换客户端
+        ExchangeClient[] clients = getClients(url);
         // 创建调用
-        DubboInvoker<T> invoker = new DubboInvoker<T>(serviceType, url, getClients(url), invokers);
+        DubboInvoker<T> invoker = new DubboInvoker<>(serviceType, url, clients, invokers);
         invokers.add(invoker);
 
         return invoker;
+    }
+    @Override
+    public void destroy() {
+        for (String key : new ArrayList<>(serverMap.keySet())) {
+            ProtocolServer protocolServer = serverMap.remove(key);
+
+            if (protocolServer == null) {
+                continue;
+            }
+
+            RemotingServer server = protocolServer.getRemotingServer();
+
+            try {
+                if (logger.isInfoEnabled()) {
+                    logger.info("Close dubbo server: " + server.getLocalAddress());
+                }
+
+                server.close(ConfigurationUtils.getServerShutdownTimeout());
+
+            } catch (Throwable t) {
+                logger.warn(t.getMessage(), t);
+            }
+        }
+
+        for (String key : new ArrayList<>(referenceClientMap.keySet())) {
+            List<ReferenceCountExchangeClient> clients = referenceClientMap.remove(key);
+
+            if (CollectionUtils.isEmpty(clients)) {
+                continue;
+            }
+
+            for (ReferenceCountExchangeClient client : clients) {
+                closeReferenceCountExchangeClient(client);
+            }
+        }
+
+        super.destroy();
     }
 
     private ExchangeClient[] getClients(URL url) {
@@ -445,6 +496,7 @@ public class DubboProtocol extends AbstractProtocol {
 
         boolean useShareConnect = false;
 
+        // connections
         int connections = url.getParameter(CONNECTIONS_KEY, 0);
         List<ReferenceCountExchangeClient> shareClients = null;
         // if not configured, connection is shared, otherwise, one connection for one service
@@ -454,18 +506,25 @@ public class DubboProtocol extends AbstractProtocol {
             /*
              * The xml configuration should have a higher priority than properties.
              */
+            // shareconnections
             String shareConnectionsStr = url.getParameter(SHARE_CONNECTIONS_KEY, (String) null);
+            //
             connections = Integer.parseInt(StringUtils.isBlank(shareConnectionsStr) ? ConfigUtils.getProperty(SHARE_CONNECTIONS_KEY,
                     DEFAULT_SHARE_CONNECTIONS) : shareConnectionsStr);
+            // 获取共享客户端
             shareClients = getSharedClient(url, connections);
         }
 
         ExchangeClient[] clients = new ExchangeClient[connections];
         for (int i = 0; i < clients.length; i++) {
+            // 使用共享连接
             if (useShareConnect) {
                 clients[i] = shareClients.get(i);
 
-            } else {
+            }
+            // 初始化客户端
+            else {
+                // HeaderExchangeClient
                 clients[i] = initClient(url);
             }
         }
@@ -480,10 +539,14 @@ public class DubboProtocol extends AbstractProtocol {
      * @param connectNum connectNum must be greater than or equal to 1
      */
     private List<ReferenceCountExchangeClient> getSharedClient(URL url, int connectNum) {
+        // ip:port
         String key = url.getAddress();
+        // 包含引用数的交互客户端
         List<ReferenceCountExchangeClient> clients = referenceClientMap.get(key);
 
+        // 客户端可以使用
         if (checkClientCanUse(clients)) {
+            // 批量引用自增
             batchClientRefIncr(clients);
             return clients;
         }
@@ -492,20 +555,25 @@ public class DubboProtocol extends AbstractProtocol {
         synchronized (locks.get(key)) {
             clients = referenceClientMap.get(key);
             // dubbo check
+            // 客户端可用
             if (checkClientCanUse(clients)) {
                 batchClientRefIncr(clients);
                 return clients;
             }
 
             // connectNum must be greater than or equal to 1
+            // 至少为1
             connectNum = Math.max(connectNum, 1);
 
             // If the clients is empty, then the first initialization is
+            // 客户端列表为空
             if (CollectionUtils.isEmpty(clients)) {
                 clients = buildReferenceCountExchangeClientList(url, connectNum);
                 referenceClientMap.put(key, clients);
 
-            } else {
+            }
+            // 非空
+            else {
                 for (int i = 0; i < clients.size(); i++) {
                     ReferenceCountExchangeClient referenceCountExchangeClient = clients.get(i);
                     // If there is a client in the list that is no longer available, create a new one to replace him.
@@ -522,6 +590,7 @@ public class DubboProtocol extends AbstractProtocol {
              * I understand that the purpose of the remove operation here is to avoid the expired url key
              * always occupying this memory space.
              */
+            // 删除锁
             locks.remove(key);
 
             return clients;
@@ -577,7 +646,8 @@ public class DubboProtocol extends AbstractProtocol {
         List<ReferenceCountExchangeClient> clients = new ArrayList<>();
 
         for (int i = 0; i < connectNum; i++) {
-            clients.add(buildReferenceCountExchangeClient(url));
+            ReferenceCountExchangeClient client = buildReferenceCountExchangeClient(url);
+            clients.add(client);
         }
 
         return clients;
@@ -590,6 +660,7 @@ public class DubboProtocol extends AbstractProtocol {
      * @return
      */
     private ReferenceCountExchangeClient buildReferenceCountExchangeClient(URL url) {
+        // 初始化客户端
         ExchangeClient exchangeClient = initClient(url);
 
         return new ReferenceCountExchangeClient(exchangeClient);
@@ -603,25 +674,33 @@ public class DubboProtocol extends AbstractProtocol {
     private ExchangeClient initClient(URL url) {
 
         // client type setting.
-        String str = url.getParameter(CLIENT_KEY, url.getParameter(SERVER_KEY, DEFAULT_REMOTING_CLIENT));
+        // 获取client参数,获取不到再获取server参数,还获取不到默认为netty
+        String transporter = url.getParameter(CLIENT_KEY, url.getParameter(SERVER_KEY, DEFAULT_REMOTING_CLIENT));
 
+        // codec=dubbo
         url = url.addParameter(CODEC_KEY, DubboCodec.NAME);
         // enable heartbeat by default
+        // heartbeat=60000
         url = url.addParameterIfAbsent(HEARTBEAT_KEY, String.valueOf(DEFAULT_HEARTBEAT));
 
         // BIO is not allowed since it has severe performance issue.
-        if (str != null && str.length() > 0 && !ExtensionLoader.getExtensionLoader(Transporter.class).hasExtension(str)) {
-            throw new RpcException("Unsupported client type: " + str + "," +
+        if (transporter != null && transporter.length() > 0 && !ExtensionLoader.getExtensionLoader(Transporter.class).hasExtension(transporter)) {
+            throw new RpcException("Unsupported client type: " + transporter + "," +
                     " supported client type is " + StringUtils.join(ExtensionLoader.getExtensionLoader(Transporter.class).getSupportedExtensions(), " "));
         }
 
+        // HeaderExchangeClient
         ExchangeClient client;
         try {
             // connection should be lazy
+            // lazy,默认为false
+            // 延迟
             if (url.getParameter(LAZY_CONNECT_KEY, false)) {
                 client = new LazyConnectExchangeClient(url, requestHandler);
 
-            } else {
+            }
+            // 不延迟
+            else {
                 client = Exchangers.connect(url, requestHandler);
             }
 
@@ -632,43 +711,7 @@ public class DubboProtocol extends AbstractProtocol {
         return client;
     }
 
-    @Override
-    public void destroy() {
-        for (String key : new ArrayList<>(serverMap.keySet())) {
-            ProtocolServer protocolServer = serverMap.remove(key);
 
-            if (protocolServer == null) {
-                continue;
-            }
-
-            RemotingServer server = protocolServer.getRemotingServer();
-
-            try {
-                if (logger.isInfoEnabled()) {
-                    logger.info("Close dubbo server: " + server.getLocalAddress());
-                }
-
-                server.close(ConfigurationUtils.getServerShutdownTimeout());
-
-            } catch (Throwable t) {
-                logger.warn(t.getMessage(), t);
-            }
-        }
-
-        for (String key : new ArrayList<>(referenceClientMap.keySet())) {
-            List<ReferenceCountExchangeClient> clients = referenceClientMap.remove(key);
-
-            if (CollectionUtils.isEmpty(clients)) {
-                continue;
-            }
-
-            for (ReferenceCountExchangeClient client : clients) {
-                closeReferenceCountExchangeClient(client);
-            }
-        }
-
-        super.destroy();
-    }
 
     /**
      * close ReferenceCountExchangeClient

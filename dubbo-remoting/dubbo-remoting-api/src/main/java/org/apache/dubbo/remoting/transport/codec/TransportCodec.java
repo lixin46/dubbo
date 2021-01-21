@@ -35,8 +35,17 @@ import java.io.OutputStream;
  * Subclasses {@link org.apache.dubbo.remoting.telnet.codec.TelnetCodec} and {@link org.apache.dubbo.remoting.exchange.codec.ExchangeCodec}
  * both override all the methods declared in this class.
  */
+
+/**
+ * 传输编解码器
+ * {@link org.apache.dubbo.remoting.telnet.codec.TelnetCodec} and {@link org.apache.dubbo.remoting.exchange.codec.ExchangeCodec}
+ * 两个子类重写了当前类的所有方法
+ */
 @Deprecated
 public class TransportCodec extends AbstractCodec {
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 被TelnetCodec和ExchangeCodec重写
 
     @Override
     public void encode(Channel channel, ChannelBuffer buffer, Object message) throws IOException {
@@ -66,6 +75,10 @@ public class TransportCodec extends AbstractCodec {
         }
         return object;
     }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // 被ExchangeCodec重写
+    // 也就是说TelnetCodec还会使用当前实现
 
     protected void encodeData(Channel channel, ObjectOutput output, Object message) throws IOException {
         encodeData(output, message);

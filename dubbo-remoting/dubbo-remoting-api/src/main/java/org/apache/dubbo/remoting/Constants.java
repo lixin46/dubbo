@@ -107,6 +107,10 @@ public interface Constants {
 
     String BIND_PORT_KEY = "bind.port";
 
+    /**
+     * url参数
+     * 控制是否发送消息
+     */
     String SENT_KEY = "sent";
 
     String DISPATCHER_KEY = "dispatcher";

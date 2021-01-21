@@ -17,7 +17,14 @@
 
 package org.apache.dubbo.common.serialize;
 
+/**
+ * 序列化内容类型id的常量定义
+ */
 public interface Constants {
+
+    /**
+     * hessian2序列化
+     */
     byte HESSIAN2_SERIALIZATION_ID = 2;
     byte JAVA_SERIALIZATION_ID = 3;
     byte COMPACTED_JAVA_SERIALIZATION_ID = 4;

@@ -32,25 +32,29 @@ import java.util.List;
  * @see org.apache.dubbo.rpc.cluster.Cluster#join(Directory)
  * @see org.apache.dubbo.rpc.cluster.Directory#list(Invocation)
  */
+
+/**
+ * 路由器
+ */
 public interface Router extends Comparable<Router> {
 
     int DEFAULT_PRIORITY = Integer.MAX_VALUE;
 
     /**
-     * Get the router url.
      *
-     * @return url
+     * @return 路由器的url
      */
     URL getUrl();
 
     /**
-     * Filter invokers with current routing rule and only return the invokers that comply with the rule.
-     *
-     * @param invokers   invoker list
-     * @param url        refer url
-     * @param invocation invocation
-     * @return routed invokers
-     * @throws RpcException
+     * 路由
+     * 过滤调用器使用当前的路由规则,且只返回满足规则的调用器
+     * @param invokers 指定的调用器列表
+     * @param url 引用的url
+     * @param invocation 调用描述
+     * @param <T> 服务接口类型
+     * @return 路由后的调用器列表
+     * @throws RpcException 异常
      */
     <T> List<Invoker<T>> route(List<Invoker<T>> invokers, URL url, Invocation invocation) throws RpcException;
 

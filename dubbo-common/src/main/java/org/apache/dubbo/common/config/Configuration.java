@@ -21,28 +21,23 @@ import java.util.NoSuchElementException;
 
 /**
  * 配置接口
- * 定义了获取值的API
+ * 定义了获取各种类型的值的API
  */
 public interface Configuration {
     /**
-     * Get a string associated with the given configuration key.
-     *
-     * @param key The configuration key.
-     * @return The associated string.
+     * 获取字符串配置
+     * @param key 键
+     * @return 值
      */
     default String getString(String key) {
         return convert(String.class, key, null);
     }
 
     /**
-     * Get a string associated with the given configuration key.
-     * If the key doesn't map to an existing object, the default value
-     * is returned.
-     *
-     * @param key          The configuration key.
-     * @param defaultValue The default value.
-     * @return The associated string if key is found and has valid
-     * format, default value otherwise.
+     * 获取字符串配置,不存在则返回默认值
+     * @param key 键
+     * @param defaultValue 默认值
+     * @return 值
      */
     default String getString(String key, String defaultValue) {
         return convert(String.class, key, defaultValue);

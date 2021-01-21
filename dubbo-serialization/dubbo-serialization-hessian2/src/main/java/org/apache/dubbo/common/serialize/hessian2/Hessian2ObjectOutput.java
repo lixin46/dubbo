@@ -23,8 +23,9 @@ import com.alibaba.com.caucho.hessian.io.Hessian2Output;
 import java.io.IOException;
 import java.io.OutputStream;
 
+
 /**
- * Hessian2 object output implementation
+ * hessian2协议对象序列化实现
  */
 public class Hessian2ObjectOutput implements ObjectOutput {
 
@@ -35,12 +36,26 @@ public class Hessian2ObjectOutput implements ObjectOutput {
         return h2o;
     });
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // 实例
+
+    /**
+     * 线程独享的hessian序列化实例
+     * 当前类可以创建任意数量实例,但相同线程创建的实例会共享相同的Hessian2Output
+     */
     private final Hessian2Output mH2o;
 
+    /**
+     * 构造方法
+     * @param os 输出流
+     */
     public Hessian2ObjectOutput(OutputStream os) {
         mH2o = OUTPUT_TL.get();
         mH2o.init(os);
     }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // DataOutput接口实现
 
     @Override
     public void writeBool(boolean v) throws IOException {
@@ -92,15 +107,20 @@ public class Hessian2ObjectOutput implements ObjectOutput {
         mH2o.writeString(v);
     }
 
-    @Override
-    public void writeObject(Object obj) throws IOException {
-        mH2o.writeObject(obj);
-    }
+
 
     @Override
     public void flushBuffer() throws IOException {
         mH2o.flushBuffer();
     }
+    // -----------------------------------------------------------------------------------------------------------------
+    // ObjectOutput接口实现
+
+    @Override
+    public void writeObject(Object obj) throws IOException {
+        mH2o.writeObject(obj);
+    }
+    // -----------------------------------------------------------------------------------------------------------------
 
     public OutputStream getOutputStream() throws IOException {
         return mH2o.getBytesOutputStream();

@@ -61,6 +61,11 @@ final class LazyConnectExchangeClient implements ExchangeClient {
     private volatile ExchangeClient client;
     private AtomicLong warningcount = new AtomicLong(0);
 
+    /**
+     * 唯一构造方法
+     * @param url 远程服务配置
+     * @param requestHandler 数据交换处理器
+     */
     public LazyConnectExchangeClient(URL url, ExchangeHandler requestHandler) {
         // lazy connect, need set send.reconnect = true, to avoid channel bad status.
         this.url = url.addParameter(SEND_RECONNECT_KEY, Boolean.TRUE.toString());

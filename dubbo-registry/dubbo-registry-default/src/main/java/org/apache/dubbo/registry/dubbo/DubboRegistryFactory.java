@@ -147,7 +147,8 @@ public class DubboRegistryFactory extends AbstractRegistryFactory {
         directory.setProtocol(protocol);
         directory.setRouterChain(RouterChain.buildChain(registryUrl));
         directory.notify(urls);
-        directory.subscribe(new URL(CONSUMER_PROTOCOL, NetUtils.getLocalHost(), 0, RegistryService.class.getName(), registryUrl.getParameters()));
+        URL consumerUrl = new URL(CONSUMER_PROTOCOL, NetUtils.getLocalHost(), 0, RegistryService.class.getName(), registryUrl.getParameters());
+        directory.subscribe(consumerUrl);
         return registry;
     }
 }

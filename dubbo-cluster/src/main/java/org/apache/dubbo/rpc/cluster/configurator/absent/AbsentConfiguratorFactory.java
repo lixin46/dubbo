@@ -20,9 +20,9 @@ import org.apache.dubbo.common.URL;
 import org.apache.dubbo.rpc.cluster.Configurator;
 import org.apache.dubbo.rpc.cluster.ConfiguratorFactory;
 
+
 /**
- * AbsentConfiguratorFactory
- *
+ * 缺席配置器工厂,用于生成缺席配置器
  */
 public class AbsentConfiguratorFactory implements ConfiguratorFactory {
 

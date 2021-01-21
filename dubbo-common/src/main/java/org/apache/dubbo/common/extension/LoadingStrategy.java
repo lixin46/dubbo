@@ -18,6 +18,9 @@ package org.apache.dubbo.common.extension;
 
 import org.apache.dubbo.common.lang.Prioritized;
 
+/**
+ * 加载策略负责决定属性配置文件的扫描目录
+ */
 public interface LoadingStrategy extends Prioritized {
 
     /**

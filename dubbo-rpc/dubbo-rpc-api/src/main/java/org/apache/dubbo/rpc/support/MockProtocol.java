@@ -22,10 +22,11 @@ import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.RpcException;
 import org.apache.dubbo.rpc.protocol.AbstractProtocol;
 
+
 /**
- * MockProtocol is used for generating a mock invoker by URL and type on consumer side
+ * 组件名称为mock
  */
-final public class MockProtocol extends AbstractProtocol {
+public final class MockProtocol extends AbstractProtocol {
 
     @Override
     public int getDefaultPort() {

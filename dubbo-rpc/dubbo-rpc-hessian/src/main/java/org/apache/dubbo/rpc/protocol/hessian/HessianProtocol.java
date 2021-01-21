@@ -55,8 +55,9 @@ import static org.apache.dubbo.rpc.protocol.hessian.Constants.DEFAULT_HTTP_CLIEN
 import static org.apache.dubbo.rpc.protocol.hessian.Constants.HESSIAN2_REQUEST_KEY;
 import static org.apache.dubbo.rpc.protocol.hessian.Constants.HESSIAN_OVERLOAD_METHOD_KEY;
 
+
 /**
- * http rpc support.
+ * 组件名称为hessian
  */
 public class HessianProtocol extends AbstractProxyProtocol {
 

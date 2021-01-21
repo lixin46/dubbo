@@ -65,7 +65,7 @@ public interface ZookeeperClient {
      * 追加子节点变化监听器
      * @param path 节点路径
      * @param listener 监听器
-     * @return ???
+     * @return 追加监听器之后的最新的子列表
      */
     List<String> addChildListener(String path, ChildListener listener);
 

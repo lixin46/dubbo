@@ -24,24 +24,51 @@ public interface RegistryConstants {
     String REGISTRY_PROTOCOL = "registry";
 
     String DYNAMIC_KEY = "dynamic";
-
+    // -----------------------------------------------------------------------------------------------------------------
+    // 分类相关
+    /**
+     * 类别的参数名
+     */
     String CATEGORY_KEY = "category";
-
+    /**
+     * 提供者类别,参数值
+     */
     String PROVIDERS_CATEGORY = "providers";
-
+    /**
+     * 消费者类别,参数值
+     */
     String CONSUMERS_CATEGORY = "consumers";
-
+    /**
+     * 路由器类别,参数值
+     */
     String ROUTERS_CATEGORY = "routers";
-
+    /**
+     * 动态路由器类别,参数值
+     */
     String DYNAMIC_ROUTERS_CATEGORY = "dynamicrouters";
-
-    String DEFAULT_CATEGORY = PROVIDERS_CATEGORY;
-
+    /**
+     * 配置器类别,参数值
+     */
     String CONFIGURATORS_CATEGORY = "configurators";
-
+    /**
+     * 动态配置器类别,参数值
+     */
     String DYNAMIC_CONFIGURATORS_CATEGORY = "dynamicconfigurators";
-
+    /**
+     * 应用动态配置器类别,参数值
+     */
     String APP_DYNAMIC_CONFIGURATORS_CATEGORY = "appdynamicconfigurators";
+    /**
+     * 默认的类别,使用的是提供者类别
+     */
+    String DEFAULT_CATEGORY = PROVIDERS_CATEGORY;
+    // -----------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
 
     String ROUTERS_SUFFIX = ".routers";
 

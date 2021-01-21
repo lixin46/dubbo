@@ -42,14 +42,20 @@ public class ConfigParser {
 
     public static List<URL> parseConfigurators(String rawConfig) {
         List<URL> urls = new ArrayList<>();
+        // 配置器配置,yml格式
         ConfiguratorConfig configuratorConfig = parseObject(rawConfig);
 
+        // 域
         String scope = configuratorConfig.getScope();
+        // 配置项
         List<ConfigItem> items = configuratorConfig.getConfigs();
 
+        // 作用域为application
         if (ConfiguratorConfig.SCOPE_APPLICATION.equals(scope)) {
             items.forEach(item -> urls.addAll(appItemToUrls(item, configuratorConfig)));
-        } else {
+        }
+        // 其他
+        else {
             // service scope by default.
             items.forEach(item -> urls.addAll(serviceItemToUrls(item, configuratorConfig)));
         }
@@ -57,12 +63,15 @@ public class ConfigParser {
     }
 
     private static <T> T parseObject(String rawConfig) {
+        // 构造器
         Constructor constructor = new Constructor(ConfiguratorConfig.class);
         TypeDescription itemDescription = new TypeDescription(ConfiguratorConfig.class);
         itemDescription.addPropertyParameters("items", ConfigItem.class);
         constructor.addTypeDescription(itemDescription);
 
+        // yml文件解析器
         Yaml yaml = new Yaml(constructor);
+        // 加载配置
         return yaml.load(rawConfig);
     }
 
@@ -93,9 +102,17 @@ public class ConfigParser {
         return urls;
     }
 
+    /**
+     * 应用项解析成url???
+     * @param item
+     * @param config
+     * @return
+     */
     private static List<URL> appItemToUrls(ConfigItem item, ConfiguratorConfig config) {
         List<URL> urls = new ArrayList<>();
+        //
         List<String> addresses = parseAddresses(item);
+        //
         for (String addr : addresses) {
             StringBuilder urlBuilder = new StringBuilder();
             urlBuilder.append("override://").append(addr).append("/");

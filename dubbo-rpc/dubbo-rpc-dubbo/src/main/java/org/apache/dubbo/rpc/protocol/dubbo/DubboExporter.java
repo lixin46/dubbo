@@ -31,6 +31,12 @@ public class DubboExporter<T> extends AbstractExporter<T> {
 
     private final Map<String, Exporter<?>> exporterMap;
 
+    /**
+     * 构造方法
+     * @param invoker 调用器,内部引用实现实例
+     * @param key 服务标识
+     * @param exporterMap 导出器映射
+     */
     public DubboExporter(Invoker<T> invoker, String key, Map<String, Exporter<?>> exporterMap) {
         super(invoker);
         this.key = key;

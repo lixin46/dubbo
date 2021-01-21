@@ -93,10 +93,13 @@ public abstract class AbstractClient extends AbstractEndpoint implements Client 
                 logger.info("Start " + getClass().getSimpleName() + " " + NetUtils.getLocalAddress() + " connect to the server " + getRemoteAddress());
             }
         } catch (RemotingException t) {
+            // check为true,则关闭后抛异常
             if (url.getParameter(Constants.CHECK_KEY, true)) {
                 close();
                 throw t;
-            } else {
+            }
+            // check为false,则warn日志
+            else {
                 logger.warn("Failed to start " + getClass().getSimpleName() + " " + NetUtils.getLocalAddress()
                         + " connect to the server " + getRemoteAddress() + " (check == false, ignore and retry later!), cause: " + t.getMessage(), t);
             }

@@ -23,20 +23,25 @@ import org.apache.dubbo.rpc.cluster.governance.GovernanceRuleRepository;
 
 /**
  * 路由器抽象实现
+ *
+ * 子类只需要实现route()方法,或者按需重写
  */
 public abstract class AbstractRouter implements Router {
+    /**
+     * 优先级,默认最低
+     */
     protected int priority = DEFAULT_PRIORITY;
     /**
      * 是否强制
      */
     protected boolean force = false;
     /**
-     *
+     * 路由器的url
      */
     protected URL url;
 
     /**
-     * 规则治理仓库
+     * 规则治理仓库(内部依赖配置中心)
      *
      */
     protected GovernanceRuleRepository ruleRepository;

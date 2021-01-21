@@ -61,12 +61,16 @@ public class Request {
      * 是否双向
      */
     private boolean mTwoWay = true;
-
+    /**
+     * 是否事件
+     */
     private boolean mEvent = false;
-
+    /**
+     * ???
+     */
     private boolean mBroken = false;
     /**
-     * 请求数据
+     * 用户数据
      */
     private Object mData;
 

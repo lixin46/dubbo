@@ -59,11 +59,9 @@ import static com.alibaba.spring.util.BeanRegistrar.registerInfrastructureBean;
 import static org.apache.dubbo.common.constants.CommonConstants.HIDE_KEY_PREFIX;
 
 /**
- * AbstractBeanDefinitionParser
- * <p>
  * dubbo通用的bean定义解析器
  *
- * @export
+ * 解析dubbo名称空间下的所有元素
  */
 public class DubboBeanDefinitionParser implements BeanDefinitionParser {
 
@@ -124,14 +122,17 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
         if (ProtocolConfig.class.equals(beanClass)) {
             // 遍历所有bean定义名称
             for (String name : parserContext.getRegistry().getBeanDefinitionNames()) {
-                //
+                // 当前bean定义
                 BeanDefinition definition = parserContext.getRegistry().getBeanDefinition(name);
                 // getProtocol()
                 PropertyValue property = definition.getPropertyValues().getPropertyValue("protocol");
-                // bean定义依赖协议配置
+                // 当前bean定义存在protocol属性
                 if (property != null) {
                     // 获取属性值
                     Object value = property.getValue();
+                    /*
+                    * 避免相同id引用的ProtocolConfig实例不同
+                     */
                     // bean定义的协议属性类型为协议配置,且id一致,则把bean定义替换为bean引用,避免同id实例化多次
                     if (value instanceof ProtocolConfig && id.equals(((ProtocolConfig) value).getName())) {
                         definition.getPropertyValues().addPropertyValue("protocol", new RuntimeBeanReference(id));
@@ -289,10 +290,11 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
                      * 1. Spring, check existing bean by id, see{@link ServiceBean#afterPropertiesSet()}; then try to use id to find configs defined in remote Config Center
                      * 2. API, directly use id to find configs defined in remote Config Center; if all config instances are defined locally, please use {@link ServiceConfig#setRegistries(List)}
                      */
-                    // 如:providerIds
+                    // 服务端支持idsString注入
+                    // 如:providerIds,registryIds,protocolIds
                     beanDefinition.getPropertyValues().addPropertyValue(camelPropertyName + "Ids", value);
                 }
-                // 其他属性
+                // 其他
                 else {
                     Object reference;
                     // 基本类型及其包装类,或String,Date,Class
@@ -405,8 +407,8 @@ public class DubboBeanDefinitionParser implements BeanDefinitionParser {
             if (!(node instanceof Element)) {
                 continue;
             }
-            if (tag.equals(node.getNodeName())
-                    || tag.equals(node.getLocalName())) {
+            // nodeName为dubbo:reference,localName为reference
+            if (tag.equals(node.getNodeName()) || tag.equals(node.getLocalName())) {
                 // 第一个元素,把第一个元素的default属性,作为外部定义的default属性
                 if (first) {
                     first = false;

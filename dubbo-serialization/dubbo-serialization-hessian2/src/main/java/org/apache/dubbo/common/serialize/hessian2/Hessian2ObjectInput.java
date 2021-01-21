@@ -24,8 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 
+
 /**
- * Hessian2 object input implementation
+ * Hessian2协议对象反序列化实现
+ * dubbo使用的默认序列化协议
  */
 public class Hessian2ObjectInput implements ObjectInput {
 
@@ -36,12 +38,25 @@ public class Hessian2ObjectInput implements ObjectInput {
         return h2i;
     });
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // 实例
+
+    /**
+     * hessian反序列化器
+     */
     private final Hessian2Input mH2i;
 
+    /**
+     * 构造方法
+     * @param is 输入流
+     */
     public Hessian2ObjectInput(InputStream is) {
         mH2i = INPUT_TL.get();
         mH2i.init(is);
     }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // DataInput接口实现
 
     @Override
     public boolean readBool() throws IOException {
@@ -87,6 +102,9 @@ public class Hessian2ObjectInput implements ObjectInput {
     public String readUTF() throws IOException {
         return mH2i.readString();
     }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // ObjectInput接口实现
 
     @Override
     public Object readObject() throws IOException {

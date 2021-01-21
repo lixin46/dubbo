@@ -34,6 +34,8 @@ public class AppRouter extends ListenableRouter {
      * @param url 信息
      */
     public AppRouter(URL url) {
+        // application
+        // 应用路由
         super(url, url.getParameter(CommonConstants.APPLICATION_KEY));
         this.priority = APP_ROUTER_DEFAULT_PRIORITY;
     }

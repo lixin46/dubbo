@@ -26,6 +26,11 @@ import org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker;
 /**
  * Different from {@link Filter}, ClusterInterceptor works at the outmost layer, before one specific address/invoker is picked.
  */
+
+/**
+ * 集群拦截器
+ * 拦截集群调用器的调用
+ */
 @SPI
 public interface ClusterInterceptor {
 
@@ -34,13 +39,11 @@ public interface ClusterInterceptor {
     void after(AbstractClusterInvoker<?> clusterInvoker, Invocation invocation);
 
     /**
-     * Does not need to override this method, override {@link #before(AbstractClusterInvoker, Invocation)}
-     * and {@link #after(AbstractClusterInvoker, Invocation)}, methods to add your own logic expected to be
-     * executed before and after invoke.
+     * 传递下一个调用器
      *
-     * @param clusterInvoker
-     * @param invocation
-     * @return
+     * @param clusterInvoker 集群调用器
+     * @param invocation     调用描述
+     * @return 调用结果
      * @throws RpcException
      */
     default Result intercept(AbstractClusterInvoker<?> clusterInvoker, Invocation invocation) throws RpcException {

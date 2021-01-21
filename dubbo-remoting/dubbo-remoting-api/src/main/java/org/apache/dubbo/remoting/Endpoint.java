@@ -20,13 +20,12 @@ import org.apache.dubbo.common.URL;
 
 import java.net.InetSocketAddress;
 
+
 /**
- * Endpoint. (API/SPI, Prototype, ThreadSafe)
- *
- *
- * @see org.apache.dubbo.remoting.Channel
- * @see org.apache.dubbo.remoting.Client
- * @see RemotingServer
+ * 端点(API/SPI, Prototype, ThreadSafe)
+ * 网络通道的一端
+ * 内部依赖Codec2实现对dubbo消息对象进行编解码,
+ * 实际的编解码由Codec2内部依赖的Serialization实现.
  */
 public interface Endpoint {
 

@@ -24,6 +24,10 @@ import org.apache.dubbo.rpc.cluster.Router;
 /**
  * Tag router factory
  */
+
+/**
+ * 组件名称为tag
+ */
 @Activate(order = 100)
 public class TagRouterFactory extends CacheableRouterFactory {
 

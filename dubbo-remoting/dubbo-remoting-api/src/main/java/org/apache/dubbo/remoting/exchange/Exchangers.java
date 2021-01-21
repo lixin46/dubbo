@@ -106,8 +106,13 @@ public class Exchangers {
         if (handler == null) {
             throw new IllegalArgumentException("handler == null");
         }
+        // codec=exchange
         url = url.addParameterIfAbsent(Constants.CODEC_KEY, "exchange");
-        return getExchanger(url).connect(url, handler);
+        // 数据交换器
+        Exchanger exchanger = getExchanger(url);
+        // 调用数据交换器,连接返回数据交换客户端
+        // HeaderExchangeClient
+        return exchanger.connect(url, handler);
     }
 
     public static Exchanger getExchanger(URL url) {

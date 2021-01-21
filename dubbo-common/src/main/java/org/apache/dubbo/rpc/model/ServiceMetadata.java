@@ -31,10 +31,16 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ServiceMetadata extends BaseServiceMetadata {
 
+    /**
+     * 默认分组
+     */
     private String defaultGroup;
+    /**
+     * 服务接口
+     */
     private Class<?> serviceType;
     /**
-     * 接口的代理对象
+     * 服务接口实现类的实例
      */
     private Object target;
 

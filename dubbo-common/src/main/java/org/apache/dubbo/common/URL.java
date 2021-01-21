@@ -1290,14 +1290,21 @@ public class URL implements Serializable {
         }
 
         boolean hasAndEqual = true;
+        /*
+        * 判断当前参数与给定的参数Map是否一致
+         */
         for (Map.Entry<String, String> entry : parameters.entrySet()) {
             String value = getParameters().get(entry.getKey());
+            // 当前不存在
             if (value == null) {
                 if (entry.getValue() != null) {
                     hasAndEqual = false;
                     break;
                 }
-            } else {
+            }
+            // 值已存在
+            else {
+                // 值不相等
                 if (!value.equals(entry.getValue())) {
                     hasAndEqual = false;
                     break;
@@ -1305,12 +1312,16 @@ public class URL implements Serializable {
             }
         }
         // return immediately if there's no change
+        // 两个Map完全一致,则不做变更
         if (hasAndEqual) {
             return this;
         }
 
+        // 复制当前参数
         Map<String, String> map = new HashMap<>(getParameters());
+        // 给定的参数进行覆盖
         map.putAll(parameters);
+        // 重新创建返回
         return new URL(protocol, username, password, host, port, path, map);
     }
 
@@ -1445,10 +1456,15 @@ public class URL implements Serializable {
         return buildString(true, false, parameters); // only return identity message, see the method "equals" and "hashCode"
     }
 
+    /**
+     * 完整字符串,包含协议,用户名密码,主机端口,路径,以及全部参数
+     * @return
+     */
     public String toFullString() {
         if (full != null) {
             return full;
         }
+        // 追加用户信息和参数
         return full = buildString(true, true);
     }
 
@@ -1473,16 +1489,17 @@ public class URL implements Serializable {
      * 构建参数字符串
      * @param buf 用于保存结果
      * @param concat 是否连接,true则追加'?'
-     * @param parameters 参数数组
+     * @param includeParameterNames 要包含的参数名,如果为空则默认全部包含
      */
-    private void buildParameters(StringBuilder buf, boolean concat, String[] parameters) {
-        // 参数非空
+    private void buildParameters(StringBuilder buf, boolean concat, String[] includeParameterNames) {
+        // 当前url参数非空
         if (CollectionUtils.isNotEmptyMap(getParameters())) {
             //
-            List<String> includes = (ArrayUtils.isEmpty(parameters) ? null : Arrays.asList(parameters));
+            List<String> includes = (ArrayUtils.isEmpty(includeParameterNames) ? null : Arrays.asList(includeParameterNames));
             boolean first = true;
+            // 复制当前url的参数并排序
             TreeMap<String, String> sortedParameters = new TreeMap<>(getParameters());
-            //
+            // 遍历
             for (Map.Entry<String, String> entry : sortedParameters.entrySet()) {
                 // 键非空且已经包含了这个key
                 if (StringUtils.isNotEmpty(entry.getKey())
@@ -1505,10 +1522,20 @@ public class URL implements Serializable {
     }
 
     private String buildString(boolean appendUser, boolean appendParameter, String... parameters) {
+        // 不使用ip,不使用服务,包含全部参数
         return buildString(appendUser, appendParameter, false, false, parameters);
     }
 
-    private String buildString(boolean appendUser, boolean appendParameter, boolean useIP, boolean useService, String... parameters) {
+    /**
+     *
+     * @param appendUser 是否追加用户信息,username:password
+     * @param appendParameter 是否追加参数
+     * @param useIP 是否使用ip
+     * @param useService 是否使用服务,true则使用服务键group/interface:version,false则使用路径
+     * @param includeParameterNames 要包含的参数名,为null则全部包含
+     * @return
+     */
+    private String buildString(boolean appendUser, boolean appendParameter, boolean useIP, boolean useService, String... includeParameterNames) {
         StringBuilder buf = new StringBuilder();
         // 协议://
         if (StringUtils.isNotEmpty(protocol)) {
@@ -1555,7 +1582,7 @@ public class URL implements Serializable {
         }
         // 追加参数
         if (appendParameter) {
-            buildParameters(buf, true, parameters);
+            buildParameters(buf, true, includeParameterNames);
         }
         return buf.toString();
     }
@@ -1573,9 +1600,9 @@ public class URL implements Serializable {
     }
 
     /**
-     * The format is "{interface}:[version]:[group]"
+     * 格式为:  "{interface}:[version]:[group]"
      *
-     * @return
+     * @return 冒号分隔的键
      */
     public String getColonSeparatedKey() {
         StringBuilder serviceNameBuilder = new StringBuilder();
@@ -1612,25 +1639,27 @@ public class URL implements Serializable {
         if (interfaceValue == null) {
             return null;
         }
+        // group
         String groupValue = getParameter(GROUP_KEY);
+        // version
         String versionValue = getParameter(VERSION_KEY);
         // group/interfaceValue:version
         serviceKey = buildKey(interfaceValue, groupValue, versionValue);
         return serviceKey;
     }
 
-    /**
-     * The format of return value is '{group}/{path/interfaceName}:{version}'
-     *
-     * @return
-     */
-    public String getPathKey() {
-        String inf = StringUtils.isNotEmpty(path) ? path : getServiceInterface();
-        if (inf == null) {
-            return null;
-        }
-        return buildKey(inf, getParameter(GROUP_KEY), getParameter(VERSION_KEY));
-    }
+//    /**
+//     * The format of return value is '{group}/{path/interfaceName}:{version}'
+//     *
+//     * @return
+//     */
+//    public String getPathKey() {
+//        String inf = StringUtils.isNotEmpty(path) ? path : getServiceInterface();
+//        if (inf == null) {
+//            return null;
+//        }
+//        return buildKey(inf, getParameter(GROUP_KEY), getParameter(VERSION_KEY));
+//    }
 
     public static String buildKey(String path, String group, String version) {
         return BaseServiceMetadata.buildServiceKey(path, group, version);
@@ -1684,9 +1713,11 @@ public class URL implements Serializable {
             return false;
         }
         URL other = (URL) obj;
+        // 主机不一致,则不等
         if (!StringUtils.isEquals(host, other.host)) {
             return false;
         }
+        // 参数不一致则不等
         if (parameters == null) {
             if (other.parameters != null) {
                 return false;
@@ -1694,12 +1725,15 @@ public class URL implements Serializable {
         } else if (!parameters.equals(other.parameters)) {
             return false;
         }
+        // 密码不一致则不等
         if (!StringUtils.isEquals(password, other.password)) {
             return false;
         }
+        // 路径不一致则不等
         if (!StringUtils.isEquals(path, other.path)) {
             return false;
         }
+        // 端口不一致则不等
         if (port != other.port) {
             return false;
         }

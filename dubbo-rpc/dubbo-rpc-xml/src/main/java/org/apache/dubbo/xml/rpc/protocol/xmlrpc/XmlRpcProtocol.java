@@ -42,6 +42,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 组件名称为xmlrpc
+ */
 public class XmlRpcProtocol extends AbstractProxyProtocol {
 
     public static final String ACCESS_CONTROL_ALLOW_ORIGIN_HEADER = "Access-Control-Allow-Origin";

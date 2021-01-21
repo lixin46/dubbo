@@ -28,8 +28,10 @@ import org.apache.dubbo.rpc.cluster.RouterChain;
 import java.util.Collections;
 import java.util.List;
 
+
 /**
- * StaticDirectory
+ * 静态目录
+ * @param <T> 服务接口
  */
 public class StaticDirectory<T> extends AbstractDirectory<T> {
     private static final Logger logger = LoggerFactory.getLogger(StaticDirectory.class);
@@ -47,24 +49,29 @@ public class StaticDirectory<T> extends AbstractDirectory<T> {
         this(null, invokers, null);
     }
 
+    /**
+     * 构造方法
+     * @param invokers 调用器列表
+     * @param routerChain 路由器链
+     */
     public StaticDirectory(List<Invoker<T>> invokers, RouterChain<T> routerChain) {
         this(null, invokers, routerChain);
     }
 
     /**
      * 构造方法
-     * @param url
-     * @param invokers
+     * @param url 信息???
+     * @param invokers 调用器列表
      */
     public StaticDirectory(URL url, List<Invoker<T>> invokers) {
         this(url, invokers, null);
     }
 
     /**
-     * 构造方法
-     * @param url
-     * @param invokers
-     * @param routerChain
+     * 核心构造方法
+     * @param url 信息
+     * @param invokers 调用器列表
+     * @param routerChain 路由器链
      */
     public StaticDirectory(URL url, List<Invoker<T>> invokers, RouterChain<T> routerChain) {
         super(url == null && CollectionUtils.isNotEmpty(invokers) ? invokers.get(0).getUrl() : url, routerChain);
@@ -73,6 +80,8 @@ public class StaticDirectory<T> extends AbstractDirectory<T> {
         }
         this.invokers = invokers;
     }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Directory接口实现
 
     @Override
     public Class<T> getInterface() {
@@ -84,6 +93,25 @@ public class StaticDirectory<T> extends AbstractDirectory<T> {
         return invokers;
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // AbstractDirectory实现
+    @Override
+    protected List<Invoker<T>> doList(Invocation invocation) throws RpcException {
+        List<Invoker<T>> finalInvokers = invokers;
+        // 存在路由链
+        if (routerChain != null) {
+            try {
+                URL consumerUrl = getConsumerUrl();
+                // 路由,获取最终的调用器
+                finalInvokers = routerChain.route(consumerUrl, invocation);
+            } catch (Throwable t) {
+                logger.error("Failed to execute router: " + getUrl() + ", cause: " + t.getMessage(), t);
+            }
+        }
+        return finalInvokers == null ? Collections.emptyList() : finalInvokers;
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Node接口实现
     @Override
     public boolean isAvailable() {
         if (isDestroyed()) {
@@ -109,26 +137,17 @@ public class StaticDirectory<T> extends AbstractDirectory<T> {
         invokers.clear();
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+
     public void buildRouterChain() {
+        // 根据url,构建路由器链
         RouterChain<T> routerChain = RouterChain.buildChain(getUrl());
+        // 路由器链引用调用器
         routerChain.setInvokers(invokers);
+        // 保存路由器链
         this.setRouterChain(routerChain);
     }
 
-    @Override
-    protected List<Invoker<T>> doList(Invocation invocation) throws RpcException {
-        List<Invoker<T>> finalInvokers = invokers;
-        // 存在路由链
-        if (routerChain != null) {
-            try {
-                URL consumerUrl = getConsumerUrl();
-                // 路由
-                finalInvokers = routerChain.route(consumerUrl, invocation);
-            } catch (Throwable t) {
-                logger.error("Failed to execute router: " + getUrl() + ", cause: " + t.getMessage(), t);
-            }
-        }
-        return finalInvokers == null ? Collections.emptyList() : finalInvokers;
-    }
+
 
 }

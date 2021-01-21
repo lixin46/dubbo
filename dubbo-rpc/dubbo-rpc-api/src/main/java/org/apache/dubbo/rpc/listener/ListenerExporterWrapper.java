@@ -36,15 +36,23 @@ public class ListenerExporterWrapper<T> implements Exporter<T> {
 
     private final List<ExporterListener> listeners;
 
+    /**
+     * 构造方法
+     * @param exporter 导出器
+     * @param listeners 导出器监听器
+     */
     public ListenerExporterWrapper(Exporter<T> exporter, List<ExporterListener> listeners) {
         if (exporter == null) {
             throw new IllegalArgumentException("exporter == null");
         }
         this.exporter = exporter;
         this.listeners = listeners;
+        // 监听器非空
         if (CollectionUtils.isNotEmpty(listeners)) {
             RuntimeException exception = null;
+            // 遍历
             for (ExporterListener listener : listeners) {
+                // 非null,则通知监听器
                 if (listener != null) {
                     try {
                         listener.exported(this);
@@ -54,6 +62,7 @@ public class ListenerExporterWrapper<T> implements Exporter<T> {
                     }
                 }
             }
+            // 保存最后一个发生的异常
             if (exception != null) {
                 throw exception;
             }

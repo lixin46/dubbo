@@ -528,8 +528,7 @@ public abstract class AbstractConfig implements Serializable {
      * 刷新
      * 就是根据当前实例的setter,从全局环境中获取Configuration对象,并注入属性
      */
-    public void
-    refresh() {
+    public void refresh() {
         // 获取环境
         Environment env = ApplicationModel.getEnvironment();
         try {

@@ -16,8 +16,10 @@
  */
 package org.apache.dubbo.common.extension;
 
+
 /**
- * ExtensionFactory
+ * 扩展实例工厂,用于生成扩展实例
+ * 与ExtensionLoader的关系
  */
 @SPI
 public interface ExtensionFactory {

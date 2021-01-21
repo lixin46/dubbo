@@ -29,10 +29,10 @@ import org.apache.dubbo.common.extension.SPI;
 public interface ConfiguratorFactory {
 
     /**
-     * get the configurator instance.
-     *
-     * @param url - configurator url.
-     * @return configurator instance.
+     * 根据url的协议,生成对应的配置器
+     * 包含override配置和absent配置器两种工厂
+     * @param url 指定的url
+     * @return 配置器实例
      */
     @Adaptive("protocol")
     Configurator getConfigurator(URL url);

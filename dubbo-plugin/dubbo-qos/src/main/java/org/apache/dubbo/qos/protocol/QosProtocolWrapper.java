@@ -37,6 +37,7 @@ import static org.apache.dubbo.common.constants.QosConstants.QOS_HOST;
 import static org.apache.dubbo.common.constants.QosConstants.QOS_PORT;
 
 /**
+ * 组件名称为qos
  * 服务质量协议包装器包装器
  */
 public class QosProtocolWrapper implements Protocol {

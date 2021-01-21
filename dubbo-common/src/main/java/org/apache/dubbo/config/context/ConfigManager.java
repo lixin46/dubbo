@@ -230,10 +230,14 @@ public class ConfigManager extends LifecycleAdapter implements FrameworkExt {
      * Only allows one default ConsumerConfig
      */
     public Optional<ConsumerConfig> getDefaultConsumer() {
-        List<ConsumerConfig> consumerConfigs = getDefaultConfigs(getConfigsMap(getTagName(ConsumerConfig.class)));
+        String tagName = getTagName(ConsumerConfig.class);
+        // 筛选default属性为true的
+        List<ConsumerConfig> consumerConfigs = getDefaultConfigs(getConfigsMap(tagName));
+        // 非空,则取第一个
         if (CollectionUtils.isNotEmpty(consumerConfigs)) {
             return Optional.of(consumerConfigs.get(0));
         }
+        // 返回空
         return Optional.empty();
     }
 

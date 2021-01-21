@@ -74,6 +74,10 @@ public class ZookeeperRegistry extends FailbackRegistry {
 
     private final Set<String> anyServices = new ConcurrentHashSet<>();
 
+    /**
+     * zk的监听器映射
+     * 一级key为订阅的url,二级key为订阅的监听器,value为zk的子节点变化监听器
+     */
     private final ConcurrentMap<URL, ConcurrentMap<NotifyListener, ChildListener>> zkListeners = new ConcurrentHashMap<>();
 
     private final ZookeeperClient zkClient;
@@ -136,6 +140,7 @@ public class ZookeeperRegistry extends FailbackRegistry {
 
             }
         };
+        // 追加状态监听器
         zkClient.addStateListener(stateListener);
     }
     // -----------------------------------------------------------------------------------------------------------------
@@ -161,7 +166,7 @@ public class ZookeeperRegistry extends FailbackRegistry {
     @Override
     public void doRegister(URL url) {
         try {
-            // /group/interface/side/url
+            // /group/interface/category/url
             String urlPath = toUrlPath(url);
             // 获取dynamic,默认为true
             // 代表zk节点是否为临时
@@ -183,47 +188,81 @@ public class ZookeeperRegistry extends FailbackRegistry {
         }
     }
 
+    /**
+     * @param consumerUrl consumer://host:port/path?parameters,
+     *                    协议不重要,重要的是url中的group,interface,category参数
+     * @param listener
+     */
     @Override
-    public void doSubscribe(final URL url, final NotifyListener listener) {
+    public void doSubscribe(final URL consumerUrl, final NotifyListener listener) {
         try {
-            if (ANY_VALUE.equals(url.getServiceInterface())) {
+            // "*"
+            if (ANY_VALUE.equals(consumerUrl.getServiceInterface())) {
+                // 根路径,即分组
                 String root = toRootPath();
-                ConcurrentMap<NotifyListener, ChildListener> listeners = zkListeners.computeIfAbsent(url, k -> new ConcurrentHashMap<>());
+                // 获取监听url对应的以你干涉
+                ConcurrentMap<NotifyListener, ChildListener> listeners = zkListeners.computeIfAbsent(consumerUrl, k -> new ConcurrentHashMap<>());
+                // 获取NotifyListener对应的zk子节点变化监听器
                 ChildListener zkListener = listeners.computeIfAbsent(listener, k -> (parentPath, currentChilds) -> {
+
+                    // 子节点监听器的回调逻辑
                     for (String child : currentChilds) {
                         child = URL.decode(child);
+                        // 不包含节点
                         if (!anyServices.contains(child)) {
+                            // 添加
                             anyServices.add(child);
-                            subscribe(url.setPath(child).addParameters(INTERFACE_KEY, child,
-                                    Constants.CHECK_KEY, String.valueOf(false)), k);
+                            URL url = consumerUrl.setPath(child).addParameters(INTERFACE_KEY, child,
+                                    Constants.CHECK_KEY, String.valueOf(false));
+                            // 订阅url
+                            subscribe(url, k);
                         }
                     }
                 });
                 zkClient.create(root, false);
+                // 监听之后的最新子列表
                 List<String> services = zkClient.addChildListener(root, zkListener);
+
+                /*
+                 * 执行一次与监听器相同的逻辑
+                 */
                 if (CollectionUtils.isNotEmpty(services)) {
                     for (String service : services) {
                         service = URL.decode(service);
                         anyServices.add(service);
-                        subscribe(url.setPath(service).addParameters(INTERFACE_KEY, service,
+                        subscribe(consumerUrl.setPath(service).addParameters(INTERFACE_KEY, service,
                                 Constants.CHECK_KEY, String.valueOf(false)), listener);
                     }
                 }
-            } else {
+            }
+            // 特定接口
+            else {
                 List<URL> urls = new ArrayList<>();
-                for (String path : toCategoriesPath(url)) {
-                    ConcurrentMap<NotifyListener, ChildListener> listeners = zkListeners.computeIfAbsent(url, k -> new ConcurrentHashMap<>());
-                    ChildListener zkListener = listeners.computeIfAbsent(listener, k -> (parentPath, currentChilds) -> ZookeeperRegistry.this.notify(url, k, toUrlsWithEmpty(url, parentPath, currentChilds)));
+                // 提取category参数,逗号拆分
+                // 与group和interface一起,组成完整路径
+                String[] categoriesPath = toCategoriesPath(consumerUrl);
+                // 遍历路径
+                for (String path : categoriesPath) {
+                    // 获取url对应的监听器映射
+                    ConcurrentMap<NotifyListener, ChildListener> listeners = zkListeners.computeIfAbsent(consumerUrl, k -> new ConcurrentHashMap<>());
+                    // 获取监听器对应的子列表监听器
+                    ChildListener zkListener = listeners.computeIfAbsent(listener, k -> (parentPath, currentChilds) -> ZookeeperRegistry.this.notify(consumerUrl, k, toUrlsWithEmpty(consumerUrl, parentPath, currentChilds)));
+                    // 确保路径节点存在
                     zkClient.create(path, false);
+                    // 追加监听器,获取监听之后的最新列表
+                    // 获取到的是叶子节点名称,也就是url
                     List<String> children = zkClient.addChildListener(path, zkListener);
+                    // 存在子节点
                     if (children != null) {
-                        urls.addAll(toUrlsWithEmpty(url, path, children));
+                        urls.addAll(toUrlsWithEmpty(consumerUrl, path, children));
                     }
                 }
-                notify(url, listener, urls);
+                // 整合所有类别的url后
+                // 一次性通知
+                notify(consumerUrl, listener, urls);
             }
         } catch (Throwable e) {
-            throw new RpcException("Failed to subscribe " + url + " to zookeeper " + getUrl() + ", cause: " + e.getMessage(), e);
+            throw new RpcException("Failed to subscribe " + consumerUrl + " to zookeeper " + getUrl() + ", cause: " + e.getMessage(), e);
         }
     }
 
@@ -247,6 +286,7 @@ public class ZookeeperRegistry extends FailbackRegistry {
 
     /**
      * 重写父类方法
+     *
      * @param url 指定的url
      * @return
      */
@@ -276,66 +316,94 @@ public class ZookeeperRegistry extends FailbackRegistry {
     // -----------------------------------------------------------------------------------------------------------------
 
     private String toRootDir() {
-        //
         if (root.equals(PATH_SEPARATOR)) {
             return root;
         }
         return root + PATH_SEPARATOR;
     }
 
+    /**
+     * @return /group
+     */
     private String toRootPath() {
         return root;
     }
 
+    /**
+     * @param url
+     * @return /group/interface
+     */
     private String toServicePath(URL url) {
         // 接口名
-        String name = url.getServiceInterface();
+        String interfaceName = url.getServiceInterface();
         // 接口名为*,则返回根路径,就是分组名称
-        if (ANY_VALUE.equals(name)) {
+        if (ANY_VALUE.equals(interfaceName)) {
             return toRootPath();
         }
         // 分组/接口名
-        return toRootDir() + URL.encode(name);
+        return toRootDir() + URL.encode(interfaceName);
     }
 
     private String[] toCategoriesPath(URL url) {
         String[] categories;
+        // category="*"
         if (ANY_VALUE.equals(url.getParameter(CATEGORY_KEY))) {
-            categories = new String[]{PROVIDERS_CATEGORY, CONSUMERS_CATEGORY, ROUTERS_CATEGORY, CONFIGURATORS_CATEGORY};
-        } else {
+            //
+            categories = new String[]{
+                    PROVIDERS_CATEGORY,// providers
+                    CONSUMERS_CATEGORY,// consumers
+                    ROUTERS_CATEGORY,// routers
+                    CONFIGURATORS_CATEGORY// configurators
+            };
+        }
+        // 其他
+        else {
+            // 默认为providers
             categories = url.getParameter(CATEGORY_KEY, new String[]{DEFAULT_CATEGORY});
         }
         String[] paths = new String[categories.length];
         for (int i = 0; i < categories.length; i++) {
-            paths[i] = toServicePath(url) + PATH_SEPARATOR + categories[i];
+            String servicePath = toServicePath(url);
+            // 服务分组(默认为dubbo)/服务接口/分类
+            paths[i] = servicePath + PATH_SEPARATOR + categories[i];
         }
         return paths;
     }
 
+    /**
+     * @param url url
+     * @return /group/interface/category
+     */
     private String toCategoryPath(URL url) {
-        // /分组(可选)/接口名(可选)/providers
         String servicePath = toServicePath(url);
-        // {servicePath}/providers
         return servicePath + PATH_SEPARATOR + url.getParameter(CATEGORY_KEY, DEFAULT_CATEGORY);
     }
 
+    /**
+     * @param url
+     * @return /group/interface/category/url
+     */
     private String toUrlPath(URL url) {
-        // /分组(可选)/接口名(可选)/providers
-        String categoryPath = toCategoryPath(url);
+        // /group/interface/category
+        String parentPath = toCategoryPath(url);
         // protocol://username:password@host:port/path
-        String fullUrl = url.toFullString();
+        String childNode = url.toFullString();
         // group/interface/side/url
         // /分组(可选)/接口名(可选)/providers/encode(protocol://username:password@host:port/path)
         // categoryPath/fullUrl
-        return  categoryPath + PATH_SEPARATOR + URL.encode(fullUrl);
+        return parentPath + PATH_SEPARATOR + URL.encode(childNode);
     }
 
     private List<URL> toUrlsWithoutEmpty(URL consumer, List<String> providers) {
         List<URL> urls = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(providers)) {
+            // 遍历提供者
             for (String provider : providers) {
+                // 包含协议
                 if (provider.contains(PROTOCOL_SEPARATOR_ENCODED)) {
+                    // 解析url
                     URL url = URLStrParser.parseEncodedStr(provider);
+                    // 匹配则追加
                     if (UrlUtils.isMatch(consumer, url)) {
                         urls.add(url);
                     }
@@ -345,13 +413,21 @@ public class ZookeeperRegistry extends FailbackRegistry {
         return urls;
     }
 
+    /**
+     * @param consumer  ???
+     * @param path      zk节点路径
+     * @param providers 子节点名称
+     * @return
+     */
     private List<URL> toUrlsWithEmpty(URL consumer, String path, List<String> providers) {
+        // 转换成url
         List<URL> urls = toUrlsWithoutEmpty(consumer, providers);
+        // 为空,则构建一个empty://开头的url,追加到列表中
         if (urls == null || urls.isEmpty()) {
             int i = path.lastIndexOf(PATH_SEPARATOR);
             String category = i < 0 ? path : path.substring(i + 1);
             URL empty = URLBuilder.from(consumer)
-                    .setProtocol(EMPTY_PROTOCOL)
+                    .setProtocol(EMPTY_PROTOCOL)// empty://
                     .addParameter(CATEGORY_KEY, category)
                     .build();
             urls.add(empty);
@@ -365,14 +441,20 @@ public class ZookeeperRegistry extends FailbackRegistry {
      */
     private void fetchLatestAddresses() {
         // subscribe
+        // 复制订阅映射
         Map<URL, Set<NotifyListener>> recoverSubscribed = new HashMap<URL, Set<NotifyListener>>(getSubscribed());
+        // 非空
         if (!recoverSubscribed.isEmpty()) {
             if (logger.isInfoEnabled()) {
                 logger.info("Fetching the latest urls of " + recoverSubscribed.keySet());
             }
+            // 遍历键值对
             for (Map.Entry<URL, Set<NotifyListener>> entry : recoverSubscribed.entrySet()) {
+                // 监听的key
                 URL url = entry.getKey();
+                // 遍历监听器
                 for (NotifyListener listener : entry.getValue()) {
+                    // 添加失败订阅
                     addFailedSubscribed(url, listener);
                 }
             }

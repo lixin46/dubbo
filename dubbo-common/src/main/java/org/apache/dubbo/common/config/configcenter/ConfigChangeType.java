@@ -21,17 +21,17 @@ package org.apache.dubbo.common.config.configcenter;
  */
 public enum ConfigChangeType {
     /**
-     * A config is created.
+     * 新增配置
      */
     ADDED,
 
     /**
-     * A config is updated.
+     * 修改配置
      */
     MODIFIED,
 
     /**
-     * A config is deleted.
+     * 删除配置
      */
     DELETED
 }

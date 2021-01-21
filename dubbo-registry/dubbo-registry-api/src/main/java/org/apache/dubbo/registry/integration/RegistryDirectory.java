@@ -94,24 +94,71 @@ import static org.apache.dubbo.rpc.cluster.Constants.ROUTER_KEY;
 public class RegistryDirectory<T> extends AbstractDirectory<T> implements NotifyListener {
 
     private static final Logger logger = LoggerFactory.getLogger(RegistryDirectory.class);
-
+    /**
+     * 集群适配器,负责产生集群调用器
+     */
     private static final Cluster CLUSTER = ExtensionLoader.getExtensionLoader(Cluster.class).getAdaptiveExtension();
+    /**
+     * 路由器工厂适配器,负责创建路由器
+     */
+    private static final RouterFactory ROUTER_FACTORY = ExtensionLoader.getExtensionLoader(RouterFactory.class).getAdaptiveExtension();
+    /**
+     * 消费者配置监听器
+     * ConfigurationListener实现,构造方法初始化时自动追加到DynamicConfiguration中.
+     * 之后进行首次规则拉取,并解析为List<Configurator>.
+     * 每次配置变更,都会重新解析配置器列表.
+     */
+    private static final ConsumerConfigurationListener CONSUMER_CONFIGURATION_LISTENER = new ConsumerConfigurationListener();
 
-    private static final RouterFactory ROUTER_FACTORY = ExtensionLoader.getExtensionLoader(RouterFactory.class)
-            .getAdaptiveExtension();
 
+    // -----------------------------------------------------------------------------------------------------------------
+    /**
+     * 服务键,构造方法初始化,不能为null
+     * 默认为分组/接口:版本
+     */
     private final String serviceKey; // Initialization at construction time, assertion not null
+    /**
+     * 服务接口,构造方法初始化
+     */
     private final Class<T> serviceType; // Initialization at construction time, assertion not null
+    /**
+     * url中的refer参数值,构造方法初始化
+     */
     private final Map<String, String> queryMap; // Initialization at construction time, assertion not null
+    /**
+     * 消费者目录???构造方法初始化
+     */
     private final URL directoryUrl; // Initialization at construction time, assertion not null, and always assign non null value
+    /**
+     * 是否存在多个分组,构造方法初始化
+     */
     private final boolean multiGroup;
-    private Protocol protocol; // Initialization at the time of injection, the assertion is not null
-    private Registry registry; // Initialization at the time of injection, the assertion is not null
-    private volatile boolean forbidden = false;
+    /**
+     * 是否应该注册,读取url中的register参数,
+     * 有什么用???
+     */
     private boolean shouldRegister;
+    /**
+     * 是否应该简化注册,读取url中的simplified参数,
+     * 有什么用?
+     */
     private boolean shouldSimplified;
-
+    /**
+     * 重写的目录url???构造方法初始化
+     */
     private volatile URL overrideDirectoryUrl; // Initialization at construction time, assertion not null, and always assign non null value
+
+    /**
+     * setter注入
+     */
+    private Protocol protocol; // Initialization at the time of injection, the assertion is not null
+    /**
+     * setter注入
+     */
+    private Registry registry; // Initialization at the time of injection, the assertion is not null
+
+    private volatile boolean forbidden = false;
+
 
     private volatile URL registeredConsumerUrl;
 
@@ -120,6 +167,8 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
      * Priority: override>-D>consumer>provider
      * Rule one: for a certain provider <ip:port,timeout=100>
      * Rule two: for all providers <* ,timeout=5000>
+     *
+     * 配置器,用于重写url的参数
      */
     private volatile List<Configurator> configurators; // The initial value is null and the midway may be assigned to null, please use the local variable reference
 
@@ -130,74 +179,45 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
     // Set<invokerUrls> cache invokeUrls to invokers mapping.
     private volatile Set<URL> cachedInvokerUrls; // The initial value is null and the midway may be assigned to null, please use the local variable reference
 
-    private static final ConsumerConfigurationListener CONSUMER_CONFIGURATION_LISTENER = new ConsumerConfigurationListener();
+    /**
+     * 当前引用对应的配置监听器,监听配置中心关于当前引用key的变化,并同步变更内存引用的Configurator列表
+     * ConfigurationListener实现
+     */
     private ReferenceConfigurationListener serviceConfigurationListener;
 
 
     /**
-     * 构造方法
+     * 唯一构造方法
+     *
      * @param serviceType 服务接口类型
-     * @param url 信息
+     * @param url         信息,比如zookeeper://
      */
     public RegistryDirectory(Class<T> serviceType, URL url) {
         super(url);
         if (serviceType == null) {
             throw new IllegalArgumentException("service type is null.");
         }
-
+        // 接口不为'*'且register为true,则应该注册
         shouldRegister = !ANY_VALUE.equals(url.getServiceInterface()) && url.getParameter(REGISTER_KEY, true);
+        // simplified参数
         shouldSimplified = url.getParameter(SIMPLIFIED_KEY, false);
+        // group/interface:version
         if (url.getServiceKey() == null || url.getServiceKey().length() == 0) {
             throw new IllegalArgumentException("registry serviceKey is null.");
         }
         this.serviceType = serviceType;
         this.serviceKey = url.getServiceKey();
         this.queryMap = StringUtils.parseQueryString(url.getParameterAndDecoded(REFER_KEY));
+        // 把注册中心url转换成消费者url
         this.overrideDirectoryUrl = this.directoryUrl = turnRegistryUrlToConsumerUrl(url);
+        // group参数
         String group = directoryUrl.getParameter(GROUP_KEY, "");
+        // group为'*'或存在多个分组,则为true
         this.multiGroup = group != null && (ANY_VALUE.equals(group) || group.contains(","));
     }
 
-    private URL turnRegistryUrlToConsumerUrl(URL url) {
-        return URLBuilder.from(url)
-                .setPath(url.getServiceInterface())
-                .clearParameters()
-                .addParameters(queryMap)
-                .removeParameter(MONITOR_KEY)
-                .build();
-    }
-
-    public void setProtocol(Protocol protocol) {
-        this.protocol = protocol;
-    }
-
-    public void setRegistry(Registry registry) {
-        this.registry = registry;
-    }
-
-    public Registry getRegistry() {
-        return registry;
-    }
-
-    public boolean isShouldRegister() {
-        return shouldRegister;
-    }
-
-    public void subscribe(URL url) {
-        setConsumerUrl(url);
-        CONSUMER_CONFIGURATION_LISTENER.addNotifyListener(this);
-        serviceConfigurationListener = new ReferenceConfigurationListener(this, url);
-        registry.subscribe(url, this);
-    }
-
-    public void unSubscribe(URL url) {
-        setConsumerUrl(null);
-        CONSUMER_CONFIGURATION_LISTENER.removeNotifyListener(this);
-        serviceConfigurationListener.stop();
-        registry.unsubscribe(url, this);
-    }
-
-
+    // -----------------------------------------------------------------------------------------------------------------
+    // Node接口实现
     @Override
     public void destroy() {
         if (isDestroyed()) {
@@ -231,90 +251,258 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
     }
 
     @Override
-    public synchronized void notify(List<URL> urls) {
-        Map<String, List<URL>> categoryUrls = urls.stream()
+    public boolean isAvailable() {
+        if (isDestroyed()) {
+            return false;
+        }
+        Map<String, Invoker<T>> localUrlInvokerMap = urlInvokerMap;
+        if (localUrlInvokerMap != null && localUrlInvokerMap.size() > 0) {
+            for (Invoker<T> invoker : new ArrayList<>(localUrlInvokerMap.values())) {
+                if (invoker.isAvailable()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // AbstractDirectory抽象父类实现
+    @Override
+    public List<Invoker<T>> doList(Invocation invocation) {
+        if (forbidden) {
+            // 1. No service provider 2. Service providers are disabled
+            throw new RpcException(RpcException.FORBIDDEN_EXCEPTION, "No provider available from registry " +
+                    getUrl().getAddress() + " for service " + getConsumerUrl().getServiceKey() + " on consumer " +
+                    NetUtils.getLocalHost() + " use dubbo version " + Version.getVersion() +
+                    ", please check status of providers(disabled, not registered or in blacklist).");
+        }
+
+        if (multiGroup) {
+            return this.invokers == null ? Collections.emptyList() : this.invokers;
+        }
+
+        List<Invoker<T>> invokers = null;
+        try {
+            // Get invokers from cache, only runtime routers will be executed.
+            invokers = routerChain.route(getConsumerUrl(), invocation);
+        } catch (Throwable t) {
+            logger.error("Failed to execute router: " + getUrl() + ", cause: " + t.getMessage(), t);
+        }
+
+        return invokers == null ? Collections.emptyList() : invokers;
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Directory接口实现
+
+    @Override
+    public Class<T> getInterface() {
+        return serviceType;
+    }
+
+    @Override
+    public List<Invoker<T>> getAllInvokers() {
+        return invokers;
+    }
+
+    @Override
+    public URL getConsumerUrl() {
+        return this.overrideDirectoryUrl;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // NotifyListener接口实现
+
+    /**
+     * 接收注册中心变化通知,被谁调???
+     *
+     * @param urlsForCategory 某一个类别对应的url列表
+     */
+    @Override
+    public synchronized void notify(List<URL> urlsForCategory) {
+        // key为category,value为url列表
+        // category共3种:providers,routers,configurators
+        Map<String, List<URL>> categoryUrls = urlsForCategory.stream()
                 .filter(Objects::nonNull)
-                .filter(this::isValidCategory)
-                .filter(this::isNotCompatibleFor26x)
+                .filter(this::isValidCategory)// 保留有效类别url
+                .filter(this::isNotCompatibleFor26x)// 保留不兼容的url
                 .collect(Collectors.groupingBy(this::judgeCategory));
 
-        List<URL> configuratorURLs = categoryUrls.getOrDefault(CONFIGURATORS_CATEGORY, Collections.emptyList());
-        this.configurators = Configurator.toConfigurators(configuratorURLs).orElse(this.configurators);
+        // 通知配置器变化
+        notifyConfiguratorsChanged(categoryUrls);
+        // 通知路由器变化
+        notifyRoutersChanged(categoryUrls);
+        // 通知服务变化
+        notifyProvidersChanged(categoryUrls);
+    }
 
-        List<URL> routerURLs = categoryUrls.getOrDefault(ROUTERS_CATEGORY, Collections.emptyList());
-        toRouters(routerURLs).ifPresent(this::addRouters);
-
-        // providers
+    private void notifyProvidersChanged(Map<String, List<URL>> categoryUrls) {
         List<URL> providerURLs = categoryUrls.getOrDefault(PROVIDERS_CATEGORY, Collections.emptyList());
         /**
          * 3.x added for extend URL address
          */
         ExtensionLoader<AddressListener> addressListenerExtensionLoader = ExtensionLoader.getExtensionLoader(AddressListener.class);
+        // 支持的地址监听器
         List<AddressListener> supportedListeners = addressListenerExtensionLoader.getActivateExtension(getUrl(), (String[]) null);
+        // 地址监听器非空
         if (supportedListeners != null && !supportedListeners.isEmpty()) {
+            // 遍历监听器
             for (AddressListener addressListener : supportedListeners) {
-                providerURLs = addressListener.notify(providerURLs, getConsumerUrl(),this);
+                // 通知,可进行扩展,对地址列表进行处理
+                providerURLs = addressListener.notify(providerURLs, getConsumerUrl(), this);
             }
         }
+        // 刷新和重写调用器
         refreshOverrideAndInvoker(providerURLs);
     }
 
+    private void notifyRoutersChanged(Map<String, List<URL>> categoryUrls) {
+        // 获取路由规则列表
+        List<URL> routerURLs = categoryUrls.getOrDefault(ROUTERS_CATEGORY, Collections.emptyList());
+        // 转换成路由器,如果存在,则追加路由器
+        toRouters(routerURLs).ifPresent(this::addRouters);
+    }
+
+    private void notifyConfiguratorsChanged(Map<String, List<URL>> categoryUrls) {
+        // 获取配置器列表
+        List<URL> configuratorURLs = categoryUrls.getOrDefault(CONFIGURATORS_CATEGORY, Collections.emptyList());
+        // 转换成配置器,为null则不替换
+        this.configurators = Configurator.toConfigurators(configuratorURLs).orElse(this.configurators);
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+
+    private URL turnRegistryUrlToConsumerUrl(URL url) {
+        return URLBuilder.from(url)
+                .setPath(url.getServiceInterface())// 把路径设置为接口(原来是RegistryService)
+                .clearParameters()// 删除所有参数
+                .addParameters(queryMap)// 追加refer展开的参数
+                .removeParameter(MONITOR_KEY)// 删除monitor参数
+                .build();
+    }
+
+    public void setProtocol(Protocol protocol) {
+        this.protocol = protocol;
+    }
+
+    public void setRegistry(Registry registry) {
+        this.registry = registry;
+    }
+
+    public Registry getRegistry() {
+        return registry;
+    }
+
+    public boolean isShouldRegister() {
+        return shouldRegister;
+    }
+
+    /**
+     * 订阅
+     *
+     * @param consumerUrl consumer://
+     */
+    public void subscribe(URL consumerUrl) {
+        setConsumerUrl(consumerUrl);
+        /*
+         * 配置中心相关
+         */
+        // 用于调用refreshInvokers
+        // ConfigurationListener接口实现,内部引用List<Directory>
+        // 追加到DynamicConfiguration,访问配置中心
+        // 给此监听器追加要通知的目录,用于刷新当前目录实例的调用器
+        CONSUMER_CONFIGURATION_LISTENER.addNotifyListener(this);
+        // 引用配置监听器,ConfigurationListener接口实现
+        // 监听key,调用refreshInvoker
+        serviceConfigurationListener = new ReferenceConfigurationListener(this, consumerUrl);
+        /*
+         * 注册中心相关
+         */
+        // 当前对象实现了NotifyListener接口
+        // 注册中心通知NotifyListener接口,当前对象转发到ConfigurationListener
+        registry.subscribe(consumerUrl, this);
+    }
+
+    public void unSubscribe(URL url) {
+        setConsumerUrl(null);
+        CONSUMER_CONFIGURATION_LISTENER.removeNotifyListener(this);
+        serviceConfigurationListener.stop();
+        registry.unsubscribe(url, this);
+    }
+
+    /**
+     * 根据协议或category参数,判断最终的category值
+     * @param url 指定的url
+     * @return
+     */
     private String judgeCategory(URL url) {
+        // 配置器
         if (UrlUtils.isConfigurator(url)) {
             return CONFIGURATORS_CATEGORY;
-        } else if (UrlUtils.isRoute(url)) {
+        }
+        // 路由规则
+        else if (UrlUtils.isRoute(url)) {
             return ROUTERS_CATEGORY;
-        } else if (UrlUtils.isProvider(url)) {
+        }
+        // 提供者
+        else if (UrlUtils.isProvider(url)) {
             return PROVIDERS_CATEGORY;
         }
         return "";
     }
 
-    private void refreshOverrideAndInvoker(List<URL> urls) {
+    private void refreshOverrideAndInvoker(List<URL> providerURLs) {
         // mock zookeeper://xxx?mock=return null
+        // 重写目录url的参数
         overrideDirectoryUrl();
-        refreshInvoker(urls);
+        //
+        refreshInvoker(providerURLs);
     }
 
-    /**
-     * Convert the invokerURL list to the Invoker Map. The rules of the conversion are as follows:
-     * <ol>
-     * <li> If URL has been converted to invoker, it is no longer re-referenced and obtained directly from the cache,
-     * and notice that any parameter changes in the URL will be re-referenced.</li>
-     * <li>If the incoming invoker list is not empty, it means that it is the latest invoker list.</li>
-     * <li>If the list of incoming invokerUrl is empty, It means that the rule is only a override rule or a route
-     * rule, which needs to be re-contrasted to decide whether to re-reference.</li>
-     * </ol>
-     *
-     * @param invokerUrls this parameter can't be null
-     */
-    // TODO: 2017/8/31 FIXME The thread pool should be used to refresh the address, otherwise the task may be accumulated.
-    private void refreshInvoker(List<URL> invokerUrls) {
-        Assert.notNull(invokerUrls, "invokerUrls should not be null");
 
-        if (invokerUrls.size() == 1
-                && invokerUrls.get(0) != null
-                && EMPTY_PROTOCOL.equals(invokerUrls.get(0).getProtocol())) {
+    /**
+     * 注册中心和配合中心的变化,都会触发此方法的调用
+     * 因为注册中心配置的变化也要重新生成调用器
+     *
+     * 刷新调用器列表
+     * @param providerURLs 真实的通信协议
+     */
+    private void refreshInvoker(List<URL> providerURLs) {
+        Assert.notNull(providerURLs, "invokerUrls should not be null");
+        // 没有可用的服务提供者
+        if (providerURLs.size() == 1 && providerURLs.get(0) != null && EMPTY_PROTOCOL.equals(providerURLs.get(0).getProtocol())) {
+            // 拒绝访问
             this.forbidden = true; // Forbid to access
+            // 空调用器
             this.invokers = Collections.emptyList();
+            // 设置
             routerChain.setInvokers(this.invokers);
+            // 销毁所有调用器
             destroyAllInvokers(); // Close all invokers
-        } else {
-            this.forbidden = false; // Allow to access
+        }
+        // 列表个数不为1,或者首个url协议不为empty
+        else {
+            // 允许访问
+            this.forbidden = false;
+            //
             Map<String, Invoker<T>> oldUrlInvokerMap = this.urlInvokerMap; // local reference
-            if (invokerUrls == Collections.<URL>emptyList()) {
-                invokerUrls = new ArrayList<>();
+            if (providerURLs == Collections.<URL>emptyList()) {
+                providerURLs = new ArrayList<>();
             }
-            if (invokerUrls.isEmpty() && this.cachedInvokerUrls != null) {
-                invokerUrls.addAll(this.cachedInvokerUrls);
-            } else {
+            // 给定列表为空,且当前存在可用调用器,追加到给定列表
+            if (providerURLs.isEmpty() && this.cachedInvokerUrls != null) {
+                providerURLs.addAll(this.cachedInvokerUrls);
+            }
+            // 给定列表非空,或缓存调用器为空,则追加缓存
+            else {
                 this.cachedInvokerUrls = new HashSet<>();
-                this.cachedInvokerUrls.addAll(invokerUrls);//Cached invoker urls, convenient for comparison
+                this.cachedInvokerUrls.addAll(providerURLs);//Cached invoker urls, convenient for comparison
             }
-            if (invokerUrls.isEmpty()) {
+            // 给定列表为空,则返回
+            if (providerURLs.isEmpty()) {
                 return;
             }
-            Map<String, Invoker<T>> newUrlInvokerMap = toInvokers(invokerUrls);// Translate url list to Invoker map
+            // 转换成调用器
+            Map<String, Invoker<T>> newUrlInvokerMap = toInvokers(providerURLs);// Translate url list to Invoker map
 
             /**
              * If the calculation is wrong, it is not processed.
@@ -325,7 +513,7 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
              *
              */
             if (CollectionUtils.isEmptyMap(newUrlInvokerMap)) {
-                logger.error(new IllegalStateException("urls to invokers error .invokerUrls.size :" + invokerUrls.size() + ", invoker.size :0. urls :" + invokerUrls
+                logger.error(new IllegalStateException("urls to invokers error .invokerUrls.size :" + providerURLs.size() + ", invoker.size :0. urls :" + providerURLs
                         .toString()));
                 return;
             }
@@ -369,26 +557,31 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
     }
 
     /**
-     * @param urls
+     * @param routerUrls
      * @return null : no routers ,do nothing
      * else :routers list
      */
-    private Optional<List<Router>> toRouters(List<URL> urls) {
-        if (urls == null || urls.isEmpty()) {
+    private Optional<List<Router>> toRouters(List<URL> routerUrls) {
+        if (routerUrls == null || routerUrls.isEmpty()) {
             return Optional.empty();
         }
 
         List<Router> routers = new ArrayList<>();
-        for (URL url : urls) {
+        for (URL url : routerUrls) {
+            // 跳过空协议,empty://
             if (EMPTY_PROTOCOL.equals(url.getProtocol())) {
                 continue;
             }
+            // 获取router参数,作为路由器类型
             String routerType = url.getParameter(ROUTER_KEY);
+            // 变更协议
+            // 如:route://host:port/path?router=app,变为:app//host:port/path?router=app
             if (routerType != null && routerType.length() > 0) {
                 url = url.setProtocol(routerType);
             }
             try {
                 Router router = ROUTER_FACTORY.getRouter(url);
+                // 不包含,则添加
                 if (!routers.contains(router)) {
                     routers.add(router);
                 }
@@ -457,7 +650,8 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
                         enabled = url.getParameter(ENABLED_KEY, true);
                     }
                     if (enabled) {
-                        invoker = new InvokerDelegate<>(protocol.refer(serviceType, url), url, providerUrl);
+                        Invoker<T> refer = protocol.refer(serviceType, url);
+                        invoker = new InvokerDelegate<>(refer, url, providerUrl);
                     }
                 } catch (Throwable t) {
                     logger.error("Failed to refer invoker for interface:" + serviceType + ",url:(" + url + ")" + t.getMessage(), t);
@@ -508,14 +702,26 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         return providerUrl;
     }
 
+    /**
+     * 使用配置器重写???
+     *
+     * @param providerUrl
+     * @return
+     */
     private URL overrideWithConfigurator(URL providerUrl) {
         // override url with configurator from "override://" URL for dubbo 2.6 and before
+        // 使用当前引用的配置器,重写提供者url
+        // 这是注册中心配置的配置器
         providerUrl = overrideWithConfigurators(this.configurators, providerUrl);
 
         // override url with configurator from configurator from "app-name.configurators"
-        providerUrl = overrideWithConfigurators(CONSUMER_CONFIGURATION_LISTENER.getConfigurators(), providerUrl);
+        // 消费者配置监听器,这是配置中心配置的配置器
+        List<Configurator> configurators = CONSUMER_CONFIGURATION_LISTENER.getConfigurators();
+        // 使用配置器重写
+        providerUrl = overrideWithConfigurators(configurators, providerUrl);
 
         // override url with configurator from configurators from "service-name.configurators"
+        // 使用配置器重写,这是配置中心配置的配置器
         if (serviceConfigurationListener != null) {
             providerUrl = overrideWithConfigurators(serviceConfigurationListener.getConfigurators(), providerUrl);
         }
@@ -523,9 +729,19 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         return providerUrl;
     }
 
+    /**
+     * 使用配置器重写???
+     *
+     * @param configurators
+     * @param url
+     * @return
+     */
     private URL overrideWithConfigurators(List<Configurator> configurators, URL url) {
+        // 列表非空
         if (CollectionUtils.isNotEmpty(configurators)) {
+            // 遍历配置器
             for (Configurator configurator : configurators) {
+                // 使用配置器配置url
                 url = configurator.configure(url);
             }
         }
@@ -595,45 +811,6 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         }
     }
 
-    @Override
-    public List<Invoker<T>> doList(Invocation invocation) {
-        if (forbidden) {
-            // 1. No service provider 2. Service providers are disabled
-            throw new RpcException(RpcException.FORBIDDEN_EXCEPTION, "No provider available from registry " +
-                    getUrl().getAddress() + " for service " + getConsumerUrl().getServiceKey() + " on consumer " +
-                    NetUtils.getLocalHost() + " use dubbo version " + Version.getVersion() +
-                    ", please check status of providers(disabled, not registered or in blacklist).");
-        }
-
-        if (multiGroup) {
-            return this.invokers == null ? Collections.emptyList() : this.invokers;
-        }
-
-        List<Invoker<T>> invokers = null;
-        try {
-            // Get invokers from cache, only runtime routers will be executed.
-            invokers = routerChain.route(getConsumerUrl(), invocation);
-        } catch (Throwable t) {
-            logger.error("Failed to execute router: " + getUrl() + ", cause: " + t.getMessage(), t);
-        }
-
-        return invokers == null ? Collections.emptyList() : invokers;
-    }
-
-    @Override
-    public Class<T> getInterface() {
-        return serviceType;
-    }
-
-    @Override
-    public List<Invoker<T>> getAllInvokers() {
-        return invokers;
-    }
-
-    @Override
-    public URL getConsumerUrl() {
-        return this.overrideDirectoryUrl;
-    }
 
     public URL getRegisteredConsumerUrl() {
         return registeredConsumerUrl;
@@ -649,24 +826,10 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         }
     }
 
-    @Override
-    public boolean isAvailable() {
-        if (isDestroyed()) {
-            return false;
-        }
-        Map<String, Invoker<T>> localUrlInvokerMap = urlInvokerMap;
-        if (localUrlInvokerMap != null && localUrlInvokerMap.size() > 0) {
-            for (Invoker<T> invoker : new ArrayList<>(localUrlInvokerMap.values())) {
-                if (invoker.isAvailable()) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
     public void buildRouterChain(URL url) {
-        this.setRouterChain(RouterChain.buildChain(url));
+        RouterChain<T> chain = RouterChain.buildChain(url);
+        this.setRouterChain(chain);
     }
 
     /**
@@ -681,11 +844,15 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
     }
 
     private boolean isValidCategory(URL url) {
+        // 获取category,默认为providers
         String category = url.getParameter(CATEGORY_KEY, DEFAULT_CATEGORY);
-        if ((ROUTERS_CATEGORY.equals(category) || ROUTE_PROTOCOL.equals(url.getProtocol())) ||
-                PROVIDERS_CATEGORY.equals(category) ||
-                CONFIGURATORS_CATEGORY.equals(category) || DYNAMIC_CONFIGURATORS_CATEGORY.equals(category) ||
-                APP_DYNAMIC_CONFIGURATORS_CATEGORY.equals(category)) {
+        // 提供者,路由器,配置器,动态配置器,应用动态配置器
+        if ((ROUTERS_CATEGORY.equals(category) || ROUTE_PROTOCOL.equals(url.getProtocol()))// routers类别或route协议
+                || PROVIDERS_CATEGORY.equals(category)// providers类别
+                || CONFIGURATORS_CATEGORY.equals(category)// configurators类别
+                || DYNAMIC_CONFIGURATORS_CATEGORY.equals(category)// dynamicconfigurators类别
+                || APP_DYNAMIC_CONFIGURATORS_CATEGORY.equals(category))// appdynamicconfigrators类别
+        {
             return true;
         }
         logger.warn("Unsupported category " + category + " in notified url: " + url + " from registry " +
@@ -699,13 +866,20 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
 
     private void overrideDirectoryUrl() {
         // merge override parameters
+        // 重写后的目录url
         this.overrideDirectoryUrl = directoryUrl;
+        // 保存配置器
         List<Configurator> localConfigurators = this.configurators; // local reference
+        // 调用配置器,对目录url进行重写
         doOverrideUrl(localConfigurators);
+        //
         List<Configurator> localAppDynamicConfigurators = CONSUMER_CONFIGURATION_LISTENER.getConfigurators(); // local reference
+        // 调用配置器,对目录url进行重写
         doOverrideUrl(localAppDynamicConfigurators);
+        // 存在服务配置监听器
         if (serviceConfigurationListener != null) {
             List<Configurator> localDynamicConfigurators = serviceConfigurationListener.getConfigurators(); // local reference
+            // 重写
             doOverrideUrl(localDynamicConfigurators);
         }
     }
@@ -719,6 +893,7 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
     }
 
     /**
+     * 注册中心目录的调用器代理
      * The delegate class, which is mainly used to store the URL address sent by the registry,and can be reassembled on the basis of providerURL queryMap overrideMap for re-refer.
      *
      * @param <T>
@@ -726,6 +901,13 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
     private static class InvokerDelegate<T> extends InvokerWrapper<T> {
         private URL providerUrl;
 
+        /**
+         * 构造方法
+         *
+         * @param invoker
+         * @param url
+         * @param providerUrl
+         */
         public InvokerDelegate(Invoker<T> invoker, URL url, URL providerUrl) {
             super(invoker, url);
             this.providerUrl = providerUrl;
@@ -736,20 +918,41 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         }
     }
 
+    /**
+     * 某个引用的配置监听器
+     */
     private static class ReferenceConfigurationListener extends AbstractConfiguratorListener {
+        /**
+         * 目录
+         */
         private RegistryDirectory directory;
+        /**
+         * 信息
+         */
         private URL url;
 
+        /**
+         * 构造方法
+         *
+         * @param directory 目录
+         * @param url       信息???
+         */
         ReferenceConfigurationListener(RegistryDirectory directory, URL url) {
             this.directory = directory;
             this.url = url;
-            this.initWith(DynamicConfiguration.getRuleKey(url) + CONFIGURATORS_SUFFIX);
+            // {interface}:[version]:[group].configurators
+            String key = DynamicConfiguration.getRuleKey(url) + CONFIGURATORS_SUFFIX;
+            // 追加监听器,同时拉取规则,解析为配置器列表
+            this.initWith(key);
         }
 
         void stop() {
             this.stopListen(DynamicConfiguration.getRuleKey(url) + CONFIGURATORS_SUFFIX);
         }
 
+        /**
+         * 配置器列表变化后,调用此方法,以空url列表刷新调用器
+         */
         @Override
         protected void notifyOverrides() {
             // to notify configurator/router changes
@@ -757,24 +960,43 @@ public class RegistryDirectory<T> extends AbstractDirectory<T> implements Notify
         }
     }
 
+    /**
+     * 全局消费者配置监听器
+     */
     private static class ConsumerConfigurationListener extends AbstractConfiguratorListener {
-        List<RegistryDirectory> listeners = new ArrayList<>();
 
+        /**
+         * 注册中心目录列表
+         */
+        List<RegistryDirectory> directories = new ArrayList<>();
+
+        /**
+         * 构造方法
+         */
         ConsumerConfigurationListener() {
-            this.initWith(ApplicationModel.getApplication() + CONFIGURATORS_SUFFIX);
+            // 监听指定key的变化,同时进行规则的首次获取(会更新配置器列表)
+            // 应用名称.configurators
+            this.initWith(ApplicationModel.getName() + CONFIGURATORS_SUFFIX);
         }
 
         void addNotifyListener(RegistryDirectory listener) {
-            this.listeners.add(listener);
+            this.directories.add(listener);
         }
 
         void removeNotifyListener(RegistryDirectory listener) {
-            this.listeners.remove(listener);
+            this.directories.remove(listener);
         }
 
+        /**
+         * 配置器列表变化后,调用此方法,以空列表刷新调用器
+         */
         @Override
         protected void notifyOverrides() {
-            listeners.forEach(listener -> listener.refreshInvoker(Collections.emptyList()));
+            // 每次配置变更引发的配置器列表变化,
+            // 都会导致注册中心目录以空列表刷新调用器
+            for (RegistryDirectory directory : this.directories) {
+                directory.refreshInvoker(Collections.emptyList());
+            }
         }
     }
 

@@ -19,14 +19,29 @@ package org.apache.dubbo.common;
 import org.apache.dubbo.common.utils.StringUtils;
 
 /**
+ * 基本的服务元数据,主要是标识性信息,
+ * 包括:分组,接口名,版本
+ * 这个要素组成了服务的唯一标识
  * 2019-10-10
  */
 public class BaseServiceMetadata {
     public static final char COLON_SEPERATOR = ':';
 
+    /**
+     * 服务键,格式为:group/serviceInterfaceName:version
+     */
     protected String serviceKey;
+    /**
+     * 服务接口名称
+     */
     protected String serviceInterfaceName;
+    /**
+     * 版本
+     */
     protected String version;
+    /**
+     * 分组
+     */
     protected volatile String group;
 
     /**

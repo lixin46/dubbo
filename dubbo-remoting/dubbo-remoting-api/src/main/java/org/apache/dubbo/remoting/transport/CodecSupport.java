@@ -35,6 +35,9 @@ import static org.apache.dubbo.common.serialize.Constants.COMPACTED_JAVA_SERIALI
 import static org.apache.dubbo.common.serialize.Constants.JAVA_SERIALIZATION_ID;
 import static org.apache.dubbo.common.serialize.Constants.NATIVE_JAVA_SERIALIZATION_ID;
 
+/**
+ * 编解码器支持
+ */
 public class CodecSupport {
 
     private static final Logger logger = LoggerFactory.getLogger(CodecSupport.class);

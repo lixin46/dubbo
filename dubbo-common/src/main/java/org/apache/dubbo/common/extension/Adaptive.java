@@ -24,12 +24,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+
 /**
- * Provide helpful information for {@link ExtensionLoader} to inject dependency extension instance.
  * 为ExtensionLoader扩展加载器提供有帮助的信息,用来给扩展实例注入依赖
- *
- * @see ExtensionLoader
- * @see URL
+ * 标记在SPI扩展接口上,也可以标记在接口方法上,具有不同的作用.
+ * 如果标记在类上,则说明该类为适配器类的实现,框架将不再自动生成适配器类.
+ * 如果标记在方法上,则说明该方法需要适配,框架生成的适配器会动态识别入参进行映射.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

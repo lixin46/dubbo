@@ -43,7 +43,7 @@ import static org.apache.dubbo.remoting.transport.netty4.NettyEventLoopFactory.e
 import static org.apache.dubbo.remoting.transport.netty4.NettyEventLoopFactory.socketChannelClass;
 
 /**
- * NettyClient.
+ * netty4客户端实现
  */
 public class NettyClient extends AbstractClient {
 

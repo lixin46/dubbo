@@ -28,11 +28,11 @@ import org.apache.dubbo.common.extension.SPI;
 public interface RouterFactory {
 
     /**
-     * Create router.
-     * Since 2.7.0, most of the time, we will not use @Adaptive feature, so it's kept only for compatibility.
-     *
-     * @param url url
-     * @return router instance
+     * 创建路由器
+     * 根据url的协议进行映射
+     * @param url 信息
+     * @return 路由器
+     * @since 2.7.0 大多数情况下,我们都不使用@Adaptive特性,只是为了兼容
      */
     @Adaptive("protocol")
     Router getRouter(URL url);

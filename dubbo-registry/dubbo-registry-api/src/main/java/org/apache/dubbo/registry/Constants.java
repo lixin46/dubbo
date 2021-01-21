@@ -44,17 +44,33 @@ public interface Constants {
     String UNSUBSCRIBE = "unsubscribe";
 
     String CONFIGURATORS_SUFFIX = ".configurators";
-
+    // -----------------------------------------------------------------------------------------------------------------
+    // 协议
+    /**
+     * 管理协议???
+     */
     String ADMIN_PROTOCOL = "admin";
-
+    /**
+     * 提供者协议???
+     */
     String PROVIDER_PROTOCOL = "provider";
-
+    /**
+     * 消费者协议???
+     */
     String CONSUMER_PROTOCOL = "consumer";
-
+    /**
+     * 脚本协议???
+     */
     String SCRIPT_PROTOCOL = "script";
-
+    /**
+     * 条件协议???
+     */
     String CONDITION_PROTOCOL = "condition";
+    /**
+     * 跟踪协议???
+     */
     String TRACE_PROTOCOL = "trace";
+    // -----------------------------------------------------------------------------------------------------------------
     /**
      * simple the registry for provider.
      *

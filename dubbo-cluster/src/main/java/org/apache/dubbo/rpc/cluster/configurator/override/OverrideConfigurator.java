@@ -19,18 +19,24 @@ package org.apache.dubbo.rpc.cluster.configurator.override;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.rpc.cluster.configurator.AbstractConfigurator;
 
+
 /**
- * OverrideConfigurator
- *
+ * 重写配置器
+ * 以覆盖的方式添加参数
  */
 public class OverrideConfigurator extends AbstractConfigurator {
 
+    /**
+     * 构造方法
+     * @param url 指定的url
+     */
     public OverrideConfigurator(URL url) {
         super(url);
     }
 
     @Override
     public URL doConfigure(URL currentUrl, URL configUrl) {
+        // 参数重写
         return currentUrl.addParameters(configUrl.getParameters());
     }
 

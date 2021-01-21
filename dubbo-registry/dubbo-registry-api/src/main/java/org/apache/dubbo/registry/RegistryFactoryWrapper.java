@@ -25,9 +25,13 @@ import java.util.List;
 
 /**
  * 组件名称为wrapper
+ * 注册中心工厂的包装器,用于装饰注册中心工厂
  */
 public class RegistryFactoryWrapper implements RegistryFactory {
 
+    /**
+     * 被装饰的注册中心工厂
+     */
     private RegistryFactory registryFactory;
 
     /**
@@ -43,11 +47,12 @@ public class RegistryFactoryWrapper implements RegistryFactory {
         // 获取注册中心
         Registry registry = registryFactory.getRegistry(url);
 
-        // 获取
+        // 获取注册中心服务监听器
         ExtensionLoader<RegistryServiceListener> extensionLoader = ExtensionLoader.getExtensionLoader(RegistryServiceListener.class);
+        // 获取激活的监听器实例
         List<RegistryServiceListener> listeners = extensionLoader.getActivateExtension(url, "registry.listeners");
 
-        // 创建代理
+        // 创建注册中心的包装器
         return new ListenerRegistryWrapper(registry,Collections.unmodifiableList(listeners));
     }
 }

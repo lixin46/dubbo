@@ -25,51 +25,45 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Serialization strategy interface that specifies a serializer. (SPI, Singleton, ThreadSafe)
- *
- * The default extension is hessian2 and the default serialization implementation of the dubbo protocol.
- * <pre>
- *     e.g. &lt;dubbo:protocol serialization="xxx" /&gt;
- * </pre>
- *
- * 序列化和反序列化
+ * 序列化和反序列化协议
+ * 单例,线程安全
+ * 默认使用hession2,
+ * 对应实现为: org.apache.dubbo.common.serialize.hessian2.Hessian2Serialization
  */
 @SPI("hessian2")
 public interface Serialization {
 
     /**
-     * Get content type unique id, recommended that custom implementations use values different with
-     * any value of {@link Constants} and don't greater than ExchangeCodec.SERIALIZATION_MASK (31) 
-     * because dubbo protocol use 5 bits to record serialization ID in header.
+     * 建议自定义实现使用与{@link Constants}中定义不同的值,且不要大于ExchangeCodec.SERIALIZATION_MASK (31)
+     * 因为dubbo协议在头中,使用5位记录序列化协议(最大值31)
      *
-     * @return content type id
+     * @return 内容类型id???
      */
     byte getContentTypeId();
 
     /**
-     * Get content type
-     *
-     * @return content type
+     * MediaType格式
+     * @return 内容类型
      */
     String getContentType();
 
     /**
-     * Get a serialization implementation instance
+     * 获取序列化器
      *
-     * @param url URL address for the remote service
-     * @param output the underlying output stream
-     * @return serializer
-     * @throws IOException
+     * @param url    远程服务地址,带配置
+     * @param output 底层输出流,序列化时写入的目的地
+     * @return 序列化器
+     * @throws IOException 异常
      */
     @Adaptive
     ObjectOutput serialize(URL url, OutputStream output) throws IOException;
 
     /**
-     * Get a deserialization implementation instance
+     * 获取反序列化器
      *
-     * @param url URL address for the remote service
-     * @param input the underlying input stream
-     * @return deserializer
+     * @param url   远程服务地址,带配置
+     * @param input 底层输入流,反序列化数据读取的来源
+     * @return 反序列化器
      * @throws IOException
      */
     @Adaptive

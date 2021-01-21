@@ -144,13 +144,25 @@ public class ConfigUtils {
         return sb.toString();
     }
 
+    /**
+     * 获取属性文件中的属性
+     * 属性文件路径可以通过jvm属性指定,也可以通过环境变量指定,key为dubbo.properties.file
+     * 如果都没有指定则使用默认的路径,即dubbo.properties
+     *
+     * @return 加载后的属性
+     */
     public static Properties getProperties() {
         if (PROPERTIES == null) {
             synchronized (ConfigUtils.class) {
                 if (PROPERTIES == null) {
+                    // dubbo.properties.file
+                    // 读取jvm属性
                     String path = System.getProperty(CommonConstants.DUBBO_PROPERTIES_KEY);
+                    // 为空
                     if (path == null || path.length() == 0) {
+                        // 读取环境变量
                         path = System.getenv(CommonConstants.DUBBO_PROPERTIES_KEY);
+                        // 为空,使用默认路径
                         if (path == null || path.length() == 0) {
                             path = CommonConstants.DEFAULT_DUBBO_PROPERTIES;
                         }

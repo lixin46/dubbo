@@ -22,15 +22,18 @@ import org.apache.dubbo.rpc.cluster.Directory;
 
 import java.util.List;
 
+/**
+ * 地址监听器
+ */
 @SPI
 public interface AddressListener {
 
     /**
-     * processing when receiving the address list
-     *
-     * @param addresses            provider address list
-     * @param consumerUrl
-     * @param registryDirectory
+     * 处理接收到的地址列表
+     * @param addresses 接收到的provider地址列表
+     * @param consumerUrl 消费者url
+     * @param registryDirectory 注册中心目录
+     * @return
      */
     List<URL> notify(List<URL> addresses, URL consumerUrl, Directory registryDirectory);
 

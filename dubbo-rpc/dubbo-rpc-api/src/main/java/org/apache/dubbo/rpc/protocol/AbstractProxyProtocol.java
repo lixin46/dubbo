@@ -52,9 +52,16 @@ public abstract class AbstractProxyProtocol extends AbstractProtocol {
 
     protected ProxyFactory proxyFactory;
 
+    /**
+     * 构造方法
+     */
     public AbstractProxyProtocol() {
     }
 
+    /**
+     * 构造方法
+     * @param exceptions ???
+     */
     public AbstractProxyProtocol(Class<?>... exceptions) {
         for (Class<?> exception : exceptions) {
             addRpcException(exception);
@@ -76,6 +83,7 @@ public abstract class AbstractProxyProtocol extends AbstractProtocol {
     @Override
     @SuppressWarnings("unchecked")
     public <T> Exporter<T> export(final Invoker<T> invoker) throws RpcException {
+        //
         final String uri = serviceKey(invoker.getUrl());
         Exporter<T> exporter = (Exporter<T>) exporterMap.get(uri);
         if (exporter != null) {
@@ -84,21 +92,26 @@ public abstract class AbstractProxyProtocol extends AbstractProtocol {
                 return exporter;
             }
         }
-        final Runnable runnable = doExport(proxyFactory.getProxy(invoker, true), invoker.getInterface(), invoker.getUrl());
+        // 创建调用器的代理
+        T proxy = proxyFactory.getProxy(invoker, true);
+        // 导出,并获取取消导出的逻辑
+        final Runnable unexportTask = doExport(proxy, invoker.getInterface(), invoker.getUrl());
+        // 基于取消逻辑,封装导出器
         exporter = new AbstractExporter<T>(invoker) {
             @Override
             public void unexport() {
                 super.unexport();
                 exporterMap.remove(uri);
-                if (runnable != null) {
+                if (unexportTask != null) {
                     try {
-                        runnable.run();
+                        unexportTask.run();
                     } catch (Throwable t) {
                         logger.warn(t.getMessage(), t);
                     }
                 }
             }
         };
+        // 保存导出器
         exporterMap.put(uri, exporter);
         return exporter;
     }

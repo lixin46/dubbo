@@ -23,14 +23,28 @@ import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.Result;
 import org.apache.dubbo.rpc.RpcException;
 
+
 /**
- *
- * A Invoker wrapper that wrap the invoker and all the metadata (ServiceConfig)
+ * 调用器包装器
+ * 带有服务端的完整配置对象
+ * @param <T>
  */
-public class DelegateProviderMetaDataInvoker<T> implements Invoker {
+public class DelegateProviderMetaDataInvoker<T> implements Invoker<T> {
+
+    /**
+     * 调用器
+     */
     protected final Invoker<T> invoker;
+    /**
+     * 服务配置
+     */
     private ServiceConfig<?> metadata;
 
+    /**
+     * 构造方法
+     * @param invoker 调用器
+     * @param metadata 服务配置
+     */
     public DelegateProviderMetaDataInvoker(Invoker<T> invoker, ServiceConfig<?> metadata) {
         this.invoker = invoker;
         this.metadata = metadata;

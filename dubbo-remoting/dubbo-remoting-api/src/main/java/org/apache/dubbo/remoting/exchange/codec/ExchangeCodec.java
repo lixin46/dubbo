@@ -44,6 +44,10 @@ import java.io.InputStream;
 /**
  * ExchangeCodec.
  */
+
+/**
+ * 数据交换编解码器
+ */
 public class ExchangeCodec extends TelnetCodec {
 
     // header length.

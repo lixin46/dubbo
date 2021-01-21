@@ -19,8 +19,16 @@ package org.apache.dubbo.rpc.cluster.governance;
 import org.apache.dubbo.common.config.configcenter.ConfigurationListener;
 import org.apache.dubbo.common.config.configcenter.DynamicConfiguration;
 
+/**
+ * 组件名称为default
+ *
+ * 唯一的默认实现
+ */
 public class DefaultGovernanceRuleRepositoryImpl implements GovernanceRuleRepository {
 
+    /**
+     * 从环境对象中获取动态配置
+     */
     private DynamicConfiguration dynamicConfiguration = DynamicConfiguration.getDynamicConfiguration();
 
     @Override

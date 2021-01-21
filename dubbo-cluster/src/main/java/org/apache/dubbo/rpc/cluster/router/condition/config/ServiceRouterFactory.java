@@ -24,6 +24,10 @@ import org.apache.dubbo.rpc.cluster.Router;
 /**
  * Service level router factory
  */
+
+/**
+ * 组件名称为service
+ */
 @Activate(order = 300)
 public class ServiceRouterFactory extends CacheableRouterFactory {
 

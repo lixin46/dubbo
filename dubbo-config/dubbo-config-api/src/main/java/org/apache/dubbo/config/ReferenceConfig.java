@@ -204,9 +204,9 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
 
         // 检查和更新子配置???
         checkAndUpdateSubConfigs();
-        // ???
+        // 检查设置的本地实现local类或stub类是否符合规范
         checkStubAndLocal(interfaceClass);
-        // 检查模拟???
+        // 检查mock配置是否符合规范
         ConfigValidationUtils.checkMock(interfaceClass, this);
 
         //-----------------
@@ -360,7 +360,9 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
         else {
             urls.clear();
             // 直连方式,可以配置多个,url之间分隔分隔
-            if (url != null && url.length() > 0) { // user specified URL, could be peer-to-peer address, or register center's address.
+            // user specified URL, could be peer-to-peer address, or register center's address.
+            // 用不指定url,可以是端到端地址,也可以是注册中心地址
+            if (url != null && url.length() > 0) {
                 // 分号分拆
                 String[] directUrls = SEMICOLON_SPLIT_PATTERN.split(url);
                 if (directUrls != null && directUrls.length > 0) {
@@ -387,7 +389,9 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
                 }
             }
             // url为空,非直连,则从注册中心获取
-            else { // assemble URL from register center's configuration
+            // 读取registry睡醒
+            // assemble URL from register center's configuration
+            else {
                 // if protocols not injvm checkRegistry
                 // protocol不为injvm
                 if (!LOCAL_PROTOCOL.equalsIgnoreCase(getProtocol())) {
@@ -403,11 +407,11 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
                     if (CollectionUtils.isNotEmpty(registryUrls)) {
                         // 遍历
                         for (URL registryUrl : registryUrls) {
-                            // 加载监视地址
+                            // 加载监视url地址
                             URL monitorUrl = ConfigValidationUtils.loadMonitor(this, registryUrl);
                             // 存在
                             if (monitorUrl != null) {
-                                // monitor
+                                // monitor参数
                                 parameters.put(MONITOR_KEY, URL.encode(monitorUrl.toFullString()));
                             }
                             // 参数转为查询字符串格式,作为refer参数的值
@@ -519,8 +523,9 @@ public class ReferenceConfig<T> extends ReferenceConfigBase<T> {
                 setRegistryIds(consumer.getRegistryIds());
             }
         }
-        // get consumer's global configuration
         // 确保一定存在消费者配置
+        // 用于刷新时,收集jvm属性,环境变量,dubbo.properties属性,
+        // 装填配置对象
         checkDefault();
         // 获取Configuration中的键值对,注入当前对象
         this.refresh();

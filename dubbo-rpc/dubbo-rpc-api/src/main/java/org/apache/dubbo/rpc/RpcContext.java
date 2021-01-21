@@ -54,8 +54,8 @@ public class RpcContext {
 
     /**
      * 本地调用上下文
+     * 请求上下文
      */
-    // FIXME REQUEST_CONTEXT
     private static final InternalThreadLocal<RpcContext> LOCAL = new InternalThreadLocal<RpcContext>() {
         @Override
         protected RpcContext initialValue() {
@@ -63,7 +63,9 @@ public class RpcContext {
         }
     };
 
-    // FIXME RESPONSE_CONTEXT
+    /**
+     * 响应上下文???
+     */
     private static final InternalThreadLocal<RpcContext> SERVER_LOCAL = new InternalThreadLocal<RpcContext>() {
         @Override
         protected RpcContext initialValue() {
@@ -141,6 +143,9 @@ public class RpcContext {
 
     private Object[] arguments;
 
+    /**
+     * 本机地址,包含主机和端口
+     */
     private InetSocketAddress localAddress;
 
     private InetSocketAddress remoteAddress;

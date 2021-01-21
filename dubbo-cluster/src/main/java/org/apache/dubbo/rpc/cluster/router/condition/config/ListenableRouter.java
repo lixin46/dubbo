@@ -46,11 +46,17 @@ public abstract class ListenableRouter extends AbstractRouter implements Configu
     private static final String RULE_SUFFIX = ".condition-router";
 
     private static final Logger logger = LoggerFactory.getLogger(ListenableRouter.class);
+    /**
+     * 条件路由器规则
+     */
     private ConditionRouterRule routerRule;
+    /**
+     * 条件路由器列表
+     */
     private List<ConditionRouter> conditionRouters = Collections.emptyList();
 
     /**
-     * 构造方法
+     * 唯一构造方法
      * @param url 信息
      * @param ruleKey 规则键
      */
@@ -59,6 +65,25 @@ public abstract class ListenableRouter extends AbstractRouter implements Configu
         this.force = false;
         this.init(ruleKey);
     }
+    private synchronized void init(String ruleKey) {
+        if (StringUtils.isEmpty(ruleKey)) {
+            return;
+        }
+        // .condition-router
+        String routerKey = ruleKey + RULE_SUFFIX;
+        // 追加监听器,向配置中心
+        ruleRepository.addListener(routerKey, this);
+        // 首次获取规则
+        String rule = ruleRepository.getRule(routerKey, DynamicConfiguration.DEFAULT_GROUP);
+        // 非空
+        if (StringUtils.isNotEmpty(rule)) {
+            // 处理事件
+            this.process(new ConfigChangedEvent(routerKey, DynamicConfiguration.DEFAULT_GROUP, rule));
+        }
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // ConfigurationListener接口实现,监听配置中心变更
 
     @Override
     public synchronized void process(ConfigChangedEvent event) {
@@ -67,12 +92,17 @@ public abstract class ListenableRouter extends AbstractRouter implements Configu
                     ", raw rule is:\n " + event.getContent());
         }
 
+        // 删除
         if (event.getChangeType().equals(ConfigChangeType.DELETED)) {
             routerRule = null;
             conditionRouters = Collections.emptyList();
-        } else {
+        }
+        // 增改
+        else {
             try {
+                // 解析
                 routerRule = ConditionRuleParser.parse(event.getContent());
+                // 生成条件
                 generateConditions(routerRule);
             } catch (Exception e) {
                 logger.error("Failed to parse the raw condition rule and it will not take effect, please check " +
@@ -81,13 +111,25 @@ public abstract class ListenableRouter extends AbstractRouter implements Configu
         }
     }
 
+    private void generateConditions(ConditionRouterRule rule) {
+        if (rule != null && rule.isValid()) {
+            this.conditionRouters = rule.getConditions()
+                    .stream()
+                    .map(condition -> new ConditionRouter(condition, rule.isForce(), rule.isEnabled()))
+                    .collect(Collectors.toList());
+        }
+    }
+    // -----------------------------------------------------------------------------------------------------------------
+    // Router接口实现
+
     @Override
     public <T> List<Invoker<T>> route(List<Invoker<T>> invokers, URL url, Invocation invocation) throws RpcException {
-        if (CollectionUtils.isEmpty(invokers) || conditionRouters.size() == 0) {
+        if (CollectionUtils.isEmpty(invokers) || conditionRouters.isEmpty()) {
             return invokers;
         }
 
         // We will check enabled status inside each router.
+        // 遍历路由器
         for (Router router : conditionRouters) {
             invokers = router.route(invokers, url, invocation);
         }
@@ -104,34 +146,13 @@ public abstract class ListenableRouter extends AbstractRouter implements Configu
     public boolean isForce() {
         return (routerRule != null && routerRule.isForce());
     }
+    // -----------------------------------------------------------------------------------------------------------------
 
-    private boolean isRuleRuntime() {
-        return routerRule != null && routerRule.isValid() && routerRule.isRuntime();
-    }
+//    private boolean isRuleRuntime() {
+//        return routerRule != null && routerRule.isValid() && routerRule.isRuntime();
+//    }
 
-    private void generateConditions(ConditionRouterRule rule) {
-        if (rule != null && rule.isValid()) {
-            this.conditionRouters = rule.getConditions()
-                    .stream()
-                    .map(condition -> new ConditionRouter(condition, rule.isForce(), rule.isEnabled()))
-                    .collect(Collectors.toList());
-        }
-    }
 
-    private synchronized void init(String ruleKey) {
-        if (StringUtils.isEmpty(ruleKey)) {
-            return;
-        }
-        // .condition-router
-        String routerKey = ruleKey + RULE_SUFFIX;
-        // 追加监听器
-        ruleRepository.addListener(routerKey, this);
-        // 获取规则
-        String rule = ruleRepository.getRule(routerKey, DynamicConfiguration.DEFAULT_GROUP);
-        // 非空
-        if (StringUtils.isNotEmpty(rule)) {
-            // 处理事件
-            this.process(new ConfigChangedEvent(routerKey, DynamicConfiguration.DEFAULT_GROUP, rule));
-        }
-    }
+
+
 }

@@ -16,12 +16,11 @@
  */
 package org.apache.dubbo.rpc;
 
+
 /**
- * Exporter. (API/SPI, Prototype, ThreadSafe)
- *
- * @see org.apache.dubbo.rpc.Protocol#export(Invoker)
- * @see org.apache.dubbo.rpc.ExporterListener
- * @see org.apache.dubbo.rpc.protocol.AbstractExporter
+ * 导出器(API/SPI, Prototype, ThreadSafe)
+ * 可以获取调用器,也可以取消暴露,关闭服务
+ * @param <T>
  */
 public interface Exporter<T> {
 

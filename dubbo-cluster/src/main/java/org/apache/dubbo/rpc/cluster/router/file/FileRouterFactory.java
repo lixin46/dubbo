@@ -32,6 +32,9 @@ import static org.apache.dubbo.rpc.cluster.Constants.RULE_KEY;
 import static org.apache.dubbo.rpc.cluster.Constants.RUNTIME_KEY;
 import static org.apache.dubbo.rpc.cluster.Constants.TYPE_KEY;
 
+/**
+ * 组件名称为file
+ */
 public class FileRouterFactory implements RouterFactory {
 
     public static final String NAME = "file";

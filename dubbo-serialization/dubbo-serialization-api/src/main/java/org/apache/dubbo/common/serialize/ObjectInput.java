@@ -21,8 +21,8 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
- * Object input interface.
  * 对象输入接口
+ * 其实就是反序列化器
  */
 public interface ObjectInput extends DataInput {
 
@@ -30,7 +30,7 @@ public interface ObjectInput extends DataInput {
      * Consider use {@link #readObject(Class)} or {@link #readObject(Class, Type)} where possible
      *
      * @return object
-     * @throws IOException if an I/O error occurs
+     * @throws IOException            if an I/O error occurs
      * @throws ClassNotFoundException if an ClassNotFoundException occurs
      */
     @Deprecated
@@ -41,7 +41,7 @@ public interface ObjectInput extends DataInput {
      *
      * @param cls object class
      * @return object
-     * @throws IOException if an I/O error occurs
+     * @throws IOException            if an I/O error occurs
      * @throws ClassNotFoundException if an ClassNotFoundException occurs
      */
     <T> T readObject(Class<T> cls) throws IOException, ClassNotFoundException;
@@ -49,10 +49,10 @@ public interface ObjectInput extends DataInput {
     /**
      * read object
      *
-     * @param cls object class
+     * @param cls  object class
      * @param type object type
      * @return object
-     * @throws IOException if an I/O error occurs
+     * @throws IOException            if an I/O error occurs
      * @throws ClassNotFoundException if an ClassNotFoundException occurs
      */
     <T> T readObject(Class<T> cls, Type type) throws IOException, ClassNotFoundException;

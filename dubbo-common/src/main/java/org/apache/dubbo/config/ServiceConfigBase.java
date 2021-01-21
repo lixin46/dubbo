@@ -105,7 +105,6 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
     }
     // -----------------------------------------------------------------------------------------------------------------
     /**
-     * The provider configuration
      * 提供者配置
      */
     protected ProviderConfig provider;
@@ -114,24 +113,20 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
      */
     protected String providerIds;
     /**
-     * The interface name of the exported service
      * 接口名称
      */
     protected String interfaceName;
     /**
-     * The interface class of the exported service
      * 接口类
      */
     protected Class<?> interfaceClass;
 
     /**
-     * The reference of the interface implementation
      * 接口实现类,对象的引用
      */
     protected T ref;
     /**
-     * The service name
-     * 服务名称,或叫路径
+     * 服务路径(或叫服务名称),可以显示指定,默认为服务接口名
      */
     protected String path;
 
@@ -293,7 +288,9 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
     }
 
     public Optional<String> getContextPath(ProtocolConfig protocolConfig) {
+        // 上下文路径
         String contextPath = protocolConfig.getContextpath();
+        // 为空,则使用提供者配置的上下文路径
         if (StringUtils.isEmpty(contextPath) && provider != null) {
             contextPath = provider.getContextpath();
         }

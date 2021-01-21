@@ -24,13 +24,28 @@ import org.apache.dubbo.common.utils.CollectionUtils;
 
 import java.util.List;
 
+/**
+ * 注册中心包装器
+ * 由工厂包装器调用生成
+ */
 public class ListenerRegistryWrapper implements Registry {
     private static final Logger logger = LoggerFactory.getLogger(ListenerRegistryWrapper.class);
 
+    /**
+     * 被代理的注册中心
+     */
     private final Registry registry;
+    /**
+     * 注册中心服务监听器
+     */
     private final List<RegistryServiceListener> listeners;
 
 
+    /**
+     * 构造方法
+     * @param registry 被代理的注册中心
+     * @param listeners 监听器
+     */
     public ListenerRegistryWrapper(Registry registry, List<RegistryServiceListener> listeners) {
         this.registry = registry;
         this.listeners = listeners;

@@ -26,8 +26,8 @@ import java.util.List;
  * 这是dubbo自己定义的服务接口
  *
  * 提供以下能力:
- * 1.注册/注销
- * 2.订阅/取消订阅(推模式)
+ * 1.注册/注销,属于注册中心变更
+ * 2.订阅/取消订阅(推模式),属于监听器注册
  * 3.查询(拉模式)
  */
 public interface RegistryService {
@@ -53,32 +53,18 @@ public interface RegistryService {
      */
     void unregister(URL url);
 
+
     /**
-     * Subscribe to eligible registered data and automatically push when the registered data is changed.
-     * <p>
-     * Subscribing need to support contracts:<br>
-     * 1. When the URL sets the check=false parameter. When the registration fails, the exception is not thrown and retried in the background. <br>
-     * 2. When URL sets category=routers, it only notifies the specified classification data. Multiple classifications are separated by commas, and allows asterisk to match, which indicates that all categorical data are subscribed.<br>
-     * 3. Allow interface, group, version, and classifier as a conditional query, e.g.: interface=org.apache.dubbo.foo.BarService&version=1.0.0<br>
-     * 4. And the query conditions allow the asterisk to be matched, subscribe to all versions of all the packets of all interfaces, e.g. :interface=*&group=*&version=*&classifier=*<br>
-     * 5. When the registry is restarted and network jitter, it is necessary to automatically restore the subscription request.<br>
-     * 6. Allow URLs which have the same URL but different parameters to coexist,they can't cover each other.<br>
-     * 7. The subscription process must be blocked, when the first notice is finished and then returned.<br>
-     *
-     * @param url      Subscription condition, not allowed to be empty, e.g. consumer://10.20.153.10/org.apache.dubbo.foo.BarService?version=1.0.0&application=kylin
-     * @param listener A listener of the change event, not allowed to be empty
+     * consumer订阅provider
+     * @param url provider
+     * @param listener 接收变更通知,首次拉取也以通知的方式下发
      */
     void subscribe(URL url, NotifyListener listener);
 
     /**
-     * Unsubscribe
-     * <p>
-     * Unsubscribing is required to support the contract:<br>
-     * 1. If don't subscribe, ignore it directly.<br>
-     * 2. Unsubscribe by full URL match.<br>
      *
-     * @param url      Subscription condition, not allowed to be empty, e.g. consumer://10.20.153.10/org.apache.dubbo.foo.BarService?version=1.0.0&application=kylin
-     * @param listener A listener of the change event, not allowed to be empty
+     * @param url 取消订阅
+     * @param listener 监听器
      */
     void unsubscribe(URL url, NotifyListener listener);
 

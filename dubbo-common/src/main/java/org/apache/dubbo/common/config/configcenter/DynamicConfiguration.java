@@ -18,6 +18,7 @@ package org.apache.dubbo.common.config.configcenter;
 
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.config.Configuration;
+import org.apache.dubbo.common.extension.ExtensionLoader;
 import org.apache.dubbo.rpc.model.ApplicationModel;
 
 import java.util.Collections;
@@ -33,16 +34,17 @@ import static org.apache.dubbo.common.extension.ExtensionLoader.getExtensionLoad
  * 动态配置
  *
  * 可以读写配置,也可以追加/删除监听器
+ *
+ * 父接口定义的API明确了获取值的类型,当前接口定义统一获取方式getConfig()
  */
 public interface DynamicConfiguration extends Configuration, AutoCloseable {
 
     String DEFAULT_GROUP = "dubbo";
 
     /**
-     * {@link #addListener(String, String, ConfigurationListener)}
-     *
-     * @param key      the key to represent a configuration
-     * @param listener configuration listener
+     * 添加监听器,监听指定键对应值的变化
+     * @param key 指定的键
+     * @param listener 回调逻辑
      */
     default void addListener(String key, ConfigurationListener listener) {
         addListener(key, getDefaultGroup(), listener);
@@ -60,14 +62,10 @@ public interface DynamicConfiguration extends Configuration, AutoCloseable {
     }
 
     /**
-     * Register a configuration listener for a specified key
-     * The listener only works for service governance purpose, so the target group would always be the value user
-     * specifies at startup or 'dubbo' by default. This method will only register listener, which means it will not
-     * trigger a notification that contains the current value.
      *
-     * @param key      the key to represent a configuration
-     * @param group    the group where the key belongs to
-     * @param listener configuration listener
+     * @param key 键
+     * @param group 键所属的分组
+     * @param listener 配置监听器,回调逻辑
      */
     void addListener(String key, String group, ConfigurationListener listener);
 
@@ -198,9 +196,12 @@ public interface DynamicConfiguration extends Configuration, AutoCloseable {
      */
     static DynamicConfiguration getDynamicConfiguration() {
         Optional<DynamicConfiguration> optional = ApplicationModel.getEnvironment().getDynamicConfiguration();
-        return optional.orElseGet(() -> getExtensionLoader(DynamicConfigurationFactory.class)
-                .getDefaultExtension()
-                .getDynamicConfiguration(null));
+        return optional.orElseGet(() -> {
+            ExtensionLoader<DynamicConfigurationFactory> loader = getExtensionLoader(DynamicConfigurationFactory.class);
+            // 获取默认实现,也就是nop
+            DynamicConfigurationFactory factory = loader.getDefaultExtension();
+            return factory.getDynamicConfiguration(null);
+        });
     }
 
     /**

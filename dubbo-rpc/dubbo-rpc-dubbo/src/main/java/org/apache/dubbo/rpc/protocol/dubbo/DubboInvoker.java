@@ -87,7 +87,7 @@ public class DubboInvoker<T> extends AbstractInvoker<T> {
      * 核心构造方法
      * @param serviceType
      * @param url
-     * @param clients 客户端列表
+     * @param clients 数据交换客户端列表HeaderExchangeClient
      * @param invokers
      */
     public DubboInvoker(Class<T> serviceType, URL url, ExchangeClient[] clients, Set<Invoker<?>> invokers) {

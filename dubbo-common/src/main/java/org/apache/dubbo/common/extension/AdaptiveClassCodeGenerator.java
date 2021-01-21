@@ -31,7 +31,7 @@ import java.util.stream.IntStream;
 
 /**
  * Code generator for Adaptive class
- * 自适应类代码生成器
+ * 适配器类代码生成器
  */
 public class AdaptiveClassCodeGenerator {
 
@@ -69,12 +69,12 @@ public class AdaptiveClassCodeGenerator {
     private static final String CODE_EXTENSION_METHOD_INVOKE_ARGUMENT = "arg%d";
 
     /**
-     * 扩展接口
+     * 扩展接口(带有@SPI注解的接口)
      */
     private final Class<?> type;
 
     /**
-     * 默认的扩展实现的名称
+     * 默认的扩展实现的名称(@SPI注解的value值)
      */
     private String defaultExtName;
 
@@ -93,7 +93,6 @@ public class AdaptiveClassCodeGenerator {
      * 生成类的源代码
      */
     public String generate() {
-        // no need to generate adaptive class since there's no adaptive method found.
         // 不存在适配方法,则报错
         // 适配方法需要带有@Adaptive注解,且为public
         if (!hasAdaptiveMethod()) {
@@ -102,8 +101,10 @@ public class AdaptiveClassCodeGenerator {
 
         StringBuilder code = new StringBuilder();
         // 包信息,与接口同包
+        // package {};\n
+        // 与接口同包
         code.append(generatePackageInfo());
-        // import ExtensionLoader;
+        // import org.apache.dubbo.common.extension.ExtensionLoader;
         code.append(generateImports());
         // public class 接口名$Adaptive implements 接口名 {
         code.append(generateClassDeclaration());
@@ -241,14 +242,13 @@ public class AdaptiveClassCodeGenerator {
             // 查找第一个类型为URL的参数对应的索引
             int urlTypeIndex = getUrlTypeIndex(method);
 
-            // found parameter in URL type
-            // 存在URL类型参数
+            // 存在URL形参
             if (urlTypeIndex != -1) {
                 // Null Point check
                 // 参数non-null校验和局部变量赋值
                 code.append(generateUrlNullCheck(urlTypeIndex));
             }
-            // 不存在
+            // 不存在URL形参
             else {
                 // did not find parameter in URL type
                 // 间接赋值,看看形参定义的类型中有没有返回值类型为URL的方法,
@@ -267,6 +267,7 @@ public class AdaptiveClassCodeGenerator {
             code.append(generateExtNameAssignment(value, hasInvocation));
             // check extName == null?
             // extName的non-null校验
+            // 如果扩展名为null,则报非法状态异常
             code.append(generateExtNameNullCheck(value));
             // 扩展实例赋值代码
             code.append(generateExtensionAssignment());
@@ -286,7 +287,10 @@ public class AdaptiveClassCodeGenerator {
     }
 
     /**
-     * generate extName assigment code
+     * 生成扩展实例名称赋值语句
+     * @param value
+     * @param hasInvocation
+     * @return
      */
     private String generateExtNameAssignment(String[] value, boolean hasInvocation) {
         // TODO: refactor it
@@ -317,9 +321,12 @@ public class AdaptiveClassCodeGenerator {
                 else {
                     // 非协议
                     if (!"protocol".equals(value[i])) {
+                        // Invocation参数
                         if (hasInvocation) {
                             getNameCode = String.format("url.getMethodParameter(methodName, \"%s\", \"%s\")", value[i], defaultExtName);
-                        } else {
+                        }
+                        // 非Invocation参数
+                        else {
                             getNameCode = String.format("url.getParameter(\"%s\")", value[i]);
                         }
                     }

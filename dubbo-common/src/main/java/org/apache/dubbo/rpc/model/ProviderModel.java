@@ -125,8 +125,8 @@ public class ProviderModel {
 
         /**
          * 构造方法
-         * @param providerUrl 提供者地址
-         * @param registryUrl 注册表地址
+         * @param providerUrl 提供者在注册中心的节点内容
+         * @param registryUrl 注册中心的信息
          * @param registered 是否已注册
          */
         public RegisterStatedURL(URL providerUrl,

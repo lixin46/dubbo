@@ -23,6 +23,7 @@ import java.util.Collection;
 
 /**
  * ExchangeServer. (API/SPI, Prototype, ThreadSafe)
+ * 数据交换服务端
  */
 public interface ExchangeServer extends RemotingServer {
 

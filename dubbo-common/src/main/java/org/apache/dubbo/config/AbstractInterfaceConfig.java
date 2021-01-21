@@ -46,7 +46,7 @@ import static org.apache.dubbo.common.constants.CommonConstants.TIMESTAMP_KEY;
 /**
  * AbstractDefaultConfig
  * 抽象的接口配置,子类包含客户端配置和服务端配置
- *
+ * <p>
  * 接口配置之所以从方法配置继承,是为了给所有方法提供默认配置,
  * 内部可以依赖单独的方法配置,来进行个性化定制
  *
@@ -182,8 +182,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
 
     protected String tag;
 
-    private  Boolean auth;
-
+    private Boolean auth;
 
 
     public List<URL> getExportedUrls() {
@@ -214,7 +213,6 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
             }
         }
     }
-
 
 
     /**
@@ -257,7 +255,6 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     }
 
 
-
     /**
      * Legitimacy check of stub, note that: the local will deprecated, and replace with <code>stub</code>
      *
@@ -268,15 +265,30 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         verifyStubAndLocal(local, "Local", interfaceClass);
         verifyStubAndLocal(stub, "Stub", interfaceClass);
     }
-    
-    public void verifyStubAndLocal(String className, String label, Class<?> interfaceClass){
-    	if (ConfigUtils.isNotEmpty(className)) {
-            Class<?> localClass = ConfigUtils.isDefault(className) ?
-                    ReflectUtils.forName(interfaceClass.getName() + label) : ReflectUtils.forName(className);
-                        verify(interfaceClass, localClass);
+
+    /**
+     * @param className      本地实现或桩的类名
+     * @param label          标识本地实现还是桩
+     * @param interfaceClass 接口名
+     */
+    public void verifyStubAndLocal(String className, String label, Class<?> interfaceClass) {
+        // 类名非空
+        if (ConfigUtils.isNotEmpty(className)) {
+            Class<?> localClass;
+            // 如果类名为true或default,则采用接口名+label后缀的方式(默认约定)
+            if (ConfigUtils.isDefault(className)) {
+                className = interfaceClass.getName() + label;
             }
+            localClass = ReflectUtils.forName(className);
+            verify(interfaceClass, localClass);
+        }
     }
 
+    /**
+     *
+     * @param interfaceClass 接口类
+     * @param localClass 本地实现类
+     */
     private void verify(Class<?> interfaceClass, Class<?> localClass) {
         if (!interfaceClass.isAssignableFrom(localClass)) {
             throw new IllegalStateException("The local implementation class " + localClass.getName() +
@@ -379,7 +391,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
             }
         }
     }
-    
+
     protected void computeValidRegistryIds() {
         // registryIds,通过元素的registry配置
         // 如果为空,则取应用配置
@@ -594,6 +606,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     public String getOwner() {
         return owner;
     }
+
     public void setOwner(String owner) {
         this.owner = owner;
     }

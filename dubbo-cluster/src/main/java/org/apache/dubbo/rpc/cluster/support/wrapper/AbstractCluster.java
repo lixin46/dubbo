@@ -34,13 +34,24 @@ import static org.apache.dubbo.common.constants.CommonConstants.REFERENCE_INTERC
 
 public abstract class AbstractCluster implements Cluster {
 
+    /**
+     * 构建集群调用器拦截器链,也创建代理链
+     *
+     * InterceptorInvokerNode -> InterceptorInvokerNode -> AbstractClusterInvoker
+     * @param clusterInvoker 原始的集群调用器
+     * @param key 拦截器key
+     * @param <T>
+     * @return 构建后的调用器
+     */
     private <T> Invoker<T> buildClusterInterceptors(AbstractClusterInvoker<T> clusterInvoker, String key) {
         AbstractClusterInvoker<T> last = clusterInvoker;
+
+        ExtensionLoader<ClusterInterceptor> extensionLoader = ExtensionLoader.getExtensionLoader(ClusterInterceptor.class);
         // 集群拦截器
-        List<ClusterInterceptor> interceptors = ExtensionLoader.getExtensionLoader(ClusterInterceptor.class).getActivateExtension(clusterInvoker.getUrl(), key);
-        // 非空
+        List<ClusterInterceptor> interceptors = extensionLoader.getActivateExtension(clusterInvoker.getUrl(), key);
+        // 拦截器实例非空
         if (!interceptors.isEmpty()) {
-            // 遍历
+            // 倒着遍历
             for (int i = interceptors.size() - 1; i >= 0; i--) {
                 // 获取拦截器
                 final ClusterInterceptor interceptor = interceptors.get(i);
@@ -54,9 +65,9 @@ public abstract class AbstractCluster implements Cluster {
 
     @Override
     public <T> Invoker<T> join(Directory<T> directory) throws RpcException {
-        // 子类实现
+        // 子类实现,比如:创建 FailoverClusterInvoker
         AbstractClusterInvoker<T> invoker = doJoin(directory);
-        // reference.interceptor
+        // 获取reference.interceptor参数,引用拦截器配置
         String interceptor = directory.getUrl().getParameter(REFERENCE_INTERCEPTOR_KEY);
         // 构建拦截器链
         return buildClusterInterceptors(invoker, interceptor);
@@ -79,10 +90,16 @@ public abstract class AbstractCluster implements Cluster {
          */
         private ClusterInterceptor interceptor;
         /**
-         * 下一个被代理的调用器
+         * 下一个要调用的调用器
          */
         private AbstractClusterInvoker<T> next;
 
+        /**
+         * 构造方法
+         * @param clusterInvoker 原始调用器
+         * @param interceptor 当前拦截器
+         * @param next 下一个需要调用的调用器
+         */
         public InterceptorInvokerNode(AbstractClusterInvoker<T> clusterInvoker,
                                       ClusterInterceptor interceptor,
                                       AbstractClusterInvoker<T> next) {
@@ -110,7 +127,9 @@ public abstract class AbstractCluster implements Cluster {
         public Result invoke(Invocation invocation) throws RpcException {
             Result asyncResult;
             try {
+                // 前置拦截
                 interceptor.before(next, invocation);
+                // 传递下一个调用器
                 asyncResult = interceptor.intercept(next, invocation);
             } catch (Exception e) {
                 // onError callback
@@ -120,6 +139,7 @@ public abstract class AbstractCluster implements Cluster {
                 }
                 throw e;
             } finally {
+                // 后置拦截
                 interceptor.after(next, invocation);
             }
             return asyncResult.whenCompleteWithContext((r, t) -> {

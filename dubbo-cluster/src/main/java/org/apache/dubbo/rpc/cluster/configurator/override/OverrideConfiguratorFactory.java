@@ -20,9 +20,9 @@ import org.apache.dubbo.common.URL;
 import org.apache.dubbo.rpc.cluster.Configurator;
 import org.apache.dubbo.rpc.cluster.ConfiguratorFactory;
 
+
 /**
- * OverrideConfiguratorFactory
- *
+ * 重写配置器工厂,用于生成重写配置器
  */
 public class OverrideConfiguratorFactory implements ConfiguratorFactory {
 

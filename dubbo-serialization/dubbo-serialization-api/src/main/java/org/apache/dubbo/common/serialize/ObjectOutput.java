@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * Object output interface.
  * 对象输出接口
+ * 其实就是序列化器
  */
 public interface ObjectOutput extends DataOutput {
 

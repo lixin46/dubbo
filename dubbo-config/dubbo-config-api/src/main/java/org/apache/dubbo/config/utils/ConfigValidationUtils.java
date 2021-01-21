@@ -230,6 +230,12 @@ public class ConfigValidationUtils {
         return registryList;
     }
 
+    /**
+     * 加载监视器
+     * @param interfaceConfig ReferenceConfig
+     * @param registryURL 注册中心url
+     * @return
+     */
     public static URL loadMonitor(AbstractInterfaceConfig interfaceConfig, URL registryURL) {
         Map<String, String> defaultParameters = new HashMap<String, String>();
         // interface=org.apache.dubbo.monitor.MonitorService
@@ -252,18 +258,19 @@ public class ConfigValidationUtils {
 
         // 监视配置
         MonitorConfig monitor = interfaceConfig.getMonitor();
+        AbstractConfig.appendParameters(defaultParameters, monitor);
         // 应用配置
         ApplicationConfig application = interfaceConfig.getApplication();
-        AbstractConfig.appendParameters(defaultParameters, monitor);
         AbstractConfig.appendParameters(defaultParameters, application);
 
         // 地址
         String address = monitor.getAddress();
         String sysaddress = System.getProperty("dubbo.monitor.address");
+        // 系统地址非空则使用
         if (sysaddress != null && sysaddress.length() > 0) {
             address = sysaddress;
         }
-        // 非空
+        // 地址非空
         if (ConfigUtils.isNotEmpty(address)) {
             // 不包含protocol参数
             if (!defaultParameters.containsKey(PROTOCOL_KEY)) {
@@ -278,16 +285,16 @@ public class ConfigValidationUtils {
                     defaultParameters.put(PROTOCOL_KEY, DUBBO_PROTOCOL);
                 }
             }
-            // 解析地址
+            // 解析地址,把address当做url解析,必要属性用defaultParameters作为默认填充项
             return UrlUtils.parseURL(address, defaultParameters);
         }
-        // 地址为空
+        // 地址为空,监视器协议为registry或service-discovery-registry,且注册中心url非null
         else if ((REGISTRY_PROTOCOL.equals(monitor.getProtocol()) || SERVICE_REGISTRY_PROTOCOL.equals(monitor.getProtocol()))
                 && registryURL != null) {
             return URLBuilder.from(registryURL)
-                    .setProtocol(DUBBO_PROTOCOL)
-                    .addParameter(PROTOCOL_KEY, monitor.getProtocol())
-                    .addParameterAndEncoded(REFER_KEY, StringUtils.toQueryString(defaultParameters))
+                    .setProtocol(DUBBO_PROTOCOL)// 改为dubbo协议
+                    .addParameter(PROTOCOL_KEY, monitor.getProtocol())//
+                    .addParameterAndEncoded(REFER_KEY, StringUtils.toQueryString(defaultParameters))// refer参数
                     .build();
         }
         return null;
@@ -301,11 +308,13 @@ public class ConfigValidationUtils {
      *                       side, it is the {@link Class} of the remote service interface that will be referenced
      */
     public static void checkMock(Class<?> interfaceClass, AbstractInterfaceConfig config) {
+        //
         String mock = config.getMock();
+        // 为空则跳过检查
         if (ConfigUtils.isEmpty(mock)) {
             return;
         }
-
+        // 标准化???
         String normalizedMock = MockInvoker.normalizeMock(mock);
         // return 开头,如:return null
         if (normalizedMock.startsWith(RETURN_PREFIX)) {

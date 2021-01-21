@@ -32,6 +32,12 @@ import java.util.stream.Collectors;
  */
 public class RouterChain<T> {
 
+    public static <T> RouterChain<T> buildChain(URL url) {
+        return new RouterChain<>(url);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+
     // full list of addresses from registry, classified by method name.
     private List<Invoker<T>> invokers = Collections.emptyList();
 
@@ -42,18 +48,21 @@ public class RouterChain<T> {
     // instance will never delete or recreate.
     private List<Router> builtinRouters = Collections.emptyList();
 
-    public static <T> RouterChain<T> buildChain(URL url) {
-        return new RouterChain<>(url);
-    }
 
+    /**
+     * 唯一构造方法
+     * @param url
+     */
     private RouterChain(URL url) {
-        List<RouterFactory> extensionFactories = ExtensionLoader.getExtensionLoader(RouterFactory.class)
-                .getActivateExtension(url, "router");
-
+        // 路由器工厂加载器
+        ExtensionLoader<RouterFactory> extensionLoader = ExtensionLoader.getExtensionLoader(RouterFactory.class);
+        // 获取激活的路由器工厂
+        List<RouterFactory> extensionFactories = extensionLoader.getActivateExtension(url, "router");
+        // 遍历工厂,调用获取路由器,收集成List
         List<Router> routers = extensionFactories.stream()
                 .map(factory -> factory.getRouter(url))
                 .collect(Collectors.toList());
-
+        // 初始化路由器
         initWithRouters(routers);
     }
 

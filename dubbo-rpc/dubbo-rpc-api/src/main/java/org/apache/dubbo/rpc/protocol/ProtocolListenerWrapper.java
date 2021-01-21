@@ -36,13 +36,20 @@ import static org.apache.dubbo.common.constants.CommonConstants.EXPORTER_LISTENE
 import static org.apache.dubbo.common.constants.CommonConstants.INVOKER_LISTENER_KEY;
 
 /**
- * ListenerProtocol
+ * 组件名称为listener
  * 协议监听器,包装器
  */
 public class ProtocolListenerWrapper implements Protocol {
 
+    /**
+     * 协议
+     */
     private final Protocol protocol;
 
+    /**
+     * 构造方法
+     * @param protocol 协议
+     */
     public ProtocolListenerWrapper(Protocol protocol) {
         if (protocol == null) {
             throw new IllegalArgumentException("protocol == null");
@@ -57,12 +64,18 @@ public class ProtocolListenerWrapper implements Protocol {
 
     @Override
     public <T> Exporter<T> export(Invoker<T> invoker) throws RpcException {
+        // 注册中心服务,则放行
         if (UrlUtils.isRegistry(invoker.getUrl())) {
             return protocol.export(invoker);
         }
-        return new ListenerExporterWrapper<T>(protocol.export(invoker),
-                Collections.unmodifiableList(ExtensionLoader.getExtensionLoader(ExporterListener.class)
-                        .getActivateExtension(invoker.getUrl(), EXPORTER_LISTENER_KEY)));
+        // 导出器监听器
+        List<ExporterListener> listeners = ExtensionLoader.getExtensionLoader(ExporterListener.class)
+                .getActivateExtension(invoker.getUrl(), EXPORTER_LISTENER_KEY);
+        // 构造方法内触发监听器通知逻辑
+        return new ListenerExporterWrapper<T>(
+                protocol.export(invoker),
+                Collections.unmodifiableList(listeners)
+        );
     }
 
     @Override

@@ -31,7 +31,8 @@ import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_TIMEOUT;
 import static org.apache.dubbo.common.constants.CommonConstants.TIMEOUT_KEY;
 
 /**
- * AbstractEndpoint
+ * 端点,连接通道的一端
+ * 引用Codec2,可以编解码dubbo消息
  */
 public abstract class AbstractEndpoint extends AbstractPeer implements Resetable {
 
@@ -50,7 +51,7 @@ public abstract class AbstractEndpoint extends AbstractPeer implements Resetable
             return new CodecAdapter(extension);
         }
     }
-    // -------------
+    // -----------------------------------------------------------------------------------------------------------------
     /**
      * 编解码器
      */

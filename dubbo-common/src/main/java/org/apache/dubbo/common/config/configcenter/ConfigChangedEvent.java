@@ -19,19 +19,27 @@ package org.apache.dubbo.common.config.configcenter;
 import java.util.EventObject;
 import java.util.Objects;
 
+
 /**
- * An event raised when the config changed, immutable.
- *
- * @see ConfigChangeType
+ * 配置变更事件
  */
 public class ConfigChangedEvent extends EventObject {
 
+    /**
+     * 键
+     */
     private final String key;
-
+    /**
+     * 键所属的组
+     */
     private final String group;
-
+    /**
+     * 变化后的值
+     */
     private final String content;
-
+    /**
+     * 变更类型,增删改
+     */
     private final ConfigChangeType changeType;
 
     public ConfigChangedEvent(String key, String group, String content) {

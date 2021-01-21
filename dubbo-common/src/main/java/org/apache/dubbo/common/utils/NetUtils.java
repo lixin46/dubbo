@@ -130,8 +130,8 @@ public class NetUtils {
     public static boolean isInvalidLocalHost(String host) {
         return host == null
                 || host.length() == 0
-                || host.equalsIgnoreCase(LOCALHOST_KEY)
-                || host.equals(ANYHOST_VALUE)
+                || host.equalsIgnoreCase(LOCALHOST_KEY)// localhost
+                || host.equals(ANYHOST_VALUE)// 0.0.0.0
                 || host.startsWith("127.");
     }
 

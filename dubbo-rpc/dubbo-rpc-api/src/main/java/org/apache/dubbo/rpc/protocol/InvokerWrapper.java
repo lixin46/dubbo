@@ -31,6 +31,11 @@ public class InvokerWrapper<T> implements Invoker<T> {
 
     private final URL url;
 
+    /**
+     * 构造方法
+     * @param invoker 调用器
+     * @param url 信息
+     */
     public InvokerWrapper(Invoker<T> invoker, URL url) {
         this.invoker = invoker;
         this.url = url;

@@ -24,6 +24,9 @@ import static org.apache.dubbo.rpc.Constants.PROXY_KEY;
 
 /**
  * ProxyFactory. (API/SPI, Singleton, ThreadSafe)
+ * 代理工厂,负责代理对象和Invoker之间的互相转换,
+ * getProxy()创建的代理对象,代理了服务接口,实际通过调用Invoker完成
+ * getInvoker()创建的调用器,实际调用的是代理对象
  */
 @SPI("javassist")
 public interface ProxyFactory {
@@ -50,10 +53,7 @@ public interface ProxyFactory {
     <T> T getProxy(Invoker<T> invoker, boolean generic) throws RpcException;
 
     /**
-     * create invoker.
      * 创建调用器,服务端使用
-     *
-     *
      * @param <T>
      * @param proxy
      * @param type

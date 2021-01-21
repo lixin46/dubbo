@@ -20,6 +20,7 @@ import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.utils.ClassUtils;
 import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.dubbo.config.annotation.Reference;
+import org.apache.dubbo.config.context.ConfigManager;
 import org.apache.dubbo.config.support.Parameter;
 import org.apache.dubbo.rpc.model.ApplicationModel;
 import org.apache.dubbo.rpc.model.ServiceMetadata;
@@ -161,11 +162,14 @@ public abstract class ReferenceConfigBase<T> extends AbstractReferenceConfig {
         return shouldInit;
     }
 
+    /**
+     * 如果消费者配置为null,则从配置管理器获取default为true的配置对象,如果没有则创建新的空对象
+     * @throws IllegalStateException
+     */
     public void checkDefault() throws IllegalStateException {
         if (consumer == null) {
-            consumer = ApplicationModel.getConfigManager()
-                    .getDefaultConsumer()
-                    .orElse(new ConsumerConfig());
+            ConfigManager configManager = ApplicationModel.getConfigManager();
+            consumer = configManager.getDefaultConsumer().orElse(new ConsumerConfig());
         }
     }
 

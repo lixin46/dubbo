@@ -19,73 +19,61 @@ package org.apache.dubbo.rpc.cluster.governance;
 import org.apache.dubbo.common.config.configcenter.ConfigurationListener;
 import org.apache.dubbo.common.extension.SPI;
 
+/**
+ * 治理规则仓库
+ *
+ * 提供添加/删除配置监听器的能力,监听器监听指定的key,所有key都有分组的概念
+ *
+ * 可以通过group+key获取对应的规则
+ */
 @SPI("default")
 public interface GovernanceRuleRepository {
 
     String DEFAULT_GROUP = "dubbo";
 
     /**
-     * {@link #addListener(String, String, ConfigurationListener)}
-     *
-     * @param key      the key to represent a configuration
-     * @param listener configuration listener
+     * 添加配置监听器,监听指定键值的变化
+     * 键属于默认分组
+     * @param key 指定的键
+     * @param listener 配置监听器
      */
     default void addListener(String key, ConfigurationListener listener) {
         addListener(key, DEFAULT_GROUP, listener);
     }
 
-
-    /*
-     * {@link #removeListener(String, String, ConfigurationListener)}
-     *
-     * @param key      the key to represent a configuration
-     * @param listener configuration listener
+    /**
+     * 添加配置监听器,监听指定分组内指定键值的变化
+     * @param key 指定的键
+     * @param group 指定的分组
+     * @param listener 配置监听器
      */
+    void addListener(String key, String group, ConfigurationListener listener);
+
     default void removeListener(String key, ConfigurationListener listener) {
         removeListener(key, DEFAULT_GROUP, listener);
     }
 
-    /**
-     * Register a configuration listener for a specified key
-     * The listener only works for service governance purpose, so the target group would always be the value user
-     * specifies at startup or 'dubbo' by default. This method will only register listener, which means it will not
-     * trigger a notification that contains the current value.
-     *
-     * @param key      the key to represent a configuration
-     * @param group    the group where the key belongs to
-     * @param listener configuration listener
-     */
-    void addListener(String key, String group, ConfigurationListener listener);
-
-    /**
-     * Stops one listener from listening to value changes in the specified key.
-     *
-     * @param key      the key to represent a configuration
-     * @param group    the group where the key belongs to
-     * @param listener configuration listener
-     */
     void removeListener(String key, String group, ConfigurationListener listener);
 
     /**
-     * Get the governance rule mapped to the given key and the given group
-     *
-     * @param key   the key to represent a configuration
-     * @param group the group where the key belongs to
-     * @return target configuration mapped to the given key and the given group
+     * 获取指定分组中键对应的规则
+     * 阻塞等待,直到成功
+     * @param key 指定的键
+     * @param group 指定的分组
+     * @return 值
      */
     default String getRule(String key, String group) {
         return getRule(key, group, -1L);
     }
 
     /**
-     * Get the governance rule mapped to the given key and the given group. If the
-     * rule fails to return after timeout exceeds, IllegalStateException will be thrown.
-     *
-     * @param key     the key to represent a configuration
-     * @param group   the group where the key belongs to
-     * @param timeout timeout value for fetching the target config
-     * @return target configuration mapped to the given key and the given group, IllegalStateException will be thrown
-     * if timeout exceeds.
+     * 获取指定分组中键对应的规则
+     * 阻塞等待,直到超时
+     * @param key 指定的键
+     * @param group 指定的分组
+     * @param timeout 指定的超时时间
+     * @return 值
+     * @throws IllegalStateException 超时
      */
     String getRule(String key, String group, long timeout) throws IllegalStateException;
 }

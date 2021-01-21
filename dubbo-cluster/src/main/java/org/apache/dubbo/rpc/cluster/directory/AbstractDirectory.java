@@ -44,35 +44,48 @@ public abstract class AbstractDirectory<T> implements Directory<T> {
     private static final Logger logger = LoggerFactory.getLogger(AbstractDirectory.class);
 
     /**
-     * ???
+     * zookeeper://协议开头
      */
     private final URL url;
     /**
-     * ???
+     * consumer://协议开头的
      */
     private volatile URL consumerUrl;
-
+    /**
+     * 路由器链,用于对调用进行路由,返回调用器列表
+     */
     protected RouterChain<T> routerChain;
 
     private volatile boolean destroyed = false;
 
+    /**
+     * 构造方法
+     * @param url 信息
+     */
     public AbstractDirectory(URL url) {
         this(url, null);
     }
 
+    /**
+     * 核心构造方法
+     * @param url 信息
+     * @param routerChain 路由器链,可以为null
+     */
     public AbstractDirectory(URL url, RouterChain<T> routerChain) {
         if (url == null) {
             throw new IllegalArgumentException("url == null");
         }
         // 删除refer参数,删除monitor参数
         this.url = url.removeParameter(REFER_KEY).removeParameter(MONITOR_KEY);
+        // refer参数值
         Map<String, String> queryString = StringUtils.parseQueryString(url.getParameterAndDecoded(REFER_KEY));
         // 获取refer参数并解析查询字符串,添加到url中,删除monitor参数
-        this.consumerUrl = url.addParameters(queryString)
-                .removeParameter(MONITOR_KEY);
+        this.consumerUrl = url.addParameters(queryString).removeParameter(MONITOR_KEY);
         setRouterChain(routerChain);
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
+    // Directory接口实现
     @Override
     public List<Invoker<T>> list(Invocation invocation) throws RpcException {
         if (destroyed) {
@@ -83,9 +96,32 @@ public abstract class AbstractDirectory<T> implements Directory<T> {
     }
 
     @Override
+    public URL getConsumerUrl() {
+        return consumerUrl;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // Node接口实现
+    @Override
     public URL getUrl() {
         return url;
     }
+
+    @Override
+    public void destroy() {
+        destroyed = true;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+    /**
+     * 进一步进行列表筛选
+     * @param invocation 调用描述
+     * @return 调用器列表
+     * @throws RpcException 异常
+     */
+    protected abstract List<Invoker<T>> doList(Invocation invocation) throws RpcException;
+
 
     public RouterChain<T> getRouterChain() {
         return routerChain;
@@ -100,10 +136,6 @@ public abstract class AbstractDirectory<T> implements Directory<T> {
         routerChain.addRouters(routers);
     }
 
-    public URL getConsumerUrl() {
-        return consumerUrl;
-    }
-
     public void setConsumerUrl(URL consumerUrl) {
         this.consumerUrl = consumerUrl;
     }
@@ -112,11 +144,6 @@ public abstract class AbstractDirectory<T> implements Directory<T> {
         return destroyed;
     }
 
-    @Override
-    public void destroy() {
-        destroyed = true;
-    }
 
-    protected abstract List<Invoker<T>> doList(Invocation invocation) throws RpcException;
 
 }

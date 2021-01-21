@@ -24,6 +24,10 @@ import org.apache.dubbo.rpc.cluster.RouterFactory;
  * ConditionRouterFactory
  *
  */
+
+/**
+ * 组件名称为condition
+ */
 public class ConditionRouterFactory implements RouterFactory {
 
     public static final String NAME = "condition";

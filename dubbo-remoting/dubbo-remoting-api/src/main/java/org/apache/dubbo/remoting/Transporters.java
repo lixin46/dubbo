@@ -65,14 +65,20 @@ public class Transporters {
             throw new IllegalArgumentException("url == null");
         }
         ChannelHandler handler;
+        // 通道处理器为空
         if (handlers == null || handlers.length == 0) {
             handler = new ChannelHandlerAdapter();
-        } else if (handlers.length == 1) {
+        }
+        // 只有一个
+        else if (handlers.length == 1) {
             handler = handlers[0];
-        } else {
+        }
+        // 多个
+        else {
             handler = new ChannelHandlerDispatcher(handlers);
         }
-        return getTransporter().connect(url, handler);
+        Transporter transporter = getTransporter();
+        return transporter.connect(url, handler);
     }
 
     public static Transporter getTransporter() {

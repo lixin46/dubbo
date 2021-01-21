@@ -35,6 +35,8 @@ public class ServiceRouter extends ListenableRouter {
      * @param url 信息
      */
     public ServiceRouter(URL url) {
+        // {interfaceName}:[version]:[group]
+        // 接口的路由
         super(url, DynamicConfiguration.getRuleKey(url));
         this.priority = SERVICE_ROUTER_DEFAULT_PRIORITY;
     }

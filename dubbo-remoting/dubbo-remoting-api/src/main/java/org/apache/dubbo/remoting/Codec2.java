@@ -24,6 +24,7 @@ import java.io.IOException;
 
 /**
  * 编解码器,用于序列化
+ * 底层依赖Serialization实现.
  */
 @SPI
 public interface Codec2 {

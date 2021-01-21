@@ -24,21 +24,29 @@ import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.RpcInvocation;
 import org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker;
 
+/**
+ * 消费者上下文集群调用器拦截器
+ */
 @Activate
 public class ConsumerContextClusterInterceptor implements ClusterInterceptor, ClusterInterceptor.Listener {
 
     @Override
     public void before(AbstractClusterInvoker<?> invoker, Invocation invocation) {
+        // 获取rpc上下文
         RpcContext context = RpcContext.getContext();
-        context.setInvocation(invocation).setLocalAddress(NetUtils.getLocalHost(), 0);
+        context.setInvocation(invocation)
+                .setLocalAddress(NetUtils.getLocalHost(), 0);
+        // 设置调用器
         if (invocation instanceof RpcInvocation) {
             ((RpcInvocation) invocation).setInvoker(invoker);
         }
+        // 删除服务端上下文
         RpcContext.removeServerContext();
     }
 
     @Override
     public void after(AbstractClusterInvoker<?> clusterInvoker, Invocation invocation) {
+        // 删除请求上下文
         RpcContext.removeContext(true);
     }
 

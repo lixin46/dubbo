@@ -19,9 +19,10 @@ package org.apache.dubbo.rpc.cluster.configurator.absent;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.rpc.cluster.configurator.AbstractConfigurator;
 
+
 /**
- * AbsentConfigurator
- *
+ * 缺席配置器
+ * 只有当参数不存在时,才进行添加
  */
 public class AbsentConfigurator extends AbstractConfigurator {
 

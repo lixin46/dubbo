@@ -36,10 +36,12 @@ import static org.apache.dubbo.rpc.Constants.GENERIC_KEY;
 import static org.apache.dubbo.rpc.Constants.LOCAL_PROTOCOL;
 
 /**
- * InjvmProtocol
+ * 组件名称为injvm
  * 进程内
+ *
+ *
  */
-public class InjvmProtocol extends AbstractProtocol implements Protocol {
+public class InjvmProtocol extends AbstractProtocol {
 
     public static final String NAME = LOCAL_PROTOCOL;
 

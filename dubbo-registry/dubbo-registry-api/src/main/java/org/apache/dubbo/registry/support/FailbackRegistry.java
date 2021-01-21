@@ -241,22 +241,22 @@ public abstract class FailbackRegistry extends AbstractRegistry {
     // RegistryService接口实现
 
     @Override
-    public void register(URL url) {
+    public void register(URL providerUrl) {
         // 指定的url的协议不可接受,则拒绝注册
-        if (!acceptable(url)) {
-            logger.info("URL " + url + " will not be registered to Registry. Registry " + url + " does not accept service of this protocol type.");
+        if (!acceptable(providerUrl)) {
+            logger.info("URL " + providerUrl + " will not be registered to Registry. Registry " + providerUrl + " does not accept service of this protocol type.");
             return;
         }
         // 父类注册,写入内存
-        super.register(url);
+        super.register(providerUrl);
         // 删除失败的注册任务
-        removeFailedRegistered(url);
+        removeFailedRegistered(providerUrl);
         // 删除失败的注销任务
-        removeFailedUnregistered(url);
+        removeFailedUnregistered(providerUrl);
         try {
             // Sending a registration request to the server side
             // 向服务端发送注册请求
-            doRegister(url);
+            doRegister(providerUrl);
         } catch (Exception e) {
             Throwable t = e;
 
@@ -264,8 +264,8 @@ public abstract class FailbackRegistry extends AbstractRegistry {
             // 注册中心url中check为true,且要注册的url中check也为true,且协议不为consumer
             // 则进行检查
             boolean check = getUrl().getParameter(Constants.CHECK_KEY, true)
-                    && url.getParameter(Constants.CHECK_KEY, true)
-                    && !CONSUMER_PROTOCOL.equals(url.getProtocol());
+                    && providerUrl.getParameter(Constants.CHECK_KEY, true)
+                    && !CONSUMER_PROTOCOL.equals(providerUrl.getProtocol());
             //
             boolean skipFailback = t instanceof SkipFailbackWrapperException;
             // 检查或跳过失败,则需要抛异常
@@ -273,16 +273,16 @@ public abstract class FailbackRegistry extends AbstractRegistry {
                 if (skipFailback) {
                     t = t.getCause();
                 }
-                throw new IllegalStateException("Failed to register " + url + " to registry " + getUrl().getAddress() + ", cause: " + t.getMessage(), t);
+                throw new IllegalStateException("Failed to register " + providerUrl + " to registry " + getUrl().getAddress() + ", cause: " + t.getMessage(), t);
             }
             // 否则仅打印错误日志
             else {
-                logger.error("Failed to register " + url + ", waiting for retry, cause: " + t.getMessage(), t);
+                logger.error("Failed to register " + providerUrl + ", waiting for retry, cause: " + t.getMessage(), t);
             }
 
             // Record a failed registration request to a failed list, retry regularly
             // 添加失败的注册
-            addFailedRegistered(url);
+            addFailedRegistered(providerUrl);
         }
     }
     @Override
@@ -421,6 +421,16 @@ public abstract class FailbackRegistry extends AbstractRegistry {
     // -----------------------------------------------------------------------------------------------------------------
     // 重写AbstractRegistryService方法
 
+    /**
+     *
+     * @param url
+     * @param listener 消费端订阅的监听器
+     * @param urls     变化后的url列表,category类别不同,对应url的协议不同,
+     *                 如:provider类别对应服务端注册的真实通信协议(如:dubbo),
+     *                 configrators类别对应重写协议(override://)
+     *                 routers类别对应路由协议(route://)
+     *                 如果某一类别下不存在子节点,则对应控协议(empty://)
+     */
     @Override
     protected void notify(URL url, NotifyListener listener, List<URL> urls) {
         if (url == null) {
@@ -430,6 +440,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
             throw new IllegalArgumentException("notify listener == null");
         }
         try {
+            // 走父类通知逻辑
             doNotify(url, listener, urls);
         } catch (Exception t) {
             // Record a failed registration request to a failed list, retry regularly
@@ -441,7 +452,9 @@ public abstract class FailbackRegistry extends AbstractRegistry {
     @Override
     protected void recover() throws Exception {
         // register
+        // 复制注册的url集合
         Set<URL> recoverRegistered = new HashSet<URL>(getRegistered());
+        // 非空
         if (!recoverRegistered.isEmpty()) {
             if (logger.isInfoEnabled()) {
                 logger.info("Recover register url " + recoverRegistered);
@@ -451,7 +464,9 @@ public abstract class FailbackRegistry extends AbstractRegistry {
             }
         }
         // subscribe
+        // 复制订阅映射
         Map<URL, Set<NotifyListener>> recoverSubscribed = new HashMap<URL, Set<NotifyListener>>(getSubscribed());
+        // 非空
         if (!recoverSubscribed.isEmpty()) {
             if (logger.isInfoEnabled()) {
                 logger.info("Recover subscribe url " + recoverSubscribed.keySet());
@@ -473,6 +488,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
     // -----------------------------------------------------------------------------------------------------------------
 
     protected void doNotify(URL url, NotifyListener listener, List<URL> urls) {
+        // 走父类通知逻辑
         super.notify(url, listener, urls);
     }
 

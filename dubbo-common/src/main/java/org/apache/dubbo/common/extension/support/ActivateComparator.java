@@ -31,6 +31,12 @@ public class ActivateComparator implements Comparator<Object> {
 
     public static final Comparator<Object> COMPARATOR = new ActivateComparator();
 
+    /**
+     * null值在前
+     * @param o1
+     * @param o2
+     * @return
+     */
     @Override
     public int compare(Object o1, Object o2) {
         if (o1 == null && o2 == null) {
@@ -46,6 +52,7 @@ public class ActivateComparator implements Comparator<Object> {
             return 0;
         }
 
+        // 接口
         Class<?> inf = findSpi(o1.getClass());
 
         ActivateInfo a1 = parseActivate(o1.getClass());
@@ -104,12 +111,6 @@ public class ActivateComparator implements Comparator<Object> {
         ActivateInfo info = new ActivateInfo();
         if (clazz.isAnnotationPresent(Activate.class)) {
             Activate activate = clazz.getAnnotation(Activate.class);
-            info.before = activate.before();
-            info.after = activate.after();
-            info.order = activate.order();
-        } else {
-            com.alibaba.dubbo.common.extension.Activate activate = clazz.getAnnotation(
-                    com.alibaba.dubbo.common.extension.Activate.class);
             info.before = activate.before();
             info.after = activate.after();
             info.order = activate.order();

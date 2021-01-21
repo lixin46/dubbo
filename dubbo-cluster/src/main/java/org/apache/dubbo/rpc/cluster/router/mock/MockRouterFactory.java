@@ -22,7 +22,7 @@ import org.apache.dubbo.rpc.cluster.Router;
 import org.apache.dubbo.rpc.cluster.RouterFactory;
 
 /**
- *
+ * 组件名称为mock
  */
 @Activate
 public class MockRouterFactory implements RouterFactory {
